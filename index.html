@@ -6504,10 +6504,16 @@ function showCreateCodeModal() {
     // Show the modal
     createCodeModal.style.display = 'flex';
     
-    // Add event listener for cancel button
-    document.getElementById('cancelCreateBtn').addEventListener('click', () => {
-        hideCreateCodeModal();
-        if (conn) conn.close();
+    // Add event listener for cancel button using event delegation
+    modalContent.addEventListener('click', function handleModalClick(e) {
+        if (e.target && e.target.id === 'cancelCreateBtn') {
+            hideCreateCodeModal();
+            if (conn) {
+                conn.close();
+                conn = null;
+            }
+            modalContent.removeEventListener('click', handleModalClick);
+        }
     });
 }
 
@@ -6583,16 +6589,41 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Update cancel buttons to close connections
-cancelCreateBtn.addEventListener('click', () => {
-    hideCreateCodeModal();
-    if (conn) conn.close();
+// Handle cancel buttons using event delegation
+document.addEventListener('click', (e) => {
+    // Handle create code modal cancel
+    if (e.target && e.target.id === 'cancelCreateBtn') {
+        hideCreateCodeModal();
+        if (conn) {
+            conn.close();
+            conn = null;
+        }
+    }
+    // Handle join code modal cancel
+    else if (e.target && e.target.id === 'cancelJoinBtn') {
+        hideJoinCodeModal();
+        if (conn) {
+            conn.close();
+            conn = null;
+        }
+    }
 });
 
-cancelJoinBtn.addEventListener('click', () => {
-    hideJoinCodeModal();
-    if (conn) conn.close();
-});
+// Helper function to hide create code modal
+function hideCreateCodeModal() {
+    const modal = document.getElementById('createCodeModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Helper function to hide join code modal
+function hideJoinCodeModal() {
+    const modal = document.getElementById('joinCodeModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
 </script>
 </body>
 </html>
