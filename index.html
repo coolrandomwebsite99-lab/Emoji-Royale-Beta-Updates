@@ -1088,24 +1088,119 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getDatabase, ref, set, onValue, off, update, remove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
         // Your web app's Firebase configuration
+        // Your web app's Firebase configuration
         const firebaseConfig = {
-          apiKey: "AIzaSyCnaXKjDvPDXP2tF5ZmtB7naYjCuLGUsd4",
-          authDomain: "emoji-royale-8fb68.firebaseapp.com",
-          projectId: "emoji-royale-8fb68",
-          storageBucket: "emoji-royale-8fb68.firebasestorage.app",
-          messagingSenderId: "1021589049311",
-          appId: "1:1021589049311:web:61ce6353950831e298be6a",
-          measurementId: "G-FDQ9L0MQGM"
+            apiKey: "AIzaSyCnaXKjDvPDXP2tF5ZmtB7naYjCuLGUsd4",
+            authDomain: "emoji-royale-8fb68.firebaseapp.com",
+            projectId: "emoji-royale-8fb68",
+            storageBucket: "emoji-royale-8fb68.firebasestorage.app",
+            messagingSenderId: "1021589049311",
+            appId: "1:1021589049311:web:61ce6353950831e298be6a",
+            measurementId: "G-FDQ9L0MQGM",
+            databaseURL: "https://emoji-royale-8fb68-default-rtdb.firebaseio.com/"
         };
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const database = getDatabase(app); // Initialize Realtime Database
         const provider = new GoogleAuthProvider();
         // setLogLevel('debug'); // Uncomment for debugging Firestore
+        
+        // Multiplayer Service
+        const multiplayer = {
+            gameId: null,
+            isHost: false,
+            playerId: Math.random().toString(36).substr(2, 9),
+            playerName: 'Player ' + Math.floor(Math.random() * 1000),
+            
+            // Initialize a new game
+            async createGame() {
+                this.isHost = true;
+                this.gameId = 'game_' + Math.random().toString(36).substr(2, 6).toUpperCase();
+                
+                // Create game in database
+                await set(ref(database, `games/${this.gameId}`), {
+                    host: this.playerId,
+                    players: {
+                        [this.playerId]: {
+                            name: this.playerName,
+                            ready: false
+                        }
+                    },
+                    status: 'waiting',
+                    createdAt: Date.now()
+                });
+                
+                return this.gameId;
+            },
+            
+            // Join an existing game
+            async joinGame(gameId) {
+                this.isHost = false;
+                this.gameId = gameId.toUpperCase();
+                
+                // Check if game exists
+                const gameRef = ref(database, `games/${this.gameId}`);
+                const snapshot = await get(gameRef);
+                
+                if (!snapshot.exists()) {
+                    throw new Error('Game not found');
+                }
+                
+                // Add player to game
+                await update(ref(database, `games/${this.gameId}/players`), {
+                    [this.playerId]: {
+                        name: this.playerName,
+                        ready: false
+                    }
+                });
+                
+                return true;
+            },
+            
+            // Listen for game state changes
+            onGameUpdate(callback) {
+                const gameRef = ref(database, `games/${this.gameId}`);
+                return onValue(gameRef, (snapshot) => {
+                    const game = snapshot.val();
+                    callback(game);
+                });
+            },
+            
+            // Update player ready status
+            async setReady(ready) {
+                await update(ref(database, `games/${this.gameId}/players/${this.playerId}`), {
+                    ready: ready
+                });
+            },
+            
+            // Start the game (host only)
+            async startGame() {
+                if (!this.isHost) return;
+                
+                await update(ref(database, `games/${this.gameId}`), {
+                    status: 'playing',
+                    startedAt: Date.now()
+                });
+            },
+            
+            // Clean up
+            cleanup() {
+                if (this.gameId) {
+                    // If host, delete the game, otherwise just remove the player
+                    if (this.isHost) {
+                        remove(ref(database, `games/${this.gameId}`));
+                    } else {
+                        remove(ref(database, `games/${this.gameId}/players/${this.playerId}`));
+                    }
+                }
+            }
+        };
         
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Use __app_id
         let userDocRef; // Reference to the user's document in Firestore
