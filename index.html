@@ -6695,25 +6695,23 @@ let socket;
 let currentLobbyId = null;
 let playerId = null;
 let isConnected = false;
-let waitingForRematch = false;
-let opponentReadyForRematch = false;
 let playerName = 'Player' + Math.floor(Math.random() * 1000);
+let publicLobbies = [];
 
 // Get DOM elements
-const createCodeModal = document.getElementById('createCodeModal');
-const joinCodeModal = document.getElementById('joinCodeModal');
-const generatedCode = document.getElementById('generatedCode');
-const codeInput = document.getElementById('codeInput');
+const createPartyModal = document.getElementById('createPartyModal');
+const joinPartyModal = document.getElementById('joinPartyModal');
+const partyList = document.getElementById('partyList');
+const createPartyForm = document.getElementById('createPartyForm');
+const partyNameInput = document.getElementById('partyName');
+const partyPasswordInput = document.getElementById('partyPassword');
+const refreshPartyListBtn = document.getElementById('refreshPartyList');
 const loadingScreen = document.getElementById('loadingScreen');
 const menuScreen = document.getElementById('menuScreen');
 const gameScreen = document.getElementById('gameScreen');
 const messageText = document.getElementById('messageText');
-const startButton = document.getElementById('startButton');
 const menuButton = document.getElementById('menuButton');
 const messageOverlay = document.getElementById('messageOverlay');
-const cancelCreateBtn = document.getElementById('cancelCreateBtn');
-const cancelJoinBtn = document.getElementById('cancelJoinBtn');
-const confirmJoinBtn = document.getElementById('confirmJoinBtn');
 
 // Connect to WebSocket server
 function connectToServer() {
@@ -6731,6 +6729,8 @@ function connectToServer() {
         playerId = socket.id;
         isConnected = true;
         showMessage('Connected to server');
+        // Request the latest party list
+        socket.emit('getPartyList');
     });
 
     // Handle connection errors
@@ -6748,33 +6748,34 @@ function connectToServer() {
         }
     });
 
-    // Handle lobby created
-    socket.on('lobbyCreated', (lobbyId) => {
-        currentLobbyId = lobbyId;
+    // Handle party list updates
+    socket.on('partyList', (lobbies) => {
+        publicLobbies = lobbies;
+        updatePartyListUI();
+    });
+
+    // Handle party created
+    socket.on('partyCreated', (party) => {
+        currentLobbyId = party.id;
         isHost = true;
-        generatedCode.textContent = lobbyId;
-        showMessage('Lobby created! Share this code: ' + lobbyId);
+        showMessage(`Party "${party.name}" created! Waiting for players...`);
     });
 
     // Handle player joined
-    socket.on('playerJoined', (players) => {
-        console.log('Players in lobby:', players);
-        updatePlayerList(players);
-        if (players.length === 2 && isHost) {
+    socket.on('playerJoined', (party) => {
+        if (isHost && party.players.length === 2) {
             startMultiplayerGame();
         }
     });
 
     // Handle game starting
     socket.on('gameStarting', (gameData) => {
-        console.log('Game starting with data:', gameData);
         hideMessage();
         startMultiplayerGame(gameData);
     });
 
     // Handle game action from opponent
     socket.on('gameAction', (actionData) => {
-        console.log('Received game action:', actionData);
         handleIncomingGameAction(actionData);
     });
 
@@ -6786,11 +6787,66 @@ function connectToServer() {
         }
     });
 
-    // Handle lobby error
-    socket.on('lobbyError', (error) => {
-        console.error('Lobby error:', error);
+    // Handle errors
+    socket.on('error', (error) => {
         showMessage('Error: ' + error, true);
     });
+}
+
+// Update the party list UI
+function updatePartyListUI() {
+    if (!partyList) return;
+    
+    partyList.innerHTML = publicLobbies.map(party => `
+        <div class="party-item p-3 bg-gray-800 rounded-lg mb-2 flex justify-between items-center">
+            <div>
+                <h3 class="font-bold">${party.name}</h3>
+                <p class="text-sm text-gray-400">${party.players.length}/2 players</p>
+            </div>
+            ${party.hasPassword ? '🔒' : ''}
+            <button onclick="joinParty('${party.id}')" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">
+                Join
+            </button>
+        </div>
+    `).join('');
+}
+
+// Create a new party
+function createParty(e) {
+    e.preventDefault();
+    const name = partyNameInput.value.trim() || `Party-${Math.floor(Math.random() * 1000)}`;
+    const password = partyPasswordInput.value.trim();
+    
+    socket.emit('createParty', { 
+        name, 
+        password: password || null,
+        playerName
+    });
+    
+    hideCreatePartyModal();
+}
+
+// Join an existing party
+function joinParty(partyId, password = '') {
+    const party = publicLobbies.find(p => p.id === partyId);
+    if (!party) return;
+    
+    if (party.hasPassword && !password) {
+        password = prompt('Enter party password:');
+        if (!password) return;
+    }
+    
+    socket.emit('joinParty', { 
+        partyId, 
+        password,
+        playerName 
+    });
+}
+
+// Refresh the party list
+function refreshPartyList() {
+    socket.emit('getPartyList');
 }
 
 // Create a new lobby
@@ -6882,13 +6938,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Connect to the server when the page loads
     connectToServer();
     
-    // Set up UI event listeners
-    if (startButton) {
-        startButton.addEventListener('click', () => {
-            showCreateCodeModal();
-        });
+    // Set up create party form
+    if (createPartyForm) {
+        createPartyForm.addEventListener('submit', createParty);
     }
     
+    // Set up refresh button
+    if (refreshPartyListBtn) {
+        refreshPartyListBtn.addEventListener('click', refreshPartyList);
+    }
+    
+    // Auto-refresh party list every 5 seconds
+    setInterval(refreshPartyList, 5000);
+    
+    // Menu button handler
     if (menuButton) {
         menuButton.addEventListener('click', () => {
             showScreen('menu');
@@ -6899,24 +6962,35 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    if (cancelCreateBtn) {
-        cancelCreateBtn.addEventListener('click', hideCreateCodeModal);
-    }
-    
-    if (cancelJoinBtn) {
-        cancelJoinBtn.addEventListener('click', hideJoinCodeModal);
-    }
-    
-    if (confirmJoinBtn) {
-        confirmJoinBtn.addEventListener('click', () => {
-            const code = codeInput ? codeInput.value.trim() : '';
-            if (code) {
-                joinLobby(code);
-            }
-        });
-    }
 });
+
+// UI Functions
+function showCreatePartyModal() {
+    if (createPartyModal) {
+        createPartyModal.style.display = 'flex';
+        partyNameInput.focus();
+    }
+}
+
+function hideCreatePartyModal() {
+    if (createPartyModal) {
+        createPartyModal.style.display = 'none';
+        if (createPartyForm) createPartyForm.reset();
+    }
+}
+
+function showJoinPartyModal() {
+    if (joinPartyModal) {
+        joinPartyModal.style.display = 'flex';
+        refreshPartyList();
+    }
+}
+
+function hideJoinPartyModal() {
+    if (joinPartyModal) {
+        joinPartyModal.style.display = 'none';
+    }
+}
 
 // Show create code modal
 function showCreateCodeModal() {
