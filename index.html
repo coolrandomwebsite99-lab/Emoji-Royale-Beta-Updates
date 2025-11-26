@@ -1769,13 +1769,7 @@
                 const code = Math.floor(10000 + Math.random() * 90000).toString();
                 generatedCode.textContent = code;
                 createCodeModal.style.display = 'flex';
-                // TODO: In real version, we'd listen for joins. For now, just start after a delay.
-                setTimeout(() => {
-                    if (createCodeModal.style.display !== 'none') {
-                        // Simulate friend joining
-                        startFriend2v2Match();
-                    }
-                }, 5000);
+                // TODO: In real version, we'd listen for joins. For now, just wait for friend to join.
             }
 
             function hideCreateCodeModal() {
@@ -1840,8 +1834,12 @@
             confirmJoinBtn.addEventListener('click', () => {
                 const code = codeInput.value.trim();
                 if (code.length === 5) {
-                    // Simulate successful join
-                    startFriend2v2Match();
+                    // Only start the game if the code matches
+                    if (currentGameCode && code === currentGameCode) {
+                        startFriend2v2Match();
+                    } else {
+                        alert('Invalid code. Please check the code and try again.');
+                    }
                 } else {
                     alert('Enter a 5-digit code.');
                 }
