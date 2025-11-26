@@ -1766,10 +1766,7 @@
             }
 
             function showCreateCodeModal() {
-                const code = Math.floor(10000 + Math.random() * 90000).toString();
-                generatedCode.textContent = code;
-                createCodeModal.style.display = 'flex';
-                // TODO: In real version, we'd listen for joins. For now, just wait for friend to join.
+                // This function is now handled by the multiplayer script at the bottom
             }
 
             function hideCreateCodeModal() {
@@ -1786,26 +1783,7 @@
             }
 
             function startFriend2v2Match() {
-                hideCreateCodeModal();
-                hideJoinCodeModal();
-                is2v2Friend = true;
-                is2v2AITeammate = false;
-                // Start the match
-                menuScreen.classList.remove('active');
-                loadingScreen.classList.add('active');
-                loadingScreen.querySelector('p').textContent = 'Starting 2v2 with Friend...';
-                setTimeout(() => {
-                    showScreen('game');
-                    messageText.textContent = 'Get Ready!';
-                    startButton.style.display = 'none';
-                    menuButton.style.display = 'none';
-                    messageOverlay.style.display = 'flex';
-                    setTimeout(() => {
-                        initGame(); // TEMP: use normal init until 2v2 logic is added
-                        lastTime = performance.now();
-                        gameLoopId = requestAnimationFrame(gameLoop);
-                    }, 1500);
-                }, 1000);
+                // This function is now handled by the multiplayer script at the bottom
             }
 
             friendTeammateBtn.addEventListener('click', () => {
@@ -1822,32 +1800,15 @@
                 showCreateCodeModal();
             });
 
-            cancelCreateBtn.addEventListener('click', () => {
-                hideCreateCodeModal();
-            });
+            // cancelCreateBtn is now handled in the multiplayer script
 
             joinCodeBtn.addEventListener('click', () => {
                 hideFriendCodeModal();
                 showJoinCodeModal();
             });
 
-            confirmJoinBtn.addEventListener('click', () => {
-                const code = codeInput.value.trim();
-                if (code.length === 5) {
-                    // Only start the game if the code matches
-                    if (currentGameCode && code === currentGameCode) {
-                        startFriend2v2Match();
-                    } else {
-                        alert('Invalid code. Please check the code and try again.');
-                    }
-                } else {
-                    alert('Enter a 5-digit code.');
-                }
-            });
-
-            cancelJoinBtn.addEventListener('click', () => {
-                hideJoinCodeModal();
-            });
+            
+            // cancelJoinBtn is now handled in the multiplayer script
             loadKeySubmit.addEventListener('click', async () => {
                 const saveKey = loadKeyInput.value;
                 if (!saveKey) return;
@@ -6431,5 +6392,159 @@ class StoneGiant extends Unit {
         </div>
     </div>
 </div>
+
+<!-- Multiplayer Scripts -->
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+<script>
+// Multiplayer variables
+let peer;
+let conn;
+let currentGameCode = null;
+let isHost = false;
+let peerId = null;
+let isConnected = false;
+
+// Initialize PeerJS
+function initPeerJS() {
+    try {
+        peer = new Peer();
+        
+        peer.on('open', (id) => {
+            console.log('My peer ID:', id);
+            peerId = id;
+        });
+        
+        peer.on('connection', (connection) => {
+            console.log('Peer connected:', connection.peer);
+            setupConnection(connection);
+        });
+        
+        peer.on('error', (err) => {
+            console.error('Peer error:', err);
+            if (err.type === 'peer-unavailable') {
+                alert('Could not connect to that game. Make sure the code is correct and try again.');
+            }
+        });
+    } catch (err) {
+        console.error('Failed to initialize PeerJS:', err);
+        alert('Error initializing multiplayer. Please try refreshing the page.');
+    }
+}
+
+// Set up data connection
+function setupConnection(connection) {
+    conn = connection;
+    isConnected = true;
+    
+    conn.on('open', () => {
+        console.log('Connection established with', conn.peer);
+        if (isHost) {
+            // Host starts the game
+            startFriend2v2Match();
+        }
+    });
+    
+    conn.on('data', (data) => {
+        console.log('Received:', data);
+        if (data.type === 'startGame' && !isHost) {
+            startFriend2v2Match();
+        }
+    });
+    
+    conn.on('close', () => {
+        console.log('Connection closed');
+        isConnected = false;
+        if (gameRunning) {
+            alert('Your opponent has disconnected.');
+            endGame();
+        }
+    });
+}
+
+// Update the showCreateCodeModal function
+function showCreateCodeModal() {
+    if (!peer) initPeerJS();
+    const code = Math.floor(10000 + Math.random() * 90000).toString();
+    currentGameCode = code;
+    isHost = true;
+    generatedCode.textContent = code;
+    createCodeModal.style.display = 'flex';
+    // Show waiting message instead of auto-starting
+    const modalContent = createCodeModal.querySelector('.bg-gray-800');
+    if (!modalContent.querySelector('.waiting-message')) {
+        const waitingMsg = document.createElement('p');
+        waitingMsg.className = 'waiting-message text-yellow-400 mt-4';
+        waitingMsg.textContent = 'Waiting for friend to join...';
+        modalContent.appendChild(waitingMsg);
+    }
+}
+
+// Update the confirmJoinBtn click handler
+confirmJoinBtn.addEventListener('click', () => {
+    const code = codeInput.value.trim();
+    if (code.length === 5) {
+        if (!peer) initPeerJS();
+        currentGameCode = code;
+        isHost = false;
+        
+        // Connect to the host
+        conn = peer.connect(code);
+        setupConnection(conn);
+        
+        hideJoinCodeModal();
+        loadingScreen.classList.add('active');
+        loadingScreen.querySelector('p').textContent = 'Connecting to host...';
+    } else {
+        alert('Enter a 5-digit code.');
+    }
+});
+
+// Update the startFriend2v2Match function
+function startFriend2v2Match() {
+    hideCreateCodeModal();
+    hideJoinCodeModal();
+    is2v2Friend = true;
+    is2v2AITeammate = false;
+    
+    menuScreen.classList.remove('active');
+    loadingScreen.classList.add('active');
+    loadingScreen.querySelector('p').textContent = 'Starting 2v2 with Friend...';
+    
+    // If we're the host, tell the other player to start
+    if (isHost && conn && conn.open) {
+        conn.send({ type: 'startGame' });
+    }
+    
+    setTimeout(() => {
+        showScreen('game');
+        messageText.textContent = 'Get Ready!';
+        startButton.style.display = 'none';
+        menuButton.style.display = 'none';
+        messageOverlay.style.display = 'flex';
+        setTimeout(() => {
+            initGame();
+            lastTime = performance.now();
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }, 1500);
+    }, 1000);
+}
+
+// Initialize PeerJS when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initPeerJS();
+});
+
+// Update cancel buttons to close connections
+cancelCreateBtn.addEventListener('click', () => {
+    hideCreateCodeModal();
+    if (conn) conn.close();
+});
+
+cancelJoinBtn.addEventListener('click', () => {
+    hideJoinCodeModal();
+    if (conn) conn.close();
+});
+</script>
 </body>
 </html>
