@@ -6687,6 +6687,54 @@ class StoneGiant extends Unit {
     </div>
 </div>
 
+<!-- Party System Modals -->
+<div id="createPartyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-lg p-6 w-80">
+        <h2 class="text-2xl font-bold text-center mb-4">Create Party</h2>
+        <form id="createPartyForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">Party Name</label>
+                <input type="text" id="partyName" placeholder="Enter party name" 
+                       class="w-full p-2 bg-gray-700 rounded text-white">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Password (optional)</label>
+                <input type="password" id="partyPassword" placeholder="Leave empty for public" 
+                       class="w-full p-2 bg-gray-700 rounded text-white">
+            </div>
+            <div class="flex space-x-2">
+                <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded">
+                    Create
+                </button>
+                <button type="button" onclick="hideCreatePartyModal()" 
+                        class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="joinPartyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-lg p-6 w-96">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold">Join Party</h2>
+            <button onclick="refreshPartyList()" class="p-2 hover:bg-gray-700 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+            </button>
+        </div>
+        <div id="partyList" class="space-y-2 max-h-96 overflow-y-auto mb-4">
+            <div class="text-center py-4 text-gray-400">Loading parties...</div>
+        </div>
+        <button onclick="hideJoinPartyModal()" 
+                class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded">
+            Close
+        </button>
+    </div>
+</div>
+
 <!-- Multiplayer Scripts -->
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
@@ -6797,17 +6845,24 @@ function connectToServer() {
 function updatePartyListUI() {
     if (!partyList) return;
     
+    if (publicLobbies.length === 0) {
+        partyList.innerHTML = '<div class="text-center py-4 text-gray-400">No parties available. Create one!</div>';
+        return;
+    }
+
     partyList.innerHTML = publicLobbies.map(party => `
-        <div class="party-item p-3 bg-gray-800 rounded-lg mb-2 flex justify-between items-center">
+        <div class="party-item p-3 bg-gray-700 rounded-lg flex justify-between items-center">
             <div>
                 <h3 class="font-bold">${party.name}</h3>
-                <p class="text-sm text-gray-400">${party.players.length}/2 players</p>
+                <p class="text-sm text-gray-300">Players: ${party.players.length}/2</p>
             </div>
-            ${party.hasPassword ? '🔒' : ''}
-            <button onclick="joinParty('${party.id}')" 
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">
-                Join
-            </button>
+            <div class="flex items-center space-x-2">
+                ${party.hasPassword ? '🔒' : '🌐'}
+                <button onclick="joinParty('${party.id}')" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">
+                    Join
+                </button>
+            </div>
         </div>
     `).join('');
 }
@@ -6847,26 +6902,6 @@ function joinParty(partyId, password = '') {
 // Refresh the party list
 function refreshPartyList() {
     socket.emit('getPartyList');
-}
-
-// Create a new lobby
-function createLobby() {
-    if (!isConnected) {
-        showMessage('Not connected to server', true);
-        return;
-    }
-    playerName = prompt('Enter your name:', playerName) || playerName;
-    socket.emit('createLobby', { playerName });
-}
-
-// Join an existing lobby
-function joinLobby(lobbyId) {
-    if (!isConnected) {
-        showMessage('Not connected to server', true);
-        return;
-    }
-    playerName = prompt('Enter your name:', playerName) || playerName;
-    socket.emit('joinLobby', { lobbyId, playerName });
 }
 
 // Start the multiplayer game
