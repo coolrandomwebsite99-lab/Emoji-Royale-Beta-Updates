@@ -6450,15 +6450,24 @@ function initPeerJS() {
     try {
         // Add a random suffix to help with connection issues
         const randomId = 'player_' + Math.random().toString(36).substr(2, 9);
+        
+        // Use a custom PeerJS server
         peer = new Peer(randomId, {
+            host: 'peerjs-server-production-0a5a.up.railway.app',
+            secure: true,
+            port: 443,
             debug: 3, // Enable debug logging
             config: {
                 'iceServers': [
-                    { url: 'stun:stun.l.google.com:19302' },
-                    { url: 'stun:stun1.l.google.com:19302' },
-                    { url: 'stun:stun2.l.google.com:19302' }
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun2.l.google.com:19302' },
+                    { urls: 'stun:stun3.l.google.com:19302' },
+                    { urls: 'stun:stun4.l.google.com:19302' }
                 ]
-            }
+            },
+            // Add connection timeout
+            timeout: 10000 // 10 seconds
         });
         
         peer.on('open', (id) => {
@@ -6610,11 +6619,19 @@ confirmJoinBtn.addEventListener('click', () => {
         // Small delay to ensure peer is initialized
         setTimeout(() => {
             try {
-                // Create a new connection
+                // Create a new connection with timeout
+                console.log('Attempting to connect to peer:', code);
                 conn = peer.connect(code, {
                     reliable: true,
                     serialization: 'json',
-                    metadata: { playerName: 'Player' }
+                    metadata: { playerName: 'Player' },
+                    // Add connection timeout
+                    timeout: 5000 // 5 seconds
+                });
+                
+                // Log connection state changes
+                conn.on('iceStateChanged', (state) => {
+                    console.log('ICE connection state changed:', state);
                 });
                 
                 // Set up connection handlers
