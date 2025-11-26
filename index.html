@@ -6688,18 +6688,16 @@ class StoneGiant extends Unit {
 </div>
 
 <!-- Multiplayer Scripts -->
-<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-<script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
 // Multiplayer variables
-let peer;
-let conn;
-let currentGameCode = null;
-let isHost = false;
-let peerId = null;
+let socket;
+let currentLobbyId = null;
+let playerId = null;
 let isConnected = false;
 let waitingForRematch = false;
 let opponentReadyForRematch = false;
+let playerName = 'Player' + Math.floor(Math.random() * 1000);
 
 // Get DOM elements
 const createCodeModal = document.getElementById('createCodeModal');
@@ -6717,328 +6715,255 @@ const cancelCreateBtn = document.getElementById('cancelCreateBtn');
 const cancelJoinBtn = document.getElementById('cancelJoinBtn');
 const confirmJoinBtn = document.getElementById('confirmJoinBtn');
 
-// Initialize PeerJS
-function initPeerJS() {
-    try {
-        // Add a random suffix to help with connection issues
-        const randomId = 'player_' + Math.random().toString(36).substr(2, 9);
-        
-        // Use PeerJS with TURN server for better connectivity
-        peer = new Peer(randomId, {
-            host: '0.peerjs.com',
-            secure: true,
-            port: 443,
-            debug: 3, // Enable debug logging
-            config: {
-                'iceServers': [
-                    // Free TURN server (courtesy of metered.ca)
-                    { 
-                        urls: 'turn:openrelay.metered.ca:80',
-                        username: 'openrelayproject',
-                        credential: 'openrelayproject'
-                    },
-                    // Fallback STUN servers
-                    { urls: 'stun:stun.l.google.com:19302' },
-                    { urls: 'stun:stun1.l.google.com:19302' },
-                    { urls: 'stun:stun2.l.google.com:19302' },
-                    { urls: 'stun:stun3.l.google.com:19302' },
-                    { urls: 'stun:stun4.l.google.com:19302' }
-                ]
-            },
-            // Add connection timeout
-            timeout: 10000 // 10 seconds
-        });
-        
-        peer.on('open', (id) => {
-            console.log('My peer ID:', id);
-            peerId = id;
-        });
-        
-        peer.on('connection', (connection) => {
-            console.log('Incoming connection from:', connection.peer);
-            // If we already have a connection, reject the new one
-            if (conn && conn.open) {
-                console.log('Already have a connection, rejecting new one');
-                connection.close();
-                return;
-            }
-            setupConnection(connection);
-        });
-        
-        peer.on('error', (err) => {
-            console.error('Peer error:', err);
-            if (err.type === 'peer-unavailable') {
-                alert('Could not connect to that game. The host may have left or the code is incorrect.');
-            } else if (err.type === 'unavailable-id') {
-                // Try reinitializing with a new ID
-                console.log('ID was taken, trying with a new ID...');
-                setTimeout(initPeerJS, 1000);
-            } else {
-                alert('Connection error: ' + err.message);
-            }
-            
-            // Show the menu screen on error
-            loadingScreen.classList.remove('active');
-            menuScreen.classList.add('active');
-        });
-        
-        // Handle disconnection
-        peer.on('disconnected', () => {
-            console.log('Connection lost. Attempting to reconnect...');
-            peer.reconnect();
-        });
-        
-    } catch (err) {
-        console.error('Failed to initialize PeerJS:', err);
-        alert('Error initializing multiplayer. Please try refreshing the page.');
-        loadingScreen.classList.remove('active');
-        menuScreen.classList.add('active');
-    }
-}
+// Connect to WebSocket server
+function connectToServer() {
+    // Using a free public WebSocket server
+    socket = io('https://emoji-royale-server.onrender.com', {
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        timeout: 20000
+    });
 
-// Set up data connection
-function setupConnection(connection) {
-    // Close any existing connection
-    if (conn) {
-        conn.close();
-    }
-    
-    conn = connection;
-    isConnected = false;
-    
-    // Handle connection open event
-    conn.on('open', () => {
-        console.log('Connection established with', conn.peer);
+    // Connection established
+    socket.on('connect', () => {
+        console.log('Connected to server');
+        playerId = socket.id;
         isConnected = true;
-        
-        // If we're the host, start the game
-        if (isHost) {
-            console.log('Host: Starting game for new connection');
-            startFriend2v2Match();
-        } else {
-            console.log('Client: Connected to host, waiting for game start...');
-            loadingScreen.querySelector('p').textContent = 'Connected! Starting game...';
-        }
+        showMessage('Connected to server');
     });
-    
-    conn.on('data', (data) => {
-        console.log('Received:', data);
-        if (data.type === 'startGame' && !isHost) {
-            startFriend2v2Match();
-        } else if (data.type === 'playerReadyForRematch') {
-            opponentReadyForRematch = true;
-            checkRematchStatus();
-        } else if (data.type === 'startRematch') {
-            startRematch();
-        }
+
+    // Handle connection errors
+    socket.on('connect_error', (error) => {
+        console.error('Connection error:', error);
+        showMessage('Connection error: ' + error.message, true);
     });
-    
-    conn.on('close', () => {
-        console.log('Connection closed');
+
+    // Handle disconnection
+    socket.on('disconnect', (reason) => {
+        console.log('Disconnected from server:', reason);
         isConnected = false;
+        if (reason === 'io server disconnect') {
+            socket.connect();
+        }
+    });
+
+    // Handle lobby created
+    socket.on('lobbyCreated', (lobbyId) => {
+        currentLobbyId = lobbyId;
+        isHost = true;
+        generatedCode.textContent = lobbyId;
+        showMessage('Lobby created! Share this code: ' + lobbyId);
+    });
+
+    // Handle player joined
+    socket.on('playerJoined', (players) => {
+        console.log('Players in lobby:', players);
+        updatePlayerList(players);
+        if (players.length === 2 && isHost) {
+            startMultiplayerGame();
+        }
+    });
+
+    // Handle game starting
+    socket.on('gameStarting', (gameData) => {
+        console.log('Game starting with data:', gameData);
+        hideMessage();
+        startMultiplayerGame(gameData);
+    });
+
+    // Handle game action from opponent
+    socket.on('gameAction', (actionData) => {
+        console.log('Received game action:', actionData);
+        handleIncomingGameAction(actionData);
+    });
+
+    // Handle opponent disconnected
+    socket.on('opponentDisconnected', () => {
+        showMessage('Opponent disconnected!', true);
         if (gameRunning) {
-            alert('Your opponent has disconnected.');
-            endGame();
+            showWinScreen('Opponent disconnected! You win!');
         }
+    });
+
+    // Handle lobby error
+    socket.on('lobbyError', (error) => {
+        console.error('Lobby error:', error);
+        showMessage('Error: ' + error, true);
     });
 }
 
-// Show create code modal with generated code
-function showCreateCodeModal() {
-    if (!peer) initPeerJS();
-    
-    // Generate a 5-digit code
-    const code = Math.floor(10000 + Math.random() * 90000).toString();
-    currentGameCode = code;
-    isHost = true;
-    
-    // Update the modal content
-    const modalContent = createCodeModal.querySelector('.bg-gray-800');
-    
-    // Clear previous content
-    modalContent.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4">Your Game Code</h2>
-        <p class="text-xl font-mono bg-gray-700 p-4 rounded-lg text-center mb-4">${code}</p>
-        <p class="text-yellow-400 mb-4">Share this code with your friend to play together!</p>
-        <p class="text-gray-400 text-sm mb-4">Waiting for friend to join...</p>
-        <button id="cancelCreateBtn" class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition">
-            Cancel
-        </button>
-    `;
-    
-    // Show the modal
-    createCodeModal.style.display = 'flex';
-    
-    // Add event listener for cancel button using event delegation
-    modalContent.addEventListener('click', function handleModalClick(e) {
-        if (e.target && e.target.id === 'cancelCreateBtn') {
-            hideCreateCodeModal();
-            if (conn) {
-                conn.close();
-                conn = null;
-            }
-            modalContent.removeEventListener('click', handleModalClick);
-        }
-    });
-}
-
-// Update the confirmJoinBtn click handler
-confirmJoinBtn.addEventListener('click', () => {
-    const code = codeInput.value.trim();
-    if (code.length === 5) {
-        if (!peer) initPeerJS();
-        currentGameCode = code;
-        isHost = false;
-        
-        // Show loading state
-        hideJoinCodeModal();
-        loadingScreen.classList.add('active');
-        loadingScreen.querySelector('p').textContent = 'Connecting to host...';
-        
-        // Small delay to ensure peer is initialized
-        setTimeout(() => {
-            try {
-                // Create a new connection with timeout
-                console.log('Attempting to connect to peer:', code);
-                conn = peer.connect(code, {
-                    reliable: true,
-                    serialization: 'json',
-                    metadata: { playerName: 'Player' },
-                    // Add connection timeout
-                    timeout: 5000 // 5 seconds
-                });
-                
-                // Log connection state changes
-                conn.on('iceStateChanged', (state) => {
-                    console.log('ICE connection state changed:', state);
-                });
-                
-                // Set up connection handlers
-                setupConnection(conn);
-                
-                // Add connection error handling
-                conn.on('error', (err) => {
-                    console.error('Connection error:', err);
-                    alert('Failed to connect to the game. Please check the code and try again.');
-                    loadingScreen.classList.remove('active');
-                    menuScreen.classList.add('active');
-                });
-                
-                // Set a timeout for the connection
-                const connectionTimeout = setTimeout(() => {
-                    if (!isConnected) {
-                        alert('Connection timed out. The host might be offline or the code is incorrect.');
-                        if (conn) conn.close();
-                        loadingScreen.classList.remove('active');
-                        menuScreen.classList.add('active');
-                    }
-                }, 10000); // 10 second timeout
-                
-                conn.on('open', () => {
-                    clearTimeout(connectionTimeout);
-                    console.log('Connected to host:', conn.peer);
-                    isConnected = true;
-                });
-                
-            } catch (err) {
-                console.error('Error connecting to peer:', err);
-                alert('Error connecting to the game. Please try again.');
-                loadingScreen.classList.remove('active');
-                menuScreen.classList.add('active');
-            }
-        }, 500);
-    } else {
-        alert('Please enter a valid 5-digit code.');
+// Create a new lobby
+function createLobby() {
+    if (!isConnected) {
+        showMessage('Not connected to server', true);
+        return;
     }
-});
+    playerName = prompt('Enter your name:', playerName) || playerName;
+    socket.emit('createLobby', { playerName });
+}
 
-// Update the startFriend2v2Match function
-function startFriend2v2Match() {
+// Join an existing lobby
+function joinLobby(lobbyId) {
+    if (!isConnected) {
+        showMessage('Not connected to server', true);
+        return;
+    }
+    playerName = prompt('Enter your name:', playerName) || playerName;
+    socket.emit('joinLobby', { lobbyId, playerName });
+}
+
+// Start the multiplayer game
+function startMultiplayerGame(gameData = null) {
     hideCreateCodeModal();
     hideJoinCodeModal();
-    is2v2Friend = true;
+    
+    // Set up the game
+    gameMode = '2v2';
     is2v2AITeammate = false;
-    waitingForRematch = false;
-    opponentReadyForRematch = false;
+    initGame();
     
-    menuScreen.classList.remove('active');
-    loadingScreen.classList.add('active');
-    loadingScreen.querySelector('p').textContent = 'Starting 2v2 with Friend...';
-    
-    // If we're the host, tell the other player to start
-    if (isHost && conn && conn.open) {
-        conn.send({ type: 'startGame' });
+    if (gameData) {
+        // Apply game data if provided
     }
     
-    setTimeout(() => {
-        showScreen('game');
-        messageText.textContent = 'Get Ready!';
-        startButton.style.display = 'none';
-        menuButton.style.display = 'none';
-        messageOverlay.style.display = 'flex';
-        setTimeout(() => {
-            initGame();
-            lastTime = performance.now();
-            gameLoopId = requestAnimationFrame(gameLoop);
-        }, 1500);
-    }, 1000);
+    showScreen('game');
+    
+    if (!gameLoopId) {
+        gameLoop();
+    }
 }
 
-// Initialize PeerJS when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize PeerJS
-    initPeerJS();
+// Send a game action to the opponent
+function sendGameAction(action, data) {
+    if (!isConnected || !currentLobbyId) return;
     
-    // Set up create code button
-    const createCodeBtn = document.getElementById('createCodeBtn');
-    if (createCodeBtn) {
-        createCodeBtn.addEventListener('click', showCreateCodeModal);
+    const actionData = {
+        action,
+        data,
+        timestamp: Date.now()
+    };
+    
+    socket.emit('gameAction', {
+        lobbyId: currentLobbyId,
+        ...actionData
+    });
+}
+
+// Handle incoming game actions
+function handleIncomingGameAction(actionData) {
+    const { action, data } = actionData;
+    
+    switch (action) {
+        case 'playCard':
+            // Handle card played by opponent
+            const { cardId, x, y } = data;
+            // Add logic to spawn opponent's card
+            break;
+            
+        case 'useAbility':
+            // Handle ability used by opponent
+            break;
+    }
+}
+
+// Update the player list in the UI
+function updatePlayerList(players) {
+    const playerList = document.getElementById('playerList');
+    if (playerList) {
+        playerList.innerHTML = players.map(p => 
+            `<div class="text-lg">${p.name} ${p.id === playerId ? '(You)' : ''}</div>`
+        ).join('');
+    }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Connect to the server when the page loads
+    connectToServer();
+    
+    // Set up UI event listeners
+    if (startButton) {
+        startButton.addEventListener('click', () => {
+            showCreateCodeModal();
+        });
     }
     
-    // Set up join code button
-    const joinCodeBtn = document.getElementById('joinCodeBtn');
-    if (joinCodeBtn) {
-        joinCodeBtn.addEventListener('click', () => {
-            joinCodeModal.style.display = 'flex';
-            codeInput.value = '';
-            codeInput.focus();
+    if (menuButton) {
+        menuButton.addEventListener('click', () => {
+            showScreen('menu');
+            if (currentLobbyId) {
+                socket.emit('leaveLobby', { lobbyId: currentLobbyId });
+                currentLobbyId = null;
+                isHost = false;
+            }
+        });
+    }
+    
+    if (cancelCreateBtn) {
+        cancelCreateBtn.addEventListener('click', hideCreateCodeModal);
+    }
+    
+    if (cancelJoinBtn) {
+        cancelJoinBtn.addEventListener('click', hideJoinCodeModal);
+    }
+    
+    if (confirmJoinBtn) {
+        confirmJoinBtn.addEventListener('click', () => {
+            const code = codeInput ? codeInput.value.trim() : '';
+            if (code) {
+                joinLobby(code);
+            }
         });
     }
 });
 
-// Handle cancel buttons using event delegation
-document.addEventListener('click', (e) => {
-    // Handle create code modal cancel
-    if (e.target && e.target.id === 'cancelCreateBtn') {
-        hideCreateCodeModal();
-        if (conn) {
-            conn.close();
-            conn = null;
-        }
-    }
-    // Handle join code modal cancel
-    else if (e.target && e.target.id === 'cancelJoinBtn') {
-        hideJoinCodeModal();
-        if (conn) {
-            conn.close();
-            conn = null;
-        }
-    }
-});
-
-// Helper function to hide create code modal
-function hideCreateCodeModal() {
-    const modal = document.getElementById('createCodeModal');
-    if (modal) {
-        modal.style.display = 'none';
+// Show create code modal
+function showCreateCodeModal() {
+    if (createCodeModal) {
+        createCodeModal.style.display = 'flex';
+        createLobby();
     }
 }
 
-// Helper function to hide join code modal
+// Hide create code modal
+function hideCreateCodeModal() {
+    if (createCodeModal) {
+        createCodeModal.style.display = 'none';
+    }
+}
+
+// Show join code modal
+function showJoinCodeModal() {
+    if (joinCodeModal) {
+        joinCodeModal.style.display = 'flex';
+        if (codeInput) {
+            codeInput.value = '';
+            codeInput.focus();
+        }
+    }
+}
+
+// Hide join code modal
 function hideJoinCodeModal() {
-    const modal = document.getElementById('joinCodeModal');
-    if (modal) {
-        modal.style.display = 'none';
+    if (joinCodeModal) {
+        joinCodeModal.style.display = 'none';
+    }
+}
+
+// Show a message to the user
+function showMessage(message, isError = false) {
+    if (!messageText) return;
+    
+    messageText.textContent = message;
+    messageText.className = isError ? 'text-red-400' : 'text-white';
+    messageOverlay.style.display = 'flex';
+}
+
+// Hide the message overlay
+function hideMessage() {
+    if (messageOverlay) {
+        messageOverlay.style.display = 'none';
     }
 }
 </script>
