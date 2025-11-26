@@ -5848,6 +5848,17 @@ class StoneGiant extends Unit {
                 trophies += 30;
                 updateArena();
                 trophyDisplay.textContent = `🏆 ${trophies}`;
+                
+                // Show Play Again button for multiplayer
+                if (is2v2Friend && !is2v2AITeammate) {
+                    startButton.textContent = 'Play Again';
+                    startButton.style.display = 'inline-block';
+                    startButton.onclick = () => requestRematch();
+                    waitingForRematch = true;
+                    if (conn && conn.open) {
+                        conn.send({ type: 'playerReadyForRematch' });
+                    }
+                }
                 gold += 50;
                 goldDisplay.textContent = `💰 ${gold}`;
                 if (trophyChests.length < 4) {
@@ -5873,6 +5884,17 @@ class StoneGiant extends Unit {
                 isOvertime = false; // NEW: Stop overtime check
                 isTieBreaker = false;
                 cancelAnimationFrame(gameLoopId);
+                
+                // Show Play Again button for multiplayer
+                if (is2v2Friend && !is2v2AITeammate) {
+                    startButton.textContent = 'Play Again';
+                    startButton.style.display = 'inline-block';
+                    startButton.onclick = () => requestRematch();
+                    waitingForRematch = true;
+                    if (conn && conn.open) {
+                        conn.send({ type: 'playerReadyForRematch' });
+                    }
+                }
                 // Calculate minimum trophy floor for current arena
                 let minTrophyFloor = 0;
                 let lossAmount = 0;
@@ -6404,6 +6426,8 @@ let currentGameCode = null;
 let isHost = false;
 let peerId = null;
 let isConnected = false;
+let waitingForRematch = false;
+let opponentReadyForRematch = false;
 
 // Get DOM elements
 const createCodeModal = document.getElementById('createCodeModal');
@@ -6465,6 +6489,11 @@ function setupConnection(connection) {
         console.log('Received:', data);
         if (data.type === 'startGame' && !isHost) {
             startFriend2v2Match();
+        } else if (data.type === 'playerReadyForRematch') {
+            opponentReadyForRematch = true;
+            checkRematchStatus();
+        } else if (data.type === 'startRematch') {
+            startRematch();
         }
     });
     
@@ -6543,6 +6572,8 @@ function startFriend2v2Match() {
     hideJoinCodeModal();
     is2v2Friend = true;
     is2v2AITeammate = false;
+    waitingForRematch = false;
+    opponentReadyForRematch = false;
     
     menuScreen.classList.remove('active');
     loadingScreen.classList.add('active');
