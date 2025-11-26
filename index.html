@@ -921,6 +921,23 @@
     <div id="gameScreen" class="screen flex-col items-center p-2">
         <div id="gameContainer">
             <div id="timerDisplay" class="absolute top-2 right-2 text-2xl font-bold bg-black bg-opacity-50 px-4 py-1 rounded-lg z-10">2:00</div>
+            <!-- AI Teammate UI (2v2) -->
+            <div id="aiTeammateUI" class="absolute bottom-[-350px] left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none" style="display:none;">
+                <div class="flex justify-center items-end space-x-2">
+                    <div class="flex flex-col items-center">
+                        <span class="text-xs mb-1">NEXT</span>
+                        <div id="aiTeammateNext" class="card-ui-small"></div>
+                    </div>
+                    <div id="aiTeammateHand" class="flex justify-center space-x-2"></div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="text-white text-xs">Teammate Elixir</div>
+                    <div class="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div id="aiTeammateElixirBar" class="h-full bg-purple-500 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div id="aiTeammateElixirCount" class="text-white text-xs">0/10</div>
+                </div>
+            </div>
             <!-- NEW: Placement Overlay -->
             <div id="placementOverlay"></div>
             <canvas id="gameCanvas" width="400" height="500"></canvas>
@@ -1249,20 +1266,28 @@
             let dragStartX = 0;
             let dragStartY = 0;
 
-            // --- Game State ---
-            let gameObjects = [];
-            let playerElixir = 3;
-            let aiElixir = 3;
-            let gameRunning = false;
-            let gameLoopId = 0;
-            let lastTime = 0;
+            // --- Enemy AI (2v2: two AIs) ---
             let aiThinkTimer = 0;
+            let ai2ThinkTimer = 0;
+            let aiElixir = 0;
+            let ai2Elixir = 0;
+            let aiHand = [];
+            let ai2Hand = [];
+            let aiDeck = [];
+            let ai2Deck = [];
+            let aiDiscardPile = [];
+            let ai2DiscardPile = [];
+            let aiNextCard = null;
+            let ai2NextCard = null; // Add NEXT card for second AI
+            let aiTowerLevel = 1;
+            let ai2TowerLevel = 1;
+            let currentAiStatLevel = 1;
+            let currentAi2StatLevel = 1;
             let gameTimer = REGULATION_TIME;
             let isOvertime = false;
             let currentElixirRate = BASE_ELIXIR_REGEN_RATE;
             let isTieBreaker = false;
             let tieBreakerTick = 0;
-            let currentAiStatLevel = 1; // NEW: Store AI level for the match
             let overtimeInitialPlayerTowers = 0; // NEW: For sudden death
             let overtimeInitialAiTowers = 0; // NEW: For sudden death
             // NEW: Track destroyed towers for spawn zones
@@ -1270,6 +1295,13 @@
             let playerRightTowerDestroyed = false;
             let aiLeftTowerDestroyed = false;
             let aiRightTowerDestroyed = false;
+
+            // --- Game State ---
+            let gameObjects = [];
+            let playerElixir = 3;
+            let gameRunning = false;
+            let gameLoopId = 0;
+            let lastTime = 0;
 
             // --- DOM Elements ---
             const screens = document.querySelectorAll('.screen');
@@ -1303,6 +1335,22 @@
             const aiTeammateBtn = document.getElementById('aiTeammateBtn');
             const friendTeammateBtn = document.getElementById('friendTeammateBtn');
             const cancelTeammateBtn = document.getElementById('cancelTeammateBtn');
+            const friendCodeModal = document.getElementById('friendCodeModal');
+            const createCodeBtn = document.getElementById('createCodeBtn');
+            const joinCodeBtn = document.getElementById('joinCodeBtn');
+            const cancelFriendBtn = document.getElementById('cancelFriendBtn');
+            const createCodeModal = document.getElementById('createCodeModal');
+            const generatedCode = document.getElementById('generatedCode');
+            const cancelCreateBtn = document.getElementById('cancelCreateBtn');
+            const joinCodeModal = document.getElementById('joinCodeModal');
+            const codeInput = document.getElementById('codeInput');
+            const confirmJoinBtn = document.getElementById('confirmJoinBtn');
+            const cancelJoinBtn = document.getElementById('cancelJoinBtn');
+            const aiTeammateUI = document.getElementById('aiTeammateUI');
+            const aiTeammateHand = document.getElementById('aiTeammateHand');
+            const aiTeammateNext = document.getElementById('aiTeammateNext');
+            const aiTeammateElixirBar = document.getElementById('aiTeammateElixirBar');
+            const aiTeammateElixirCount = document.getElementById('aiTeammateElixirCount');
             const cardHandEl = document.getElementById('cardHand');
             const nextCardSlotEl = document.getElementById('nextCardSlot');
             const placementIndicator = document.getElementById('placementIndicator');
@@ -1701,12 +1749,106 @@
                 hide2v2TeammateChoice();
                 is2v2Friend = true;
                 is2v2AITeammate = false;
-                // TODO: implement friend code flow
-                alert('Friend code flow coming soon!');
+                showFriendCodeModal();
             });
 
             cancelTeammateBtn.addEventListener('click', () => {
                 hide2v2TeammateChoice();
+            });
+
+            // --- Friend Code Flow ---
+            function showFriendCodeModal() {
+                friendCodeModal.style.display = 'flex';
+            }
+
+            function hideFriendCodeModal() {
+                friendCodeModal.style.display = 'none';
+            }
+
+            function showCreateCodeModal() {
+                const code = Math.floor(10000 + Math.random() * 90000).toString();
+                generatedCode.textContent = code;
+                createCodeModal.style.display = 'flex';
+                // TODO: In real version, we'd listen for joins. For now, just start after a delay.
+                setTimeout(() => {
+                    if (createCodeModal.style.display !== 'none') {
+                        // Simulate friend joining
+                        startFriend2v2Match();
+                    }
+                }, 5000);
+            }
+
+            function hideCreateCodeModal() {
+                createCodeModal.style.display = 'none';
+            }
+
+            function showJoinCodeModal() {
+                joinCodeModal.style.display = 'flex';
+                codeInput.value = '';
+            }
+
+            function hideJoinCodeModal() {
+                joinCodeModal.style.display = 'none';
+            }
+
+            function startFriend2v2Match() {
+                hideCreateCodeModal();
+                hideJoinCodeModal();
+                is2v2Friend = true;
+                is2v2AITeammate = false;
+                // Start the match
+                menuScreen.classList.remove('active');
+                loadingScreen.classList.add('active');
+                loadingScreen.querySelector('p').textContent = 'Starting 2v2 with Friend...';
+                setTimeout(() => {
+                    showScreen('game');
+                    messageText.textContent = 'Get Ready!';
+                    startButton.style.display = 'none';
+                    menuButton.style.display = 'none';
+                    messageOverlay.style.display = 'flex';
+                    setTimeout(() => {
+                        initGame(); // TEMP: use normal init until 2v2 logic is added
+                        lastTime = performance.now();
+                        gameLoopId = requestAnimationFrame(gameLoop);
+                    }, 1500);
+                }, 1000);
+            }
+
+            friendTeammateBtn.addEventListener('click', () => {
+                hide2v2TeammateChoice();
+                showFriendCodeModal();
+            });
+
+            cancelFriendBtn.addEventListener('click', () => {
+                hideFriendCodeModal();
+            });
+
+            createCodeBtn.addEventListener('click', () => {
+                hideFriendCodeModal();
+                showCreateCodeModal();
+            });
+
+            cancelCreateBtn.addEventListener('click', () => {
+                hideCreateCodeModal();
+            });
+
+            joinCodeBtn.addEventListener('click', () => {
+                hideFriendCodeModal();
+                showJoinCodeModal();
+            });
+
+            confirmJoinBtn.addEventListener('click', () => {
+                const code = codeInput.value.trim();
+                if (code.length === 5) {
+                    // Simulate successful join
+                    startFriend2v2Match();
+                } else {
+                    alert('Enter a 5-digit code.');
+                }
+            });
+
+            cancelJoinBtn.addEventListener('click', () => {
+                hideJoinCodeModal();
             });
             loadKeySubmit.addEventListener('click', async () => {
                 const saveKey = loadKeyInput.value;
@@ -1907,7 +2049,14 @@
             // NEW: Show update log function
             function showUpdateLog() {
                 const updates = [
-                    { date: '11/24/2025', title: 'Latest Update', items: [
+                    { date: '11/25/2025', title: 'Latest Update', items: [
+                        'Added 2v2 Mode: Team up with an AI teammate against two AI opponents',
+                        'New King Tower Visuals: Combined king tower in 2v2 mode shows two crowns',
+                        'AI Improvements: 2v2 AI opponents and teammates now use all available cards',
+                        'UI Updates: Added health text display on all towers',
+                        'Fixed various bugs with card restrictions and deck initialization'
+                    ]},
+                    { date: '11/24/2025', title: 'Previous Update', items: [
                         'Added Arena 8: Chaos Canyon (1750+ trophies) with custom card classes',
                         'Added Chaos Elemental card - Melee unit with high damage and speed (👹)',
                         'Added Shadow Clone card - Ranged unit with moderate damage (👤)',
@@ -2114,7 +2263,7 @@
                 
                 const cardData = cardCollection[cardId];
                 // In 2v2 mode, treat all cards as unlocked and level 15
-                const isLocked = !inHand && (gameMode === '2v2') ? false : (!cardData || !cardData.unlocked);
+                const isLocked = (gameMode === '2v2') ? false : (!inHand && (!cardData || !cardData.unlocked));
                 
                 const cardEl = document.createElement('div');
                 cardEl.className = `card-ui ${isSmall ? 'card-ui-small' : ''}`;
@@ -2587,7 +2736,12 @@
                     const y = RIVER_Y + 20 + Math.random() * 100; // Player's side
 
                     if (checkPlacement(x, y, card.placementRadius, card.type)) {
-                        const level = 5; // Demo level
+                        const level = (gameMode === '2v2') ? 15 : 5; // Demo level, force 15 in 2v2
+                        // Safety check: ensure unitClass exists
+                        if (!card.unitClass || typeof card.unitClass !== 'function') {
+                            console.error('Invalid unitClass for card:', cardId, card);
+                            return;
+                        }
                         const newUnit = new card.unitClass(x, y, 'player', level);
                         if (newUnit instanceof GameObject) {
                             gameObjects.push(newUnit);
@@ -2615,9 +2769,14 @@
                         ctx.fillRect(barX, barY, barWidth, barHeight); 
                         ctx.fillStyle = '#16a34a'; 
                         ctx.fillRect(barX, barY, barWidth * (this.health / this.maxHealth), barHeight); 
-                        ctx.strokeStyle = '#000'; 
-                        ctx.strokeRect(barX, barY, barWidth, barHeight); 
+                    } else {
+                        ctx.fillStyle = '#16a34a'; 
+                        ctx.fillRect(barX, barY, barWidth, barHeight); 
                     }
+                    // Black outline
+                    ctx.strokeStyle = 'black';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(barX, barY, barWidth, barHeight);
                     
                     // Draw Level
                     if (level) {
@@ -2627,22 +2786,14 @@
                         ctx.fillStyle = this.team === 'player' ? '#fff' : '#fde047'; // Player level white, AI yellow
                         
                         let textX = this.x;
-                        let textY = barY - 2; // Above health bar
+                        let textY = this.y - this.radius - 12;
                         
-                        if (this instanceof Tower) {
-                             textY = this.y + this.radius + 12; // Below tower
+                        // Adjust position for combined double king tower
+                        if (this.isCombinedDoubleKing) {
+                            textY = this.y - this.height/2 - 12;
                         }
                         
                         ctx.fillText(`Lvl ${level}`, textX, textY);
-                        if (this instanceof Tower) {
-                            const hpText = Math.max(0, Math.round(this.health));
-                            ctx.font = 'bold 10px Inter';
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'top';
-                            ctx.fillStyle = '#ffffff';
-                            const hpY = this.y - this.radius - 14; // Above tower
-                            ctx.fillText(`${hpText}`, this.x, hpY);
-                        }
                     }
                 }
                 draw(color, emoji, level) { 
@@ -2665,10 +2816,14 @@
             }
 
             class Tower extends GameObject {
-                constructor(x, y, team, isKing = false, level = 1) {
+                constructor(x, y, team, isKing = false, level = 1, isCombinedDoubleKing = false) {
                     const s = towerStats[level] || towerStats[1];
-                    super(x, y, isKing ? 25 : 20, team, isKing ? s.kingHealth : s.princessHealth);
+                    const width = isCombinedDoubleKing ? 40 : (isKing ? 25 : 20);
+                    const height = isCombinedDoubleKing ? 35 : (isKing ? 25 : 20);
+                    super(x, y, width, team, isKing ? s.kingHealth : s.princessHealth);
                     this.isKing = isKing;
+                    this.isCombinedDoubleKing = isCombinedDoubleKing;
+                    this.height = height;
                     this.level = level; // Store level
                     this.attackRange = 150;
                     this.attackDamage = s.damage;
@@ -2696,7 +2851,14 @@
                 }
                 attack() { 
                     if (this.target) { 
-                        gameObjects.push(new Projectile(this.x, this.y, this.target, this.team, this.attackDamage)); 
+                        if (this.isCombinedDoubleKing) {
+                            // Fire two projectiles with slight horizontal offset
+                            const offset = 8;
+                            gameObjects.push(new Projectile(this.x - offset, this.y, this.target, this.team, this.attackDamage)); 
+                            gameObjects.push(new Projectile(this.x + offset, this.y, this.target, this.team, this.attackDamage)); 
+                        } else {
+                            gameObjects.push(new Projectile(this.x, this.y, this.target, this.team, this.attackDamage)); 
+                        }
                         this.cooldownTimer = this.attackCooldown; 
                     } 
                 }
@@ -2725,23 +2887,75 @@
                 }
                 draw() { 
                     ctx.save(); 
-                    if (this.dyingAnimationTimer > 0) { 
+                    
+                    // Draw the tower base (blue rectangle)
+                    const fillColor = this.team === 'player' ? '#3b82f6' : '#ef4444';
+                    ctx.fillStyle = fillColor;
+                    
+                    if (this.isCombinedDoubleKing) {
+                        // Make the rectangle smaller but keep the same proportions for 2v2 king tower
+                        const rectWidth = this.radius * 2.5;  // Reduced from 3.5 to 2.5
+                        const rectHeight = this.radius * 1.6; // Reduced from 2.2 to 1.6 (keeping same ratio)
+                        ctx.fillRect(
+                            this.x - rectWidth/2, 
+                            this.y - rectHeight/2, 
+                            rectWidth, 
+                            rectHeight
+                        );
+                        // Add border
+                        ctx.strokeStyle = 'black';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(
+                            this.x - rectWidth/2, 
+                            this.y - rectHeight/2, 
+                            rectWidth, 
+                            rectHeight
+                        );
+                    } else if (this.dyingAnimationTimer > 0) { 
                         ctx.globalAlpha = Math.max(0, this.dyingAnimationTimer / 30); 
                         const shakeX = (Math.random() - 0.5) * 4; 
                         const shakeY = (Math.random() - 0.5) * 4; 
-                        ctx.translate(shakeX, shakeY); 
-                    } 
-                    const color = this.team === 'player' ? '#3b82f6' : '#ef4444'; 
-                    const emoji = this.isKing ? '👑' : '👸'; 
-                    ctx.fillStyle = color; 
-                    ctx.fillRect(this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2); 
-                    ctx.strokeStyle = 'black'; 
-                    ctx.lineWidth = 2; 
-                    ctx.strokeRect(this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2); 
-                    ctx.font = `${this.radius * 1.5}px Arial`; 
+                        ctx.fillRect(
+                            this.x - this.radius + shakeX, 
+                            this.y - this.radius + shakeY, 
+                            this.radius * 2, 
+                            this.radius * 2
+                        );
+                    } else {
+                        // Regular tower drawing
+                        ctx.fillRect(
+                            this.x - this.radius, 
+                            this.y - this.radius, 
+                            this.radius * 2, 
+                            this.radius * 2
+                        );
+                        ctx.strokeStyle = 'black';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(
+                            this.x - this.radius, 
+                            this.y - this.radius, 
+                            this.radius * 2, 
+                            this.radius * 2
+                        );
+                    }
+                    
+                    // Draw the emoji on top
+                    const emojiSize = this.isCombinedDoubleKing ? this.radius * 0.8 : this.radius * 1.5; // Reduced from 1.2 to 0.8 for 2v2
+                    ctx.font = `${emojiSize}px Arial`; 
                     ctx.textAlign = 'center'; 
-                    ctx.textBaseline = 'middle'; 
-                    ctx.fillText(emoji, this.x, this.y); 
+                    ctx.textBaseline = 'middle';
+                    
+                    if (this.isCombinedDoubleKing) {
+                        // Draw two smaller crown emojis further apart
+                        const emojiSpacing = this.radius * 0.8; // Increased spacing between emojis
+                        ctx.fillText('👑', this.x - emojiSpacing/2, this.y);
+                        ctx.fillText('👑', this.x + emojiSpacing/2, this.y);
+                    } else {
+                        const emoji = this.isKing ? '👑' : '👸'; 
+                        ctx.fillText(emoji, this.x, this.y);
+                    } 
+                    
+                    // Draw activation animation if needed
                     if (this.activationAnimation > 0) { 
                         this.activationAnimation--; 
                         ctx.fillStyle = `rgba(255, 255, 0, ${0.5 * (this.activationAnimation / 30)})`; 
@@ -2749,7 +2963,10 @@
                         ctx.arc(this.x, this.y, this.radius + 10, 0, Math.PI * 2); 
                         ctx.fill(); 
                     } 
-                    this.drawHealthBar(this.level); // Pass level to health bar
+                    
+                    // Draw health bar
+                    this.drawHealthBar(this.level);
+                    
                     ctx.restore(); 
                 }
             }
@@ -4782,7 +4999,7 @@ class StoneGiant extends Unit {
                 
                 const cardData = cardCollection[cardId];
                 // In 2v2 mode, treat all cards as unlocked and level 15
-                const isLocked = !inHand && (gameMode === '2v2') ? false : (!cardData || !cardData.unlocked);
+                const isLocked = (gameMode === '2v2') ? false : (!inHand && (!cardData || !cardData.unlocked));
                 
                 const cardEl = document.createElement('div');
                 cardEl.className = `card-ui ${isSmall ? 'card-ui-small' : ''}`;
@@ -4885,6 +5102,26 @@ class StoneGiant extends Unit {
                 aiDiscardPile = [];
                 for (let i = 0; i < 4; i++) { if(aiDeck.length > 0) aiHand.push(aiDeck.pop()); }
                 if(aiDeck.length > 0) aiNextCard = aiDeck.pop();
+
+                // Initialize second AI for 2v2 - uses all available cards
+                if (gameMode === '2v2') {
+                    ai2Deck = [];
+                    // Get all cards except internal ones
+                    const all2v2Cards = Object.keys(allCards).filter(cardId => 
+                        cardId !== 'tower' && cardId !== 'miniStoneGiant'
+                    );
+                    let availableCards2 = [...all2v2Cards];
+                    for (let i = 0; i < 8; i++) {
+                        if (availableCards2.length === 0) availableCards2 = [...all2v2Cards];
+                        let cardIndex = Math.floor(Math.random() * availableCards2.length);
+                        ai2Deck.push(availableCards2.splice(cardIndex, 1)[0]);
+                    }
+                    ai2Deck = shuffleDeck(ai2Deck);
+                    ai2Hand = [];
+                    ai2DiscardPile = [];
+                    for (let i = 0; i < 4; i++) { if(ai2Deck.length > 0) ai2Hand.push(ai2Deck.pop()); }
+                    if(ai2Deck.length > 0) ai2NextCard = ai2Deck.pop();
+                }
             }
 
             function playCard(cardId, handIndex) {
@@ -4912,6 +5149,7 @@ class StoneGiant extends Unit {
                 gameObjects = [];
                 playerElixir = 3;
                 aiElixir = 3;
+                aiTeammateElixir = 3; // Reset AI teammate elixir to 3
                 selectedSpawningUnit = null;
                 isSpawningSpell = false;
                 gameRunning = true;
@@ -4954,15 +5192,35 @@ class StoneGiant extends Unit {
                     currentAiStatLevel = Math.floor(Math.random() * 2) + 5; // 5 or 6
                 }
                 
-                gameObjects.push(new Tower(LANE_LEFT_X, HEIGHT - 100, 'player', false, towerLevel));
-                gameObjects.push(new Tower(LANE_RIGHT_X, HEIGHT - 100, 'player', false, towerLevel));
-                gameObjects.push(new Tower(WIDTH / 2, HEIGHT - 50, 'player', true, towerLevel));
-                gameObjects.push(new Tower(LANE_LEFT_X, 100, 'ai', false, currentAiStatLevel)); // Use new variable
-                gameObjects.push(new Tower(LANE_RIGHT_X, 100, 'ai', false, currentAiStatLevel)); // Use new variable
-                gameObjects.push(new Tower(WIDTH / 2, 50, 'ai', true, currentAiStatLevel)); // Use new variable
+                const playerTowerLevel = (gameMode === '2v2') ? 15 : towerLevel;
+                const aiTowerLevel = (gameMode === '2v2') ? 15 : currentAiStatLevel;
+                
+                if (gameMode === '2v2') {
+                    // 2v2: Two princess towers per side, one combined double king tower per side (rectangular, same height as normal king)
+                    gameObjects.push(new Tower(LANE_LEFT_X, HEIGHT - 100, 'player', false, playerTowerLevel));
+                    gameObjects.push(new Tower(LANE_RIGHT_X, HEIGHT - 100, 'player', false, playerTowerLevel));
+                    gameObjects.push(new Tower(WIDTH / 2, HEIGHT - 50, 'player', true, playerTowerLevel, true)); // combined double king
+                    gameObjects.push(new Tower(LANE_LEFT_X, 100, 'ai', false, aiTowerLevel));
+                    gameObjects.push(new Tower(LANE_RIGHT_X, 100, 'ai', false, aiTowerLevel));
+                    gameObjects.push(new Tower(WIDTH / 2, 50, 'ai', true, aiTowerLevel, true)); // combined double king
+                } else {
+                    // Normal: two princess towers, one king tower per side
+                    gameObjects.push(new Tower(LANE_LEFT_X, HEIGHT - 100, 'player', false, playerTowerLevel));
+                    gameObjects.push(new Tower(LANE_RIGHT_X, HEIGHT - 100, 'player', false, playerTowerLevel));
+                    gameObjects.push(new Tower(WIDTH / 2, HEIGHT - 50, 'player', true, playerTowerLevel));
+                    gameObjects.push(new Tower(LANE_LEFT_X, 100, 'ai', false, aiTowerLevel));
+                    gameObjects.push(new Tower(LANE_RIGHT_X, 100, 'ai', false, aiTowerLevel));
+                    gameObjects.push(new Tower(WIDTH / 2, 50, 'ai', true, aiTowerLevel));
+                }
 
                 startGameDecks();
                 updateCardUI();
+
+                // Initialize AI teammate if in 2v2 AI mode
+                if (gameMode === '2v2' && is2v2AITeammate) {
+                    initAITeammate();
+                    updateAITeammateUI();
+                }
             }
 
             function runAI() {
@@ -5028,8 +5286,8 @@ class StoneGiant extends Unit {
                 const card = allCards[cardId];
                 if (!card || card.cost > aiElixir) return;
                 
-                // Get AI's level for this card (currently just 'level')
-                const cardLevel = level;
+                // Get AI's level for this card (force 15 in 2v2)
+                const cardLevel = (gameMode === '2v2') ? 15 : level;
                 
                 if (card.type === 'Spell') {
                     let target = null;
@@ -5074,6 +5332,11 @@ class StoneGiant extends Unit {
                 
                 // NEW: Handle spirits
                 if (card.type === 'Spirit') {
+                    // Safety check: ensure unitClass exists
+                    if (!card.unitClass || typeof card.unitClass !== 'function') {
+                        console.error('Invalid unitClass for spirit card:', cardId, card);
+                        return;
+                    }
                     const spawnX = Math.random() < 0.5 ? LANE_LEFT_X : LANE_RIGHT_X;
                     const spawnY = isDefensive ? 150 + Math.random() * 50 : 50 + Math.random() * 50;
                     const newUnit = new card.unitClass(spawnX, spawnY, 'ai', cardLevel);
@@ -5111,7 +5374,7 @@ class StoneGiant extends Unit {
                     }
                 }
                 
-                if (canSpawn && card.unitClass) {
+                if (canSpawn && card.unitClass && typeof card.unitClass === 'function') {
                     const newUnit = new card.unitClass(spawnX, spawnY, 'ai', cardLevel);
                     // --- TYPEERROR FIX ---
                     // This is the bug. 'newUnit' is just the spawner (e.g. Pigs), not an actual Unit (e.g. Pig)
@@ -5121,6 +5384,361 @@ class StoneGiant extends Unit {
                     }
                     aiPlayCard(cardId);
                 }
+            }
+
+            // --- AI Teammate (for 2v2) ---
+            let aiTeammateTimer = 0;
+            let aiTeammateElixir = 0;
+            let aiTeammateHandCards = [];
+            let aiTeammateDeck = [];
+            let aiTeammateDiscardPile = []; // Add discard pile for recycling
+            let aiTeammateNextCard = null; // Add NEXT card for proper cycling
+
+            function initAITeammate() {
+                // Note: elixir is reset to 3 in initGame(), not here
+                aiTeammateHandCards = [];
+                aiTeammateDiscardPile = []; // Reset discard pile
+                aiTeammateNextCard = null; // Reset NEXT card
+                
+                // Build an 8-card deck for AI teammate (any card in the game)
+                aiTeammateDeck = [];
+                // Use all cards in the game for maximum variety
+                const allGameCards = Object.keys(allCards).filter(cardId => 
+                    cardId !== 'tower' && cardId !== 'miniStoneGiant' // Exclude internal cards
+                );
+                let availableCards = [...allGameCards];
+                
+                for (let i = 0; i < 8; i++) {
+                    if (availableCards.length === 0) availableCards = [...allGameCards]; // Refill if needed
+                    let cardIndex = Math.floor(Math.random() * availableCards.length);
+                    aiTeammateDeck.push(availableCards.splice(cardIndex, 1)[0]);
+                }
+                
+                aiTeammateDeck = shuffleDeck(aiTeammateDeck);
+                
+                // Draw initial hand (4 cards from the 8-card deck)
+                for (let i = 0; i < 4; i++) {
+                    aiTeammateHandCards.push(aiTeammateDeck.pop());
+                }
+                
+                // Set initial NEXT card from the remaining 4 cards in deck
+                if (aiTeammateDeck.length > 0) {
+                    aiTeammateNextCard = aiTeammateDeck.pop();
+                }
+                
+                updateAITeammateUI();
+            }
+
+            function drawAITeammateCard() {
+                // Draw new NEXT card from remaining deck
+                if (aiTeammateDeck.length > 0) {
+                    aiTeammateNextCard = aiTeammateDeck.pop();
+                }
+                
+                updateAITeammateUI();
+            }
+
+            function updateAITeammateUI() {
+                if (gameMode !== '2v2' || !is2v2AITeammate) {
+                    aiTeammateUI.style.display = 'none';
+                    return;
+                }
+                aiTeammateUI.style.display = 'flex';
+                // Render hand (exact same style as player hand)
+                aiTeammateHand.innerHTML = '';
+                aiTeammateHandCards.forEach(cardId => {
+                    const cardEl = createCardDOM(cardId, false, true); // Same as player hand
+                    cardEl.style.opacity = '0.8'; // Slightly transparent to distinguish from player
+                    aiTeammateHand.appendChild(cardEl);
+                });
+                // Render next card (same style as player next)
+                aiTeammateNext.innerHTML = '';
+                if (aiTeammateNextCard) {
+                    const cardEl = createCardDOM(aiTeammateNextCard, true, true); // Same as player next
+                    cardEl.style.opacity = '0.6'; // Slightly transparent to distinguish from player
+                    aiTeammateNext.appendChild(cardEl);
+                }
+                // Update elixir bar and count
+                const elixirPercent = (aiTeammateElixir / MAX_ELIXIR) * 100;
+                aiTeammateElixirBar.style.width = `${elixirPercent}%`;
+                aiTeammateElixirCount.textContent = `${Math.floor(aiTeammateElixir)}/${MAX_ELIXIR}`;
+            }
+
+            function runAI2() {
+                if (ai2ThinkTimer > 0) { ai2ThinkTimer--; return; }
+                ai2ThinkTimer = 120; // Think every 2 seconds
+
+                const playerUnits = gameObjects.filter(o => o.team === 'player' && o instanceof Unit && o.y < RIVER_Y + 50);
+                if (playerUnits.length > 0) {
+                    let bestCardId = null;
+                    // --- NEW AI LOGIC ---
+                    if (playerUnits.some(u => u instanceof FlyingSkeleton || u instanceof FlyingSkeletonGroup) && ai2Hand.includes('fireDragon') && ai2Elixir >= allCards['fireDragon'].cost) {
+                         bestCardId = 'fireDragon';
+                    } else if (playerUnits.some(u => u.isFlying) && ai2Hand.includes('arrows') && ai2Elixir >= allCards['arrows'].cost) {
+                         bestCardId = 'arrows';
+                    } else if (playerUnits.some(u => !u.isFlying) && ai2Hand.includes('axeSwinger') && ai2Elixir >= allCards['axeSwinger'].cost) {
+                         bestCardId = 'axeSwinger';
+                    } else if (ai2Hand.includes('giant') && ai2Elixir >= allCards['giant'].cost) {
+                         bestCardId = 'giant';
+                    } else if (ai2Hand.includes('stoneGiant') && ai2Elixir >= allCards['stoneGiant'].cost) {
+                         bestCardId = 'stoneGiant';
+                    } else if (ai2Hand.includes('fireDragon') && ai2Elixir >= allCards['fireDragon'].cost) {
+                         bestCardId = 'fireDragon';
+                    } else if (ai2Hand.includes('archer') && ai2Elixir >= allCards['archer'].cost) {
+                         bestCardId = 'archer';
+                    } else if (ai2Hand.includes('mage') && ai2Elixir >= allCards['mage'].cost) {
+                         bestCardId = 'mage';
+                    } else if (ai2Hand.includes('skeletons') && ai2Elixir >= allCards['skeletons'].cost) {
+                         bestCardId = 'skeletons';
+                    } else if (ai2Hand.includes('goblinGang') && ai2Elixir >= allCards['goblinGang'].cost) {
+                         bestCardId = 'goblinGang';
+                    } else if (ai2Hand.includes('barbarians') && ai2Elixir >= allCards['barbarians'].cost) {
+                         bestCardId = 'barbarians';
+                    } else if (ai2Hand.includes('cannon') && ai2Elixir >= allCards['cannon'].cost) {
+                         bestCardId = 'cannon';
+                    } else if (ai2Hand.includes('poison') && ai2Elixir >= allCards['poison'].cost) {
+                         bestCardId = 'poison';
+                    } else if (ai2Hand.includes('rage') && ai2Elixir >= allCards['rage'].cost) {
+                         bestCardId = 'rage';
+                    } else if (ai2Hand.includes('heal') && ai2Elixir >= allCards['heal'].cost) {
+                         bestCardId = 'heal';
+                    } else if (ai2Hand.includes('fireball') && ai2Elixir >= allCards['fireball'].cost) {
+                         bestCardId = 'fireball';
+                    } else if (ai2Hand.includes('lightning') && ai2Elixir >= allCards['lightning'].cost) {
+                         bestCardId = 'lightning';
+                    }
+                    // --- END NEW AI LOGIC ---
+                    if (bestCardId && ai2Elixir >= allCards[bestCardId].cost) {
+                        const card = allCards[bestCardId];
+                        // Safety check: ensure card exists and unitClass exists for non-spells
+                        if (!card) {
+                            console.error('Card not found:', bestCardId);
+                            return;
+                        }
+                        if (card.type !== 'Spell' && (!card.unitClass || typeof card.unitClass !== 'function')) {
+                            console.error('Invalid unitClass for non-spell card:', bestCardId, card);
+                            return;
+                        }
+                        let spawnX = LANE_LEFT_X + Math.random() * (LANE_RIGHT_X - LANE_LEFT_X);
+                        let spawnY = 100 + Math.random() * 100;
+                        if (checkPlacement(spawnX, spawnY, card.placementRadius, card.type)) {
+                            const level = (gameMode === '2v2') ? 15 : currentAi2StatLevel;
+                            
+                            // Handle spells properly
+                            if (card.type === 'Spell') {
+                                if (bestCardId === 'poison') {
+                                    const s = card.stats[level];
+                                    gameObjects.push(new PoisonSpell(spawnX, spawnY, 'ai', s.damagePerSecond, card.radius, s.duration));
+                                } else if (bestCardId === 'rage') {
+                                    const s = card.stats[level];
+                                    gameObjects.push(new AngerSpell(spawnX, spawnY, 'ai', card.radius, s.duration));
+                                } else if (bestCardId === 'arrows' || bestCardId === 'fireball') {
+                                    const s = card.stats[level];
+                                    gameObjects.push(new Projectile(spawnX, spawnY, null, 'ai', s.damage, card.radius));
+                                } else if (bestCardId === 'heal') {
+                                    const s = card.stats[level];
+                                    gameObjects.push(new HealSpell(spawnX, spawnY, 'ai', s.healAmount, card.radius));
+                                } else if (bestCardId === 'lightning') {
+                                    const s = card.stats[level];
+                                    gameObjects.push(new LightningSpell(spawnX, spawnY, 'ai', s.damage, card.radius));
+                                }
+                            } else if (card.type === 'Building') {
+                                const newBuilding = new card.unitClass(spawnX, spawnY, 'ai', level);
+                                if (newBuilding instanceof GameObject) gameObjects.push(newBuilding);
+                            } else {
+                                const newUnit = new card.unitClass(spawnX, spawnY, 'ai', level);
+                                if (newUnit instanceof GameObject) {
+                                    gameObjects.push(newUnit);
+                                }
+                            }
+                            
+                            // Proper card cycling like the first AI
+                            const handIndex = ai2Hand.indexOf(bestCardId);
+                            if (handIndex > -1) { 
+                                ai2Hand.splice(handIndex, 1); 
+                                ai2DiscardPile.push(bestCardId); // Add to discard pile
+                            }
+                            // Add NEXT card to hand (like player system)
+                            if (ai2NextCard) {
+                                ai2Hand.push(ai2NextCard);
+                                ai2NextCard = null;
+                            }
+                            ai2Elixir -= card.cost;
+                            // Draw new NEXT card and handle deck recycling
+                            if (ai2Deck.length === 0 && ai2DiscardPile.length > 0) {
+                                ai2Deck = shuffleDeck(ai2DiscardPile);
+                                ai2DiscardPile = [];
+                            }
+                            if (ai2Deck.length > 0) {
+                                ai2NextCard = ai2Deck.pop();
+                            }
+                        }
+                    }
+                }
+            }
+
+            function ai2PlayCard(cardId) {
+                const index = ai2Hand.indexOf(cardId);
+                if (index !== -1) {
+                    ai2Hand.splice(index, 1);
+                    ai2Elixir -= allCards[cardId].cost;
+                    if (ai2Deck.length > 0) {
+                        const newCard = ai2Deck.splice(Math.floor(Math.random() * ai2Deck.length), 1)[0];
+                        ai2Hand.push(newCard);
+                    }
+                }
+            }
+
+            function runAITeammate() {
+                if (gameMode !== '2v2' || !is2v2AITeammate) return;
+                if (aiTeammateTimer > 0) { aiTeammateTimer--; return; }
+                aiTeammateTimer = 90; // Think every ~1.5s
+
+                // Find an affordable card
+                const affordableCards = aiTeammateHandCards.filter(cardId => {
+                    const card = allCards[cardId];
+                    return card && card.cost <= aiTeammateElixir;
+                });
+                if (affordableCards.length === 0) return;
+
+                // Smart decision: choose best card based on board state
+                let bestCardId = null;
+                let bestScore = -Infinity;
+
+                const aiUnits = gameObjects.filter(o => o.team === 'ai' && o instanceof Unit);
+                const playerUnits = gameObjects.filter(o => o.team === 'player' && o instanceof Unit);
+                const aiTowers = gameObjects.filter(o => o.team === 'ai' && o instanceof Tower && o.health > 0);
+                const playerTowers = gameObjects.filter(o => o.team === 'player' && o instanceof Tower && o.health > 0);
+
+                for (const cardId of affordableCards) {
+                    const card = allCards[cardId];
+                    let score = 0;
+
+                    // Defensive: if our towers are under attack
+                    if (aiTowers.length > 0 && playerUnits.some(u => getDistance(u, aiTowers[0]) < 200)) {
+                        if (card.type === 'Spell' && (cardId === 'arrows' || cardId === 'fireball' || cardId === 'poison')) {
+                            score += 50;
+                        } else if (card.type === 'Unit' && (cardId === 'skeletons' || cardId === 'goblinGang' || cardId === 'barbarians')) {
+                            score += 30;
+                        }
+                    }
+
+                    // Offensive: if enemy has units
+                    if (playerUnits.length > 0) {
+                        if (card.type === 'Unit') {
+                            if (cardId === 'giant' || cardId === 'stoneGiant') score += 40;
+                            else if (cardId === 'fireDragon' && playerUnits.some(u => u.isFlying)) score += 45;
+                            else if (cardId === 'archer' && playerUnits.some(u => u.isFlying)) score += 35;
+                            else if (cardId === 'axeSwinger' && playerUnits.some(u => !u.isFlying)) score += 35;
+                            else score += 20;
+                        } else if (card.type === 'Spell') {
+                            if (playerUnits.length >= 3 && (cardId === 'poison' || cardId === 'fireball')) score += 40;
+                            else if (playerUnits.some(u => u.isFlying) && cardId === 'arrows') score += 35;
+                        } else if (card.type === 'Building') {
+                            if (cardId === 'cannon') score += 25;
+                        }
+                    }
+
+                    // Support: if we have units pushing
+                    if (aiUnits.length > 2) {
+                        if (cardId === 'rage') score += 30;
+                        if (cardId === 'heal') score += 20;
+                    }
+
+                    // Randomness
+                    score += Math.random() * 10;
+
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestCardId = cardId;
+                    }
+                }
+
+                if (!bestCardId) return;
+
+                const card = allCards[bestCardId];
+                const handIndex = aiTeammateHandCards.indexOf(bestCardId);
+
+                // Choose placement
+                let targetX, targetY;
+                if (card.type === 'Spell') {
+                    // Target enemy units or towers
+                    const target = playerUnits.length > 0 ? playerUnits[0] : playerTowers[0];
+                    if (target) {
+                        targetX = target.x;
+                        targetY = target.y;
+                    } else {
+                        return;
+                    }
+                } else if (card.type === 'Building') {
+                    // Place near our king tower
+                    targetX = WIDTH / 2 + (Math.random() - 0.5) * 100;
+                    targetY = 50 + Math.random() * 50;
+                } else {
+                    // Units: spawn near river, prefer lanes with enemy units
+                    const lane = playerUnits.length > 0 ? (playerUnits[0].x < WIDTH / 2 ? LANE_LEFT_X : LANE_RIGHT_X) : (Math.random() < 0.5 ? LANE_LEFT_X : LANE_RIGHT_X);
+                    targetX = lane + (Math.random() - 0.5) * 40;
+                    targetY = RIVER_Y + 20 + Math.random() * 80;
+                }
+
+                if (card.type === 'Spell' || checkPlacement(targetX, targetY, card.placementRadius || 20, card.type)) {
+                    const level = 15;
+                    if (card.type === 'Spell') {
+                        // Handle spells
+                        if (bestCardId === 'poison') {
+                            const s = card.stats[level];
+                            gameObjects.push(new PoisonSpell(targetX, targetY, 'player', s.damagePerSecond, card.radius, s.duration));
+                        } else if (bestCardId === 'rage') {
+                            const s = card.stats[level];
+                            gameObjects.push(new AngerSpell(targetX, targetY, 'player', card.radius, s.duration));
+                        } else if (bestCardId === 'arrows' || bestCardId === 'fireball') {
+                            const s = card.stats[level];
+                            gameObjects.push(new Projectile(targetX, targetY, null, 'player', s.damage, card.radius));
+                        }
+                    } else if (card.type === 'Building') {
+                        const newBuilding = new card.unitClass(targetX, targetY, 'player', level);
+                        if (newBuilding instanceof GameObject) gameObjects.push(newBuilding);
+                    } else {
+                        const newUnit = new card.unitClass(targetX, targetY, 'player', level);
+                        if (newUnit instanceof GameObject) gameObjects.push(newUnit);
+                    }
+
+                    showTeammatePlacement(targetX, targetY, card.emoji);
+                    aiTeammateHandCards.splice(handIndex, 1);
+                    aiTeammateDiscardPile.push(bestCardId); // Add played card to discard pile
+                    // Add NEXT card to hand (like player system)
+                    if (aiTeammateNextCard) {
+                        aiTeammateHandCards.push(aiTeammateNextCard);
+                        aiTeammateNextCard = null;
+                    }
+                    // Draw new NEXT card from remaining deck
+                    if (aiTeammateDeck.length > 0) {
+                        aiTeammateNextCard = aiTeammateDeck.pop();
+                    } else if (aiTeammateDiscardPile.length > 0) {
+                        // Recycle discard pile when deck is empty
+                        aiTeammateDeck = shuffleDeck(aiTeammateDiscardPile);
+                        aiTeammateDiscardPile = [];
+                        if (aiTeammateDeck.length > 0) {
+                            aiTeammateNextCard = aiTeammateDeck.pop();
+                        }
+                    }
+                    aiTeammateElixir -= card.cost; // Subtract elixir FIRST
+                    updateAITeammateUI(); // Then update UI to show correct elixir
+                }
+            }
+
+            function showTeammatePlacement(x, y, emoji) {
+                const indicator = document.createElement('div');
+                indicator.className = 'absolute text-2xl pointer-events-none';
+                indicator.style.left = `${x - 12}px`;
+                indicator.style.top = `${y - 12}px`;
+                indicator.textContent = emoji;
+                indicator.style.transition = 'opacity 0.5s';
+                gameContainer.appendChild(indicator);
+                setTimeout(() => {
+                    indicator.style.opacity = '0';
+                    setTimeout(() => indicator.remove(), 500);
+                }, 100);
             }
 
             function updateTimerAndElixir() {
@@ -5142,6 +5760,17 @@ class StoneGiant extends Unit {
                 if (aiElixir < MAX_ELIXIR) {
                     aiElixir += currentElixirRate;
                     aiElixir = Math.min(aiElixir, MAX_ELIXIR);
+                }
+                // Second AI elixir (2v2 only)
+                if (gameMode === '2v2' && ai2Elixir < MAX_ELIXIR) {
+                    ai2Elixir += currentElixirRate;
+                    ai2Elixir = Math.min(ai2Elixir, MAX_ELIXIR);
+                }
+                // AI teammate elixir (2v2 only)
+                if (gameMode === '2v2' && is2v2AITeammate && aiTeammateElixir < MAX_ELIXIR) {
+                    aiTeammateElixir += currentElixirRate;
+                    aiTeammateElixir = Math.min(aiTeammateElixir, MAX_ELIXIR);
+                    updateAITeammateUI(); // Update UI continuously when elixir is gained
                 }
             }
             
@@ -5266,10 +5895,16 @@ class StoneGiant extends Unit {
                     trophyChests.push({ id: 'wood', openTime: 0 });
                     renderChests();
                 }
-                messageText.textContent = 'You Win! (+30 🏆, +50 💰, 📦)';
+                messageText.textContent = gameMode === '2v2' ? 'You Win!' : 'You Win! (+30 🏆, +50 💰, 📦)';
                 messageOverlay.style.display = 'flex';
                 startButton.style.display = 'none';
                 menuButton.style.display = 'inline-block';
+                if (gameMode !== '2v2') {
+                    trophies += 30;
+                    gold += 50;
+                    trophyChests.push({ id: 'wood', openTime: 0 });
+                    renderChests();
+                }
                 await saveUserData();
             }
 
@@ -5281,20 +5916,23 @@ class StoneGiant extends Unit {
                 cancelAnimationFrame(gameLoopId);
                 // Calculate minimum trophy floor for current arena
                 let minTrophyFloor = 0;
-                for (const floor in arenaFloors) {
-                    if (trophies >= parseInt(floor)) {
-                        minTrophyFloor = parseInt(floor);
+                let lossAmount = 0;
+                if (gameMode !== '2v2') {
+                    for (const floor in arenaFloors) {
+                        if (trophies >= parseInt(floor)) {
+                            minTrophyFloor = parseInt(floor);
+                        }
                     }
+                    lossAmount = 30;
+                    if (trophies - lossAmount < minTrophyFloor) {
+                        lossAmount = trophies - minTrophyFloor;
+                    }
+                    if (lossAmount < 0) lossAmount = 0;
+                    trophies = Math.max(minTrophyFloor, trophies - lossAmount);
+                    updateArena();
+                    trophyDisplay.textContent = `🏆 ${trophies}`;
                 }
-                let lossAmount = 30;
-                if (trophies - lossAmount < minTrophyFloor) {
-                    lossAmount = trophies - minTrophyFloor;
-                }
-                if (lossAmount < 0) lossAmount = 0;
-                trophies = Math.max(minTrophyFloor, trophies - lossAmount);
-                updateArena();
-                trophyDisplay.textContent = `🏆 ${trophies}`;
-                messageText.textContent = `${message} (-${lossAmount} 🏆)`;
+                messageText.textContent = gameMode === '2v2' ? 'You Lose!' : `${message} (-${lossAmount} 🏆)`;
                 messageOverlay.style.display = 'flex';
                 startButton.style.display = 'none';
                 menuButton.style.display = 'inline-block';
@@ -5318,6 +5956,18 @@ class StoneGiant extends Unit {
                 if (aiThinkTimer <= 0) {
                     runAI();
                     aiThinkTimer = 30 + Math.random() * 30; // Think every 0.5-1s
+                }
+                // Second AI (2v2 only)
+                if (gameMode === '2v2') {
+                    ai2ThinkTimer--;
+                    if (ai2ThinkTimer <= 0) {
+                        runAI2();
+                        ai2ThinkTimer = 30 + Math.random() * 30;
+                    }
+                }
+                // AI teammate (2v2 only)
+                if (gameMode === '2v2' && is2v2AITeammate) {
+                    runAITeammate();
                 }
                 
                 // Update objects
@@ -5655,7 +6305,7 @@ class StoneGiant extends Unit {
                 const clampedY = Math.max(0, Math.min(HEIGHT, y));
                 
                 const card = allCards[selectedSpawningUnit.id];
-                const level = cardCollection[selectedSpawningUnit.id] ? cardCollection[selectedSpawningUnit.id].level : 1;
+                const level = (gameMode === '2v2') ? 15 : (cardCollection[selectedSpawningUnit.id] ? cardCollection[selectedSpawningUnit.id].level : 1);
                 
                 if (card.type === 'Spell') {
                     if (selectedSpawningUnit.id === 'poison') { // NEW
@@ -5719,9 +6369,7 @@ class StoneGiant extends Unit {
                 }
             }, 2500); // 2.5 second intro
             // --- END: Intro Animation ---
-
-        };
-
+        } // Close window.onload function
     </script>
 
     <!-- 2v2 Teammate Choice Modal -->
@@ -5739,5 +6387,51 @@ class StoneGiant extends Unit {
             </button>
         </div>
     </div>
+
+    <!-- 2v2 Friend Code Modal -->
+    <div id="friendCodeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-6 w-80">
+            <h2 class="text-2xl font-bold text-center mb-4">Play with Friend</h2>
+            <button id="createCodeBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold mb-3 transition">
+                Create Code
+            </button>
+            <button id="joinCodeBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold mb-3 transition">
+                Join with Code
+            </button>
+            <button id="cancelFriendBtn" class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-bold transition">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <!-- 2v2 Create Code Modal -->
+    <div id="createCodeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-6 w-80">
+            <h2 class="text-2xl font-bold text-center mb-4">Lobby Code</h2>
+            <div class="bg-gray-700 p-4 rounded-lg mb-4">
+                <p class="text-3xl font-mono text-center text-green-400" id="generatedCode">-----</p>
+            </div>
+            <p class="text-sm text-gray-300 mb-4">Share this code with your friend to join.</p>
+            <p class="text-sm text-yellow-300 mb-4">Waiting for teammate...</p>
+            <button id="cancelCreateBtn" class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-bold transition">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <!-- 2v2 Join Code Modal -->
+    <div id="joinCodeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-6 w-80">
+            <h2 class="text-2xl font-bold text-center mb-4">Enter Lobby Code</h2>
+            <input type="text" id="codeInput" maxlength="5" placeholder="5-digit code" class="w-full bg-gray-700 text-white px-4 py-3 rounded-lg text-center text-2xl font-mono mb-4">
+            <button id="confirmJoinBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold mb-3 transition">
+                Join
+            </button>
+            <button id="cancelJoinBtn" class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-bold transition">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
