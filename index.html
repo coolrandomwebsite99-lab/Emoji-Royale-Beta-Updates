@@ -6405,6 +6405,22 @@ let isHost = false;
 let peerId = null;
 let isConnected = false;
 
+// Get DOM elements
+const createCodeModal = document.getElementById('createCodeModal');
+const joinCodeModal = document.getElementById('joinCodeModal');
+const generatedCode = document.getElementById('generatedCode');
+const codeInput = document.getElementById('codeInput');
+const loadingScreen = document.getElementById('loadingScreen');
+const menuScreen = document.getElementById('menuScreen');
+const gameScreen = document.getElementById('gameScreen');
+const messageText = document.getElementById('messageText');
+const startButton = document.getElementById('startButton');
+const menuButton = document.getElementById('menuButton');
+const messageOverlay = document.getElementById('messageOverlay');
+const cancelCreateBtn = document.getElementById('cancelCreateBtn');
+const cancelJoinBtn = document.getElementById('cancelJoinBtn');
+const confirmJoinBtn = document.getElementById('confirmJoinBtn');
+
 // Initialize PeerJS
 function initPeerJS() {
     try {
@@ -6462,22 +6478,37 @@ function setupConnection(connection) {
     });
 }
 
-// Update the showCreateCodeModal function
+// Show create code modal with generated code
 function showCreateCodeModal() {
     if (!peer) initPeerJS();
+    
+    // Generate a 5-digit code
     const code = Math.floor(10000 + Math.random() * 90000).toString();
     currentGameCode = code;
     isHost = true;
-    generatedCode.textContent = code;
-    createCodeModal.style.display = 'flex';
-    // Show waiting message instead of auto-starting
+    
+    // Update the modal content
     const modalContent = createCodeModal.querySelector('.bg-gray-800');
-    if (!modalContent.querySelector('.waiting-message')) {
-        const waitingMsg = document.createElement('p');
-        waitingMsg.className = 'waiting-message text-yellow-400 mt-4';
-        waitingMsg.textContent = 'Waiting for friend to join...';
-        modalContent.appendChild(waitingMsg);
-    }
+    
+    // Clear previous content
+    modalContent.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">Your Game Code</h2>
+        <p class="text-xl font-mono bg-gray-700 p-4 rounded-lg text-center mb-4">${code}</p>
+        <p class="text-yellow-400 mb-4">Share this code with your friend to play together!</p>
+        <p class="text-gray-400 text-sm mb-4">Waiting for friend to join...</p>
+        <button id="cancelCreateBtn" class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition">
+            Cancel
+        </button>
+    `;
+    
+    // Show the modal
+    createCodeModal.style.display = 'flex';
+    
+    // Add event listener for cancel button
+    document.getElementById('cancelCreateBtn').addEventListener('click', () => {
+        hideCreateCodeModal();
+        if (conn) conn.close();
+    });
 }
 
 // Update the confirmJoinBtn click handler
@@ -6532,7 +6563,24 @@ function startFriend2v2Match() {
 
 // Initialize PeerJS when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize PeerJS
     initPeerJS();
+    
+    // Set up create code button
+    const createCodeBtn = document.getElementById('createCodeBtn');
+    if (createCodeBtn) {
+        createCodeBtn.addEventListener('click', showCreateCodeModal);
+    }
+    
+    // Set up join code button
+    const joinCodeBtn = document.getElementById('joinCodeBtn');
+    if (joinCodeBtn) {
+        joinCodeBtn.addEventListener('click', () => {
+            joinCodeModal.style.display = 'flex';
+            codeInput.value = '';
+            codeInput.focus();
+        });
+    }
 });
 
 // Update cancel buttons to close connections
