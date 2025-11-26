@@ -1088,27 +1088,204 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getDatabase, ref, set, onValue, off, update, remove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        import { getDatabase, ref, set, onValue, off, update, remove, push, onChildAdded, onChildRemoved } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        
+        // WebRTC configuration
+        const rtcConfig = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' }
+            ]
+        };
+        
+        // Global multiplayer state
+        let peerConnection = null;
+        let dataChannel = null;
+        let currentRoomId = null;
+        let isHost = false;
+        let remotePlayerId = null;
 
         // Your web app's Firebase configuration
         // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCnaXKjDvPDXP2tF5ZmtB7naYjCuLGUsd4",
-            authDomain: "emoji-royale-8fb68.firebaseapp.com",
-            projectId: "emoji-royale-8fb68",
-            storageBucket: "emoji-royale-8fb68.firebasestorage.app",
-            messagingSenderId: "1021589049311",
-            appId: "1:1021589049311:web:61ce6353950831e298be6a",
-            measurementId: "G-FDQ9L0MQGM",
-            databaseURL: "https://emoji-royale-8fb68-default-rtdb.firebaseio.com/"
-        };
+const firebaseConfig = {
+    apiKey: "AIzaSyCnaXKjDvPDXP2tF5ZmtB7naYjCuLGUsd4",
+    authDomain: "emoji-royale-8fb68.firebaseapp.com",
+    databaseURL: "https://emoji-royale-8fb68-default-rtdb.firebaseio.com",
+    projectId: "emoji-royale-8fb68",
+    storageBucket: "emoji-royale-8fb68.firebasestorage.app",
+    messagingSenderId: "1021589049311",
+    appId: "1:1021589049311:web:61ce6353950831e298be6a",
+    measurementId: "G-FDQ9L0MQGM"
+};
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const database = getDatabase(app); // Initialize Realtime Database
+        const rtdb = getDatabase(app); // Initialize Realtime Database
         const provider = new GoogleAuthProvider();
+        // setLogLevel('debug'); // Uncomment for debugging Firestore
+        
+        // Multiplayer functions
+        async function createRoom() {
+            isHost = true;
+            currentRoomId = 'room-' + Math.random().toString(36).substr(2, 9);
+            
+            // Create peer connection
+            peerConnection = new RTCPeerConnection(rtcConfig);
+            setupDataChannel();
+            
+            // Create offer
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            
+            // Save room to Firebase
+            const roomRef = ref(rtdb, 'rooms/' + currentRoomId);
+            await set(roomRef, {
+                hostId: userId,
+                offer: offer,
+                timestamp: Date.now()
+            });
+            
+            // Listen for answers
+            onValue(ref(rtdb, `rooms/${currentRoomId}/answer`), async (snapshot) => {
+                if (snapshot.exists() && peerConnection.signalingState !== 'stable') {
+                    const answer = snapshot.val();
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+                    console.log('Answer received and remote description set');
+                }
+            });
+            
+            return currentRoomId;
+        }
+        
+        async function joinRoom(roomId) {
+            isHost = false;
+            currentRoomId = roomId;
+            
+            // Get room data
+            const roomRef = ref(rtdb, 'rooms/' + roomId);
+            const snapshot = await get(roomRef);
+            
+            if (!snapshot.exists()) {
+                throw new Error('Room not found');
+            }
+            
+            const roomData = snapshot.val();
+            remotePlayerId = roomData.hostId;
+            
+            // Create peer connection
+            peerConnection = new RTCPeerConnection(rtcConfig);
+            setupDataChannel();
+            
+            // Set remote description
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(roomData.offer));
+            
+            // Create answer
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            
+            // Send answer back to host
+            await update(ref(rtdb, 'rooms/' + roomId), {
+                answer: answer,
+                joinerId: userId
+            });
+            
+            return true;
+        }
+        
+        function setupDataChannel() {
+            if (isHost) {
+                dataChannel = peerConnection.createDataChannel('gameData');
+                setupDataChannelHandlers();
+            } else {
+                peerConnection.ondatachannel = (event) => {
+                    dataChannel = event.channel;
+                    setupDataChannelHandlers();
+                };
+            }
+            
+            // ICE Candidate handling
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    const candidateRef = ref(rtdb, `rooms/${currentRoomId}/candidates/${isHost ? 'host' : 'joiner'}/${Date.now()}`);
+                    set(candidateRef, event.candidate);
+                }
+            };
+            
+            // Listen for ICE candidates
+            const candidateType = isHost ? 'joiner' : 'host';
+            onChildAdded(ref(rtdb, `rooms/${currentRoomId}/candidates/${candidateType}`), async (snapshot) => {
+                const candidate = snapshot.val();
+                try {
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                } catch (e) {
+                    console.error('Error adding ICE candidate:', e);
+                }
+            });
+        }
+        
+        function setupDataChannelHandlers() {
+            dataChannel.onopen = () => {
+                console.log('Data channel opened');
+                // Notify UI that connection is ready
+                if (window.onMultiplayerConnected) {
+                    window.onMultiplayerConnected();
+                }
+            };
+            
+            dataChannel.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                console.log('Received data:', data);
+                
+                // Handle different message types
+                if (data.type === 'gameAction') {
+                    // Handle game action from other player
+                    handleGameAction(data.action, data.payload);
+                }
+            };
+        }
+        
+        function sendGameAction(action, payload) {
+            if (dataChannel && dataChannel.readyState === 'open') {
+                dataChannel.send(JSON.stringify({
+                    type: 'gameAction',
+                    action: action,
+                    payload: payload,
+                    timestamp: Date.now()
+                }));
+                return true;
+            }
+            return false;
+        }
+        
+        function cleanupMultiplayer() {
+            if (dataChannel) {
+                dataChannel.close();
+                dataChannel = null;
+            }
+            
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            
+            if (currentRoomId && isHost) {
+                // Remove room when host disconnects
+                remove(ref(rtdb, 'rooms/' + currentRoomId));
+            }
+            
+            currentRoomId = null;
+            isHost = false;
+            remotePlayerId = null;
+        }
+        
+        // Make multiplayer functions available globally
+        window.createRoom = createRoom;
+        window.joinRoom = joinRoom;
+        window.sendGameAction = sendGameAction;
+        window.cleanupMultiplayer = cleanupMultiplayer;
         // setLogLevel('debug'); // Uncomment for debugging Firestore
         
         // Multiplayer Service
