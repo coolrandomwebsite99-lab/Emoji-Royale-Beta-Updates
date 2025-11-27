@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,12 +19,172 @@
             font-family: 'Inter', sans-serif;
             overflow: hidden;
             touch-action: none;
+            background-color: #111827;
+            color: white;
+        }
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        h1, h2, h3 {
+            text-shadow: 2px 2px 0px #000, 0 0 10px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
+        }
+        /* Button Shine Effect */
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-shine::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+            transform: skewX(-20deg);
+            transition: none;
+        }
+        .btn-shine:hover::after {
+            left: 150%;
+            transition: 0.6s ease-in-out;
+        }
+        /* Button Ripple Effect */
+        .ripple-btn {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: rippleBtn 0.6s linear;
+            background-color: rgba(255, 255, 255, 0.4);
+            pointer-events: none;
+        }
+        @keyframes rippleBtn {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        @keyframes particleMove {
+            from { background-position: 0 0, 12px 12px, 0 0, 0 0; }
+            to { background-position: 20px 20px, 30px 30px, 0 0, 0 0; }
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .screen {
+            padding-bottom: 6rem; /* Space for fixed nav */
+            position: absolute; /* Fix for stacking */
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: transparent; /* Allow body bg to show */
+        }
+        .screen.active {
+            z-index: 10;
+            /* Animation handled by JS class toggle */
+        }
+        .screen.swipe-right {
+            animation: slideInRight 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .screen.swipe-left {
+            animation: slideInLeft 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .screen.fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+        /* Nav Active State (Replaces Highlight Box) */
+        .nav-btn.active-nav {
+            border: 2px solid #facc15;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(250, 204, 21, 0.2);
+        }
+        /* Improved Chest Click Area */
+        #chestClickArea {
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        /* Reward Pop Animation */
+        @keyframes rewardPop {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .reward-item {
+            animation: rewardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.5);
+            border: 2px solid #374151;
+            background-color: #374151;
+            border-radius: 8px;
+        }
+        @keyframes shakeBox {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+        .shake-anim {
+            animation: shakeBox 0.2s ease-in-out;
+        }
+        .nav-btn {
+            position: relative;
+            z-index: 1;
+        }
+        /* Ripple Effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            background-color: rgba(255, 255, 255, 0.7);
+            pointer-events: none;
+            z-index: 9999;
+        }
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        /* Floating Emoji */
+        @keyframes floatRotate {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        #arenaEmoji {
+            display: inline-block;
+            animation: floatRotate 6s ease-in-out infinite;
+        }
+        /* Enhanced Button Hovers */
+        .login-btn, .arena-btn, .modal-btn, #battleButton, .debug-btn, #navBtnMenu, #navBtnDeck, #navBtnTower, #navBtnDebug, 
+        #saveDataOverlay button, #loadDataOverlay button, #updateLogOverlay button, #chestOpenOverlay button {
+            overflow: hidden;
+            position: relative;
+        }
+        .login-btn:hover, .arena-btn:hover, .modal-btn:hover, #battleButton:hover, #saveDataOverlay button:hover, 
+        #loadDataOverlay button:hover, #updateLogOverlay button:hover, #chestOpenOverlay button:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
         }
         canvas {
-            background-color: #2a623d; /* Arena green */
+            background-color: #f1f5f9; /* Snow White */
             background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+                linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
             background-size: 20px 20px;
             display: block;
             border-radius: 8px;
@@ -32,6 +193,7 @@
             transition: background-color 0.5s ease; /* For arena theme change */
         }
         /* Arena Themes */
+        canvas.arena-1 { background-color: #f1f5f9; } /* Explicit Snow White */
         canvas.arena-2 { background-color: #6abf82; }
         canvas.arena-3 { 
             background-color: #4a4a4a;
@@ -112,44 +274,66 @@
             color: white;
             font-size: 2.5rem;
             font-weight: bold;
+            text-shadow: 2px 2px 0px #000, 0 0 10px rgba(0,0,0,0.5);
             text-align: center;
             border-radius: 8px;
-            z-index: 50;
+            z-index: 60;
             padding: 1rem;
         }
+        /* ENHANCED BUTTONS (3D Effect) */
         #messageOverlay button, #chestOpenOverlay button, .login-btn, .debug-btn, #debugPasswordOverlay button,
-        #saveDataOverlay button, #loadDataOverlay button, #updateLogOverlay button, .arena-btn { /* Added arena-btn */
+        #saveDataOverlay button, #loadDataOverlay button, #updateLogOverlay button, .arena-btn, .modal-btn, .mode-tab {
             font-size: 1rem;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            margin-top: 20px;
-            background-color: #4f46e5;
+            font-weight: 800;
+            padding: 0.8rem 1.5rem;
+            margin-top: 15px;
+            background: linear-gradient(to bottom, #4f46e5, #4338ca);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-bottom: 4px solid #312e81;
+            border-radius: 12px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.1s;
             display: flex;
             align-items: center;
             justify-content: center;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
             width: 80%;
             max-width: 300px;
+            position: relative;
         }
-        #messageOverlay button:hover, #chestOpenOverlay button:hover, .login-btn:hover, .debug-btn:hover, #debugPasswordOverlay button:hover,
-        #saveDataOverlay button:hover, #loadDataOverlay button:hover, #updateLogOverlay button:hover, .arena-btn:hover { /* Added arena-btn */
-            background-color: #4338ca;
+        #messageOverlay button:active, #chestOpenOverlay button:active, .login-btn:active, .debug-btn:active, 
+        #saveDataOverlay button:active, .arena-btn:active, .modal-btn:active, .mode-tab:active {
+            transform: translateY(4px);
+            border-bottom-width: 0px;
+            margin-bottom: 4px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
         }
-        .login-btn.google {
-            background-color: #dc2626; /* red-600 */
+        #messageOverlay button:hover, .login-btn:hover, .arena-btn:hover {
+            filter: brightness(1.1);
         }
-        .login-btn.google:hover {
-            background-color: #b91c1c; /* red-700 */
+
+        /* Color Variants */
+        .login-btn.google { background: linear-gradient(to bottom, #dc2626, #b91c1c); border-bottom-color: #7f1d1d; }
+        .login-btn.guest { background: linear-gradient(to bottom, #6b7280, #4b5563); border-bottom-color: #374151; }
+        .cancel-btn { background: linear-gradient(to bottom, #ef4444, #dc2626) !important; border-bottom-color: #991b1b !important; }
+        .debug-btn { background: linear-gradient(to bottom, #2563eb, #1d4ed8); border-bottom-color: #1e3a8a; }
+        
+        /* Battle Button Special Style */
+        #battleButton {
+            background: linear-gradient(to bottom, #ef4444, #b91c1c);
+            border-bottom: 6px solid #7f1d1d;
+            font-size: 2rem;
+            border-radius: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
         }
-        .login-btn.guest {
-            background-color: #6b7280; /* gray-500 */
-        }
-        .login-btn.guest:hover {
-            background-color: #4b5563; /* gray-600 */
+        #battleButton:disabled {
+            background: #4b5563;
+            border-bottom-color: #374151;
+            box-shadow: none;
+            transform: none !important;
         }
         /* Debug Password Input */
         #debugPasswordInput, #loadKeyInput {
@@ -224,13 +408,56 @@
         }
         /* Bottom Nav */
         #bottomNav {
-            position: absolute;
+            position: fixed;
             bottom: 0;
-            left: 0;
-            right: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
             max-width: 400px;
-            margin: 0 auto;
-            z-index: 20;
+            z-index: 50;
+            display: none;
+            transition: transform 0.3s ease-out;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        /* Nav Highlight Slider */
+        #navHighlight {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 25%; /* 4 buttons = 25% width */
+            background-color: rgba(250, 204, 21, 0.15);
+            border-left: 1px solid rgba(250, 204, 21, 0.4);
+            border-right: 1px solid rgba(250, 204, 21, 0.4);
+            /* border-radius: 8px; */
+            pointer-events: none;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 0;
+            box-shadow: 0 0 10px rgba(250, 204, 21, 0.1);
+        }
+        /* Enhanced Chest Slots */
+        .chest-slot {
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.5);
+            border: 2px solid #374151;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .chest-slot.bg-yellow-700 {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.2);
+            border-color: #ca8a04;
+        }
+        .chest-slot.bg-yellow-700:hover {
+            animation: chestPulse 2s infinite;
+            filter: brightness(1.1);
+        }
+        @keyframes chestPulse {
+            0% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(250, 204, 21, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); }
+        }
+        button {
+             outline: none !important;
+             -webkit-tap-highlight-color: transparent;
         }
         /* Card Style */
         .card-ui {
@@ -403,9 +630,9 @@
             cursor: pointer;
             transition: background-color 0.2s;
         }
-        .modal-btn.add { background-color: #16a34a; color: white; }
-        .modal-btn.remove { background-color: #dc2626; color: white; }
-        .modal-btn.upgrade { background-color: #16a34a; color: white; }
+        .modal-btn.add { background: #16a34a !important; color: white; border-bottom: 4px solid #14532d !important; }
+        .modal-btn.remove { background: #dc2626 !important; color: white; border-bottom: 4px solid #7f1d1d !important; }
+        .modal-btn.upgrade { background: #9333ea !important; color: white; border-bottom: 4px solid #581c87 !important; }
         .modal-btn:disabled {
             background-color: #6b7280; /* gray-500 */
             color: #d1d5db; /* gray-300 */
@@ -534,14 +761,15 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center p-2">
-    
+<body class="text-gray-100 min-h-screen flex flex-col items-center p-2">
+    <canvas id="bgCanvas"></canvas>
+
     <!-- 
     ========================================================
     SCREEN: INTRO (NEW)
     ========================================================
     -->
-    <div id="introScreen" class="screen active flex-col justify-center items-center bg-gray-900">
+    <div id="introScreen" class="screen active flex-col justify-center items-center">
         <div class="text-8xl animate-pulse-king">👑</div>
     </div>
 
@@ -553,7 +781,7 @@
     <div id="loginScreen" class="screen flex-col justify-center items-center">
         <div class="text-6xl">👑</div>
         <h1 class="text-4xl font-bold mt-4">Emoji Royale</h1>
-        <p class="text-lg mt-2 text-gray-300">Choose your way to play!</p>
+        <p class="text-lg mt-2 text-gray-500">Choose your way to play!</p>
         <p id="loginError" class="text-lg mt-2 text-red-500 font-bold h-6"></p> 
         
         <!-- NEW: Load Save Key Button -->
@@ -578,10 +806,10 @@
     SCREEN: LOADING
     ========================================================
     -->
-    <div id="loadingScreen" class="screen flex-col justify-center items-center bg-gray-900">
+    <div id="loadingScreen" class="screen flex-col justify-center items-center">
         <div class="text-8xl animate-pulse-king">👑</div>
         <h1 class="text-3xl font-bold mt-4">Emoji Royale</h1>
-        <p class="text-lg mt-2 text-gray-300">Loading...</p>
+        <p class="text-lg mt-2 text-gray-500">Loading...</p>
     </div>
     
     <!-- 
@@ -603,30 +831,31 @@
             </div>
             
             <!-- Arena Display -->
+            <div id="modeDisplay" class="text-yellow-600 font-bold text-xl mb-2">Trophy Road</div>
+            <!-- Mode Selector Buttons -->
+            <div class="flex w-11/12 mb-4 bg-gray-800 rounded-lg p-1 gap-1">
+                <button id="modeTrophy" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-red-600 text-white shadow-md btn-shine">Trophy Road</button>
+                <button id="modeParty1v1" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-gray-700 text-gray-400 shadow-md btn-shine">1v1</button>
+                <button id="mode2v2" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-gray-700 text-gray-400 shadow-md btn-shine">2v2</button>
+            </div>
             <div class="flex flex-col items-center my-8">
                 <span id="arenaEmoji" class="text-8xl">🏞️</span>
                 <h2 id="arenaName" class="text-2xl font-bold mt-2">Arena 1: Emoji Valley</h2>
             </div>
 
-            <!-- Mode Selector -->
-            <div class="flex w-3/4 mb-4 bg-gray-700 rounded-lg p-1">
-                <button id="modeNormal" class="mode-tab flex-1 py-2 rounded-md text-lg font-bold transition bg-red-600 text-white">Normal</button>
-                <button id="mode2v2" class="mode-tab flex-1 py-2 rounded-md text-lg font-bold transition text-gray-400">2v2</button>
-            </div>
-
             <!-- Battle Button -->
-            <button id="battleButton" class="bg-red-600 hover:bg-red-700 text-white w-3/4 py-4 rounded-lg shadow-lg text-3xl font-extrabold transition transform hover:scale-105">
+            <button id="battleButton" class="bg-red-600 hover:bg-red-700 text-white w-3/4 py-4 rounded-lg shadow-lg text-3xl font-extrabold transition transform hover:scale-105 btn-shine">
                 BATTLE!
             </button>
             
             <!-- NEW: Arena Button -->
-            <button id="arenaButton" class="arena-btn bg-blue-600 hover:bg-blue-700 mt-4 w-3/4 py-3 text-xl font-bold">
+            <button id="arenaButton" class="arena-btn bg-blue-600 hover:bg-blue-700 mt-4 w-3/4 py-3 text-xl font-bold btn-shine">
                 Arenas
             </button>
             
             <!-- Chest Slots -->
             <div class="mt-8 w-full">
-                <h3 class="text-xl font-bold text-center mb-2">Your Chests</h3>
+                <h3 class="text-xl font-bold text-center mb-2">Your Boxes</h3>
                 <div id="chestSlots" class="grid grid-cols-4 gap-2">
                     <div class="chest-slot bg-gray-700 h-24 rounded-lg flex items-center justify-center text-4xl text-gray-500"></div>
                     <div class="chest-slot bg-gray-700 h-24 rounded-lg flex items-center justify-center text-4xl text-gray-500"></div>
@@ -636,34 +865,16 @@
             </div>
 
             <!-- NEW: Save Data Button -->
-            <button id="saveDataBtn" class="login-btn guest mt-8 w-3/4">
+            <button id="saveDataBtn" class="login-btn guest mt-8 w-3/4 btn-shine">
                 Save Data
+            </button>
+            
+            <button id="logoutBtn" class="login-btn cancel-btn mt-4 w-3/4 btn-shine">
+                Logout
             </button>
 
         </div>
-        
-        <!-- Bottom Nav Bar -->
-        <div id="bottomNav" class="bg-gray-800 w-full rounded-t-lg shadow-inner p-2">
-            <div class="flex justify-around">
-                <button class="nav-btn flex flex-col items-center text-yellow-400" data-screen="menu">
-                    <span class="text-4xl">⚔️</span>
-                    <span class="text-xs">Battle</span>
-                </button>
-                <button class="nav-btn flex flex-col items-center text-gray-400" data-screen="deck">
-                    <span class="text-4xl">🃏</span>
-                    <span class="text-xs">Deck</span>
-                </button>
-                <button class="nav-btn flex flex-col items-center text-gray-400" data-screen="tower">
-                    <span class="text-4xl">👑</span>
-                    <span class="text-xs">Tower</span>
-                </button>
-                <!-- NEW: Debug Button -->
-                <button class="nav-btn flex flex-col items-center text-gray-400" data-screen="debug">
-                    <span class="text-4xl">🧪</span>
-                    <span class="text-xs">Debug</span>
-                </button>
-            </div>
-        </div>
+        <!-- Bottom Nav Removed: Using Persistent Nav at bottom of body -->
     </div>
     
     <!-- 
@@ -694,28 +905,7 @@
 
         </div>
         
-        <!-- Bottom Nav Bar -->
-        <div id="bottomNav" class="bg-gray-800 w-full rounded-t-lg shadow-inner p-2">
-            <div class="flex justify-around">
-                <button class="nav-btn flex flex-col items-center text-gray-400" data-screen="menu">
-                    <span class="text-4xl">⚔️</span>
-                    <span class="text-xs">Battle</span>
-                </button>
-                <button class="nav-btn flex flex-col items-center text-yellow-400" data-screen="deck">
-                    <span class="text-4xl">🃏</span>
-                    <span class="text-xs">Deck</span>
-                </button>
-                <button class="nav-btn flex flex-col items-center text-gray-400" data-screen="tower">
-                    <span class="text-4xl">👑</span>
-                    <span class="text-xs">Tower</span>
-                </button>
-                <button class="nav-btn flex flex-col items-center text-gray-400" data-screen="debug">
-                    <span class="text-4xl">🧪</span>
-                    <span class="text-xs">Debug</span>
-                </button>
-            </div>
         </div>
-    </div>
 
     <!-- 
     ========================================================
@@ -737,40 +927,21 @@
             </div>
             
             <!-- Upgrade -->
-            <div class="bg-gray-800 p-4 rounded-lg mt-8 w-full">
+            <div class="bg-gray-800 p-4 rounded-lg mt-8 w-full flex flex-col items-center">
                 <h3 class="text-xl font-bold text-center">Upgrade Tower</h3>
-                <div id="towerInfoProgressContainer">
+                <div id="towerInfoProgressContainer" class="w-full">
                     <div id="towerInfoProgressBar" style="width: 0%;"></div>
                     <div id="towerInfoProgressText">0 / 0</div>
                 </div>
-                <button id="towerUpgradeButton" class="modal-btn upgrade" disabled>
-                    Upgrade
-                </button>
+                <div class="w-full flex justify-center">
+                    <button id="towerUpgradeButton" class="modal-btn upgrade mx-auto btn-shine" style="width: 80%;" disabled>
+                        Upgrade
+                    </button>
+                </div>
             </div>
         </div>
         
-        <!-- Bottom Nav Bar -->
-        <div id="bottomNav" class="bg-gray-800 w-full rounded-t-lg shadow-inner p-2">
-            <div class="flex justify-around">
-                <button class="nav-btn flex flex-col items-center text-gray-400" data-screen="menu">
-                    <span class="text-4xl">⚔️</span>
-                    <span class="text-xs">Battle</span>
-                </button>
-                <button class="nav-btn flex flex-col items-center text-gray-400" data-screen="deck">
-                    <span class="text-4xl">🃏</span>
-                    <span class="text-xs">Deck</span>
-                </button>
-                <button class="nav-btn active flex flex-col items-center text-yellow-400" data-screen="tower">
-                    <span class="text-4xl">👑</span>
-                    <span class="text-xs">Tower</span>
-                </button>
-                <button class="nav-btn flex flex-col items-center text-gray-400" data-screen="debug">
-                    <span class="text-4xl">🧪</span>
-                    <span class="text-xs">Debug</span>
-                </button>
-            </div>
         </div>
-    </div>
 
     <!-- 
     ========================================================
@@ -853,16 +1024,7 @@
             </button>
         </div>
         
-        <!-- Bottom Nav (Hidden, but keeps layout consistent) -->
-        <div id="bottomNav" class="bg-gray-800 w-full rounded-t-lg shadow-inner p-2 invisible">
-            <div class="flex justify-around">
-                <button class="nav-btn flex flex-col items-center"><span class="text-4xl">⚔️</span><span class="text-xs">Battle</span></button>
-                <button class="nav-btn flex flex-col items-center"><span class="text-4xl">🃏</span><span class="text-xs">Deck</span></button>
-                <button class="nav-btn flex flex-col items-center"><span class="text-4xl">👑</span><span class="text-xs">Tower</span></button>
-                <button class="nav-btn flex flex-col items-center"><span class="text-4xl">🧪</span><span class="text-xs">Debug</span></button>
-            </div>
         </div>
-    </div>
 
     <!-- 
     ========================================================
@@ -889,28 +1051,7 @@
 
         </div>
         
-        <!-- Bottom Nav Bar -->
-        <div id="bottomNav" class="bg-gray-800 w-full rounded-t-lg shadow-inner p-2">
-            <div class="flex justify-around">
-                <button class="nav-btn flex flex-col items-center text-gray-400" data-screen="menu">
-                    <span class="text-4xl">⚔️</span>
-                    <span class="text-xs">Battle</span>
-                </button>
-                <button class="nav-btn flex flex-col items-center text-gray-400" data-screen="deck">
-                    <span class="text-4xl">🃏</span>
-                    <span class="text-xs">Deck</span>
-                </button>
-                <button class="nav-btn flex flex-col items-center text-gray-400" data-screen="tower">
-                    <span class="text-4xl">👑</span>
-                    <span class="text-xs">Tower</span>
-                </button>
-                <button class="nav-btn active flex flex-col items-center text-yellow-400" data-screen="debug">
-                    <span class="text-4xl">🧪</span>
-                    <span class="text-xs">Debug</span>
-                </button>
-            </div>
         </div>
-    </div>
 
 
     <!-- 
@@ -1014,16 +1155,28 @@
     
     <!-- 
     ========================================================
-    CHEST OPENING MODAL
+    BOX OPENING MODAL
     ========================================================
     -->
     <div id="chestOpenOverlay">
-        <h2 class="text-4xl font-bold">Chest Unlocked!</h2>
-        <div class="text-7xl my-4">📦</div>
-        <div id="chestRewardList">
+        <h2 id="chestTitle" class="text-4xl font-bold">Box Unlocked!</h2>
+        <div id="chestStars" class="flex justify-center my-4 space-x-2 h-8">
+            <!-- Stars injected here -->
+        </div>
+        
+        <div id="chestClickArea" class="cursor-pointer transition p-8 rounded-full" style="outline: none; -webkit-tap-highlight-color: transparent;">
+            <div id="chestEmoji" class="text-9xl select-none">📦</div>
+        </div>
+        
+        <div id="chestStatusText" class="text-xl text-yellow-300 font-bold mb-4 h-8" style="text-shadow: 2px 2px 0px #000;">Click the Box!</div>
+        <div id="chestClickCounter" class="text-sm text-gray-400 mb-4 h-4"></div>
+
+        <div id="chestRewardList" class="w-full max-w-xs space-y-2 mb-4">
             <!-- Rewards injected by JS -->
         </div>
-        <button id="chestCloseButton">Awesome!</button>
+        
+        <!-- Buttons hidden initially, controlled by JS logic -->
+        <button id="chestCloseButton" class="modal-btn bg-green-600 hidden btn-shine">Awesome!</button>
     </div>
 
     <!-- 
@@ -1077,6 +1230,31 @@
         <button id="updateLogClose" class="mt-4">Continue</button>
     </div>
 
+
+    <!-- Persistent Bottom Nav -->
+    <div id="bottomNav" class="bg-gray-800 w-full max-w-[400px] rounded-t-lg shadow-inner p-1 btn-shine">
+        <div class="relative w-full h-full">
+            <div id="navHighlight"></div>
+            <div class="grid grid-cols-4 relative z-10">
+                <button id="navBtnMenu" class="nav-btn flex flex-col items-center text-yellow-400 py-1" data-screen="menu">
+                    <span class="text-3xl">⚔️</span>
+                    <span class="text-xs font-bold">Battle</span>
+                </button>
+                <button id="navBtnDeck" class="nav-btn flex flex-col items-center text-gray-400 py-1" data-screen="deck">
+                    <span class="text-3xl">🃏</span>
+                    <span class="text-xs font-bold">Deck</span>
+                </button>
+                <button id="navBtnTower" class="nav-btn flex flex-col items-center text-gray-400 py-1" data-screen="tower">
+                    <span class="text-3xl">👑</span>
+                    <span class="text-xs font-bold">Tower</span>
+                </button>
+                <button id="navBtnDebug" class="nav-btn flex flex-col items-center text-gray-400 py-1" data-screen="debug">
+                    <span class="text-3xl">🧪</span>
+                    <span class="text-xs font-bold">Debug</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- 
     ========================================================
@@ -1392,6 +1570,7 @@ const firebaseConfig = {
         let cardCollection = {};
         let playerDeck = [];
         let playerDeck2v2 = [];
+        let playerDeckParty = [];
         let gameDeck = [];
         let hand = [];
         let nextCard = null;
@@ -1454,14 +1633,90 @@ const firebaseConfig = {
         
         // --- NEW: Demo Mode ---
         let isDemoMode = false;
+        
+        // --- Background Particle System ---
+        const bgCanvas = document.getElementById('bgCanvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        let bgParticles = [];
+
+        function resizeBg() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeBg);
+        resizeBg();
+
+        class BgParticle {
+            constructor(initial = false) { 
+                this.reset(initial); 
+            }
+            reset(initial = false) {
+                this.x = Math.random() * bgCanvas.width;
+                this.y = Math.random() * bgCanvas.height;
+                this.size = Math.random() * 4 + 1; // Smaller: 1-5px
+                this.speedX = (Math.random() - 0.5) * 1.5; // Faster
+                this.speedY = (Math.random() - 0.5) * 1.5;
+                this.maxLife = Math.random() * 300 + 200;
+                this.life = initial ? Math.random() * this.maxLife : 0;
+                this.state = initial ? 'idle' : 'in';
+                this.targetAlpha = 0.3 + Math.random() * 0.3; // More varied opacity
+                this.alpha = initial ? this.targetAlpha : 0;
+            }
+            update() {
+                this.x += this.speedX; 
+                this.y += this.speedY;
+                
+                // Wrap around screen
+                if (this.x < 0) this.x = bgCanvas.width;
+                if (this.x > bgCanvas.width) this.x = 0;
+                if (this.y < 0) this.y = bgCanvas.height;
+                if (this.y > bgCanvas.height) this.y = 0;
+
+                if (this.state === 'in') {
+                    this.alpha += 0.01;
+                    if (this.alpha >= this.targetAlpha) this.state = 'idle';
+                } else if (this.state === 'idle') {
+                    this.life++;
+                    if (this.life > this.maxLife) this.state = 'out';
+                } else if (this.state === 'out') {
+                    this.alpha -= 0.01;
+                    if (this.alpha <= 0) this.reset();
+                }
+            }
+            draw() {
+                // Snow White
+                bgCtx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+                bgCtx.beginPath();
+                bgCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                bgCtx.fill();
+            }
+        }
+        // More particles, start pre-populated
+        for(let i=0; i<80; i++) bgParticles.push(new BgParticle(true));
+
+        function animateBg() {
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+            // Draw Grid
+            bgCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            bgCtx.lineWidth = 1;
+            const gridSize = 40;
+            bgCtx.beginPath();
+            for(let x=0; x<=bgCanvas.width; x+=gridSize) { bgCtx.moveTo(x,0); bgCtx.lineTo(x, bgCanvas.height); }
+            for(let y=0; y<=bgCanvas.height; y+=gridSize) { bgCtx.moveTo(0,y); bgCtx.lineTo(bgCanvas.width, y); }
+            bgCtx.stroke();
+            
+            bgParticles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateBg);
+        }
+        animateBg();
         let demoLoopTimer = 15 * 60; // 15 seconds
         const DEMO_LOOP_TIME = 15 * 60;
         let demoFadingOut = false; // NEW
         let demoFadeTimer = 0; // NEW
         const DEMO_FADE_TIME = 30; // 0.5 seconds
 
-        // --- NEW: 2v2 Mode State ---
-        let gameMode = 'normal'; // 'normal' or '2v2'
+        // --- NEW: Game Mode State ---
+        let gameMode = 'trophy'; // 'trophy', 'party1v1', '2v2'
         let is2v2Friend = false;
         let is2v2AITeammate = false;
         let twoVtwoLobbyCode = null;
@@ -1578,6 +1833,36 @@ const firebaseConfig = {
             // --- DOM Elements ---
             const screens = document.querySelectorAll('.screen');
             const navButtons = document.querySelectorAll('.nav-btn');
+            const persistentNav = document.getElementById('bottomNav');
+            const navHighlight = document.getElementById('navHighlight');
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                // Direct assignment to replace any existing listeners
+                logoutBtn.onclick = async (e) => {
+                    e.preventDefault();
+                    if (confirm('Log out and return to title screen?')) {
+                        try {
+                            if (auth) await signOut(auth);
+                        } catch (e) {
+                            console.warn("Sign out error (ignoring):", e);
+                        }
+                        
+                        // Reset local session state
+                        initGuestSession();
+                        
+                        // Force UI updates
+                        const intro = document.getElementById('introScreen');
+                        if (intro) intro.style.display = 'none';
+                        if (persistentNav) persistentNav.style.display = 'none';
+                        
+                        // Reset all screens scroll position
+                        document.querySelectorAll('.screen').forEach(s => s.scrollTop = 0);
+
+                        // Navigate to login
+                        showScreen('login');
+                    }
+                };
+            }
             const loginScreen = document.getElementById('loginScreen');
             const googleLoginBtn = document.getElementById('googleLoginBtn');
             const trueGuestLoginBtn = document.getElementById('trueGuestLoginBtn'); // FIXED
@@ -1590,8 +1875,10 @@ const firebaseConfig = {
             const arenaScreen = document.getElementById('arenaScreen'); // NEW
             const debugScreen = document.getElementById('debugScreen'); // NEW
             const battleButton = document.getElementById('battleButton');
-            const modeNormal = document.getElementById('modeNormal');
+            const modeTrophy = document.getElementById('modeTrophy');
+            const modeParty1v1 = document.getElementById('modeParty1v1');
             const mode2v2 = document.getElementById('mode2v2');
+            const modeDisplay = document.getElementById('modeDisplay');
             const arenaButton = document.getElementById('arenaButton'); // NEW
             const arenaBackButton = document.getElementById('arenaBackButton'); // NEW
             const trophyDisplay = document.getElementById('trophyDisplay');
@@ -1769,7 +2056,8 @@ const firebaseConfig = {
                 trophyChests = [];
                 cardCollection = initNewUserCards(false);
                 playerDeck = initNewUserCards(true);
-                playerDeck2v2 = [];
+                playerDeck2v2 = []; 
+                playerDeckParty = [];
                 // We don't save here, we let the game save after a win/loss
             }
 
@@ -1794,6 +2082,7 @@ const firebaseConfig = {
                     cardCollection = dataToLoad.cardCollection || initNewUserCards(false);
                     playerDeck = dataToLoad.playerDeck || initNewUserCards(true);
                     playerDeck2v2 = dataToLoad.playerDeck2v2 || [];
+                    playerDeckParty = dataToLoad.playerDeckParty || [];
                     return;
                 }
 
@@ -1813,9 +2102,10 @@ const firebaseConfig = {
                         towerLevel = data.towerLevel || 1;
                         towerCardCount = data.towerCardCount || 0;
                         trophyChests = data.trophyChests || [];
-                        cardCollection = data.cardCollection || initNewUserCards(false);
-                        playerDeck = data.playerDeck || initNewUserCards(true);
-                        playerDeck2v2 = data.playerDeck2v2 || [];
+                    cardCollection = data.cardCollection || initNewUserCards(false);
+                    playerDeck = data.playerDeck || initNewUserCards(true);
+                    playerDeck2v2 = data.playerDeck2v2 || [];
+                    playerDeckParty = data.playerDeckParty || [];
                     } else {
                         // First time user: init defaults
                         initNewUser();
@@ -1868,6 +2158,7 @@ const firebaseConfig = {
                             cardCollection,
                             playerDeck,
                             playerDeck2v2,
+                            playerDeckParty,
                             lastSaved: new Date().toISOString()
                         };
                         await setDoc(userDocRef, dataToSave, { merge: true });
@@ -1915,7 +2206,7 @@ const firebaseConfig = {
                 // Generate key
                 const dataToSave = {
                     trophies, gold, towerLevel, towerCardCount, 
-                    trophyChests, cardCollection, playerDeck, playerDeck2v2
+                    trophyChests, cardCollection, playerDeck, playerDeck2v2, playerDeckParty
                 };
                 const jsonString = JSON.stringify(dataToSave);
                 const saveKey = btoa(jsonString); // Base64 encode
@@ -1956,39 +2247,38 @@ const firebaseConfig = {
 
             // --- Mode Selector Logic ---
             function updateModeUI() {
-                if (gameMode === '2v2') {
-                    modeNormal.classList.remove('bg-red-600', 'text-white');
-                    modeNormal.classList.add('text-gray-400');
-                    mode2v2.classList.remove('text-gray-400');
-                    mode2v2.classList.add('bg-red-600', 'text-white');
-                } else {
-                    modeNormal.classList.remove('text-gray-400');
-                    modeNormal.classList.add('bg-red-600', 'text-white');
-                    mode2v2.classList.remove('bg-red-600', 'text-white');
-                    mode2v2.classList.add('text-gray-400');
+                // Reset all
+                [modeTrophy, modeParty1v1, mode2v2].forEach(btn => {
+                    btn.classList.remove('bg-red-600', 'text-white');
+                    btn.classList.add('bg-gray-700', 'text-gray-400');
+                    btn.classList.remove('active');
+                });
+                
+                let activeBtn;
+                let modeText = "";
+                if (gameMode === 'trophy') { activeBtn = modeTrophy; modeText = "Trophy Road"; }
+                else if (gameMode === 'party1v1') { activeBtn = modeParty1v1; modeText = "1v1"; }
+                else if (gameMode === '2v2') { activeBtn = mode2v2; modeText = "2v2"; }
+
+                if (activeBtn) {
+                    activeBtn.classList.remove('bg-gray-700', 'text-gray-400');
+                    activeBtn.classList.add('bg-red-600', 'text-white');
+                    activeBtn.classList.add('active');
                 }
+                if (modeDisplay) modeDisplay.textContent = modeText;
             }
 
-            modeNormal.addEventListener('click', () => {
-                gameMode = 'normal';
-                updateModeUI();
-                renderDeckScreen(); // Re-render deck for new mode
-                updateBattleButtonState(); // Update button for new mode
-            });
-
-            mode2v2.addEventListener('click', () => {
-                gameMode = '2v2';
-                updateModeUI();
-                renderDeckScreen(); // Re-render deck for new mode
-                updateBattleButtonState(); // Update button for new mode
-            });
+            modeTrophy.addEventListener('click', () => { gameMode = 'trophy'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
+            modeParty1v1.addEventListener('click', () => { gameMode = 'party1v1'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
+            mode2v2.addEventListener('click', () => { gameMode = '2v2'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
 
             // Initialize mode UI
             updateModeUI();
 
             // --- 2v2 Teammate Choice Modal ---
             function show2v2TeammateChoice() {
-                teammateChoiceModal.style.display = 'flex';
+                // Always play with AI Teammate as 'friend' button is removed
+                aiTeammateBtn.click();
             }
 
             function hide2v2TeammateChoice() {
@@ -2038,7 +2328,7 @@ const firebaseConfig = {
             }
 
             function showCreateCodeModal() {
-                // This function is now handled by the multiplayer script at the bottom
+                alert("Multiplayer features are currently disabled.");
             }
 
             function hideCreateCodeModal() {
@@ -2109,12 +2399,50 @@ const firebaseConfig = {
             // ==============================================
             // SCREEN & NAVIGATION LOGIC
             // ==============================================
+            const navOrder = ['menu', 'deck', 'tower', 'debug'];
             function showScreen(screenId) {
+                // Handle Screen Transitions
+                const prevScreenIndex = navOrder.indexOf(currentScreen);
+                const nextScreenIndex = navOrder.indexOf(screenId);
+                const isNavTransition = prevScreenIndex !== -1 && nextScreenIndex !== -1;
+
                 currentScreen = screenId;
-                screens.forEach(s => { s.id === screenId + 'Screen' ? s.classList.add('active') : s.classList.remove('active'); });
+
+                screens.forEach(s => {
+                    s.classList.remove('active', 'swipe-left', 'swipe-right', 'fade-in');
+                    if (s.id === screenId + 'Screen') {
+                        s.classList.add('active');
+                        if (isNavTransition) {
+                            if (nextScreenIndex > prevScreenIndex) s.classList.add('swipe-right');
+                            else s.classList.add('swipe-left');
+                        } else {
+                            s.classList.add('fade-in');
+                        }
+                    }
+                });
                 
-                if (screenId === 'menu' || screenId === 'deck' || screenId === 'tower' || screenId === 'debug') {
-                    navButtons.forEach(btn => { if (btn.dataset.screen === screenId) { btn.classList.add('text-yellow-400'); btn.classList.remove('text-gray-400'); } else { btn.classList.remove('text-yellow-400'); btn.classList.add('text-gray-400'); } });
+                // Handle Persistent Nav
+                if (['menu', 'deck', 'tower', 'debug'].includes(screenId)) {
+                    persistentNav.style.display = 'block';
+                    // Slight delay to allow display:block to apply before transform if needed
+                    requestAnimationFrame(() => persistentNav.style.transform = 'translate(-50%, 0)');
+
+                    navButtons.forEach((btn, index) => { 
+                        btn.classList.remove('text-yellow-400'); 
+                        btn.classList.add('text-gray-400'); 
+
+                        if (btn.dataset.screen === screenId) { 
+                            btn.classList.add('text-yellow-400'); 
+                            btn.classList.remove('text-gray-400');
+                            // Move Highlight
+                            if (navHighlight) {
+                                navHighlight.style.left = `${index * 25}%`;
+                            }
+                        }
+                    });
+                } else {
+                    // Hide nav for non-main screens (login, game, etc)
+                    persistentNav.style.display = 'none';
                 }
                 
                 if (screenId === 'deck') { renderDeckScreen(); }
@@ -2223,44 +2551,137 @@ const firebaseConfig = {
                 return multipliers[arenaLevel] || 1.0;
             }
             
+            let currentChestIndex = -1;
+            let currentChestStars = 1;
+            let chestClicks = 0;
+            const MAX_CHEST_CLICKS = 4;
+
+            function updateChestUI(stars, statusMsg) {
+                const chestTitle = document.getElementById('chestTitle');
+                const chestStars = document.getElementById('chestStars');
+                const chestStatusText = document.getElementById('chestStatusText');
+                
+                chestTitle.textContent = `${stars} Star Box`;
+                chestStars.innerHTML = '⭐'.repeat(stars);
+                chestStatusText.innerHTML = statusMsg;
+            }
+
             function openChest(index) {
                 const chest = trophyChests[index];
                 if (!chest) return;
-                trophyChests.splice(index, 1);
+                currentChestIndex = index;
+                currentChestStars = 1;
+                chestClicks = 0;
                 
-                const multiplier = getChestRewardMultiplier();
-                const rewardGold = Math.floor((50 + Math.floor(Math.random() * 50)) * multiplier);
+                chestOpenOverlay.style.display = 'flex';
+                document.getElementById('chestRewardList').innerHTML = '';
+                document.getElementById('chestCloseButton').style.display = 'none';
+                document.getElementById('chestEmoji').style.display = 'block';
+                document.getElementById('chestClickArea').style.pointerEvents = 'auto';
+                document.getElementById('chestClickCounter').textContent = 'Tap to Upgrade (0/4)';
+                
+                updateChestUI(1, 'Found a Basic Box!');
+            }
+            
+            document.getElementById('chestClickArea').addEventListener('click', () => {
+                const chestEmoji = document.getElementById('chestEmoji');
+                
+                // Animate click (Shake)
+                chestEmoji.classList.remove('shake-anim');
+                void chestEmoji.offsetWidth; // Trigger reflow
+                chestEmoji.classList.add('shake-anim');
+
+                if (chestClicks < MAX_CHEST_CLICKS) {
+                    chestClicks++;
+                    document.getElementById('chestClickCounter').textContent = `Tap to Upgrade (${chestClicks}/4)`;
+                    
+                    // Upgrade Logic
+                    const chances = {1: 0.6, 2: 0.5, 3: 0.35, 4: 0.2}; // Slightly easier odds for click spam feel
+                    const roll = Math.random();
+                    const required = chances[currentChestStars] || 0;
+
+                    if (currentChestStars < 5 && roll < required) {
+                        currentChestStars++;
+                        chestEmoji.classList.remove('shake-anim'); // Remove shake if upgrading
+                        void chestEmoji.offsetWidth;
+                        chestEmoji.classList.add('animate-pulse');
+                        setTimeout(() => chestEmoji.classList.remove('animate-pulse'), 500);
+                        updateChestUI(currentChestStars, 'Upgrade Successful! ✨');
+                    } else {
+                        // Failed upgrade, but we keep going until 5th click
+                        updateChestUI(currentChestStars, 'No Upgrade...');
+                    }
+                } else {
+                    // 5th Click: Open
+                    document.getElementById('chestClickArea').style.pointerEvents = 'none';
+                    document.getElementById('chestClickCounter').textContent = '';
+                    finalizeChest(currentChestIndex, currentChestStars);
+                }
+            });
+
+            function finalizeChest(index, stars) {
+                trophyChests.splice(index, 1);
+                document.getElementById('chestEmoji').style.display = 'none';
+                document.getElementById('chestStatusText').textContent = 'Rewards';
+                
+                const starMultipliers = {1: 1.0, 2: 1.5, 3: 2.5, 4: 4.0, 5: 10.0};
+                const starMult = starMultipliers[stars];
+                const arenaMult = getChestRewardMultiplier();
+                const totalMult = starMult * arenaMult;
+
+                const rewardGold = Math.floor((50 + Math.floor(Math.random() * 50)) * totalMult);
                 gold += rewardGold;
-                let rewardsHTML = `<div><span class="text-3xl">💰</span> <span class="text-yellow-400">${rewardGold} Gold</span></div>`;
                 
                 const unlockedCards = getUnlockedCards(true);
-                const numCardStacks = Math.floor((2 + Math.floor(Math.random() * 2)) * multiplier);
+                const numCardStacks = Math.max(1, Math.floor((2 + Math.floor(Math.random() * 2)) * Math.sqrt(totalMult)));
+                
+                const rewards = [];
+                rewards.push({ type: 'gold', count: rewardGold, name: 'Gold' });
                 
                 for(let i = 0; i < numCardStacks; i++) {
                     const cardId = unlockedCards[Math.floor(Math.random() * unlockedCards.length)];
-                    const cardCount = Math.floor((3 + Math.floor(Math.random() * 5)) * multiplier);
+                    const baseCount = 3 + Math.floor(Math.random() * 5);
+                    const cardCount = Math.floor(baseCount * totalMult);
+                    rewards.push({ type: 'card', id: cardId, count: cardCount });
                     
                     if (cardId === 'tower') {
                         towerCardCount += cardCount;
-                        rewardsHTML += `<div><span class="text-3xl">👑</span> ${cardCount}x Tower Cards</div>`;
                     } else {
-                        if (!cardCollection[cardId]) {
-                            cardCollection[cardId] = { level: 1, count: 0, unlocked: false };
-                        }
-                        if (!cardCollection[cardId].unlocked) {
-                            cardCollection[cardId].unlocked = true;
-                        }
+                        if (!cardCollection[cardId]) cardCollection[cardId] = { level: 1, count: 0, unlocked: false };
+                        cardCollection[cardId].unlocked = true;
                         cardCollection[cardId].count += cardCount;
-                        rewardsHTML += `<div><span class="text-3xl">${allCards[cardId].emoji}</span> ${cardCount}x ${allCards[cardId].name}</div>`;
                     }
                 }
                 
-                chestRewardList.innerHTML = rewardsHTML;
-                chestOpenOverlay.style.display = 'flex';
-                
-                renderChests();
-                updateArena();
-                saveUserData();
+                // Pop-up animation loop (Improved)
+                const list = document.getElementById('chestRewardList');
+                list.innerHTML = '';
+                let i = 0;
+                function showNextReward() {
+                    if (i >= rewards.length) {
+                        document.getElementById('chestCloseButton').style.display = 'block';
+                        document.getElementById('chestCloseButton').classList.add('animate-bounce');
+                        renderChests();
+                        updateArena();
+                        saveUserData();
+                        return;
+                    }
+                    const r = rewards[i];
+                    const div = document.createElement('div');
+                    // Use new animation class
+                    div.className = 'reward-item bg-gray-700 p-2 rounded flex items-center justify-center space-x-2';
+                    
+                    if (r.type === 'gold') {
+                        div.innerHTML = `<span class="text-3xl">💰</span> <div class="flex flex-col"><span class="text-yellow-400 font-bold text-xl">+${r.count}</span><span class="text-xs text-gray-400">Gold</span></div>`;
+                    } else {
+                        const card = allCards[r.id];
+                        div.innerHTML = `<span class="text-3xl">${card.emoji}</span> <div class="flex flex-col"><span class="font-bold text-xl text-white">+${r.count}</span><span class="text-xs text-gray-400">${card.name}</span></div>`;
+                    }
+                    list.appendChild(div);
+                    i++;
+                    setTimeout(showNextReward, 300); // Faster cadence
+                }
+                showNextReward();
             }
             chestCloseButton.addEventListener('click', () => {
                 chestOpenOverlay.style.display = 'none';
@@ -2342,6 +2763,32 @@ const firebaseConfig = {
             
             battleButton.addEventListener('click', () => {
                 if (battleButton.disabled) return;
+                
+                if (gameMode === 'party1v1') {
+                     if (playerDeckParty.length !== 8) {
+                        alert('Add 8 cards to your 1v1 Party deck first!');
+                        showScreen('deck');
+                        return;
+                     }
+                     // Start 1v1 Party directly
+                     menuScreen.classList.remove('active');
+                     loadingScreen.classList.add('active');
+                     loadingScreen.querySelector('p').textContent = 'Finding Party Opponent...';
+                     setTimeout(() => {
+                        showScreen('game');
+                        messageText.textContent = 'Get Ready!';
+                        startButton.style.display = 'none';
+                        menuButton.style.display = 'none';
+                        messageOverlay.style.display = 'flex';
+                        setTimeout(() => {
+                            initGame();
+                            lastTime = performance.now();
+                            gameLoopId = requestAnimationFrame(gameLoop);
+                        }, 1500);
+                     }, 1000);
+                     return;
+                }
+
                 if (gameMode === '2v2') {
                     if (playerDeck2v2.length !== 8) {
                         alert('Add 8 cards to your 2v2 deck first!');
@@ -2493,26 +2940,33 @@ const firebaseConfig = {
                 if (!card) return null;
                 
                 const cardData = cardCollection[cardId];
-                // In 2v2 mode, treat all cards as unlocked and level 15
-                const isLocked = (gameMode === '2v2') ? false : (!inHand && (!cardData || !cardData.unlocked));
+                // In 2v2 or Party mode, treat all cards as unlocked
+                const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
+                const isLocked = isParty ? false : (!inHand && (!cardData || !cardData.unlocked));
                 
                 const cardEl = document.createElement('div');
-                cardEl.className = `card-ui ${isSmall ? 'card-ui-small' : ''}`;
+                // Added btn-shine to cards
+                cardEl.className = `card-ui btn-shine ${isSmall ? 'card-ui-small' : ''}`;
                 cardEl.dataset.unit = cardId;
                 
-                if (isLocked) { // Removed !inHand check, it's now at the top
+                if (isLocked) { 
                     cardEl.classList.add('card-ui-locked');
+                    let lockedText = ``;
+                    // Only show "Unlocks in Arena X" if it's NOT Arena 1
+                    if (card.arena !== 1) {
+                        lockedText = `<div class="card-ui-locked-arena">Unlocks in Arena ${card.arena}</div>`;
+                    }
                     cardEl.innerHTML = `
                         <div class="card-ui-cost">${card.cost}</div>
                         <span class="card-ui-name">${card.name}</span>
                         <span class="card-ui-emoji">${card.emoji}</span>
                         <span class="card-ui-type">${card.type}</span>
-                        <div class="card-ui-locked-arena">Unlocks in Arena ${card.arena}</div>
+                        ${lockedText}
                     `;
                     return cardEl;
                 }
 
-                const displayLevel = (gameMode === '2v2') ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
+                const displayLevel = isParty ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
                 const displayCount = (cardData && cardData.count) ? cardData.count : 0;
                 
                 cardEl.dataset.cost = card.cost;
@@ -2558,7 +3012,11 @@ const firebaseConfig = {
                 collectionCardGrid.innerHTML = '';
                 lockedCardGrid.innerHTML = ''; 
                 
-                const currentDeck = gameMode === '2v2' ? playerDeck2v2 : playerDeck;
+                let currentDeck;
+                if (gameMode === '2v2') currentDeck = playerDeck2v2;
+                else if (gameMode === 'party1v1') currentDeck = playerDeckParty;
+                else currentDeck = playerDeck;
+
                 deckCount.textContent = `Deck (${currentDeck.length} / 8)`;
                 
                 // Render Deck
@@ -2570,16 +3028,18 @@ const firebaseConfig = {
                 
                 // Render Collection & Locked Cards
                 for (const cardId in allCards) {
-                    if (cardId === 'tower' || cardId === 'miniStoneGiant') continue; // Don't show tower or internal mini in collection
+                    if (cardId === 'tower' || cardId === 'miniStoneGiant') continue; 
                     
                     const cardData = cardCollection[cardId];
-                    const isLocked = (gameMode === '2v2') ? false : (!cardData || !cardData.unlocked);
+                    const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
+                    const isLocked = isParty ? false : (!cardData || !cardData.unlocked);
                     
                     const cardEl = createCardDOM(cardId, true);
                     cardEl.addEventListener('click', () => openCardModal(cardId));
                     
-                    if (gameMode === '2v2') {
-                        // In 2v2, all cards go to collection (unlocked)
+                    if (isParty) {
+                        // In party modes, all cards go to collection and visually look unlocked
+                        // createCardDOM handles the visual unlocking for Party Mode
                         collectionCardGrid.appendChild(cardEl);
                     } else {
                         // Normal mode: respect locks
@@ -2637,7 +3097,11 @@ const firebaseConfig = {
 
 
             function updateBattleButtonState() {
-                const currentDeck = gameMode === '2v2' ? playerDeck2v2 : playerDeck;
+                let currentDeck;
+                if (gameMode === '2v2') currentDeck = playerDeck2v2;
+                else if (gameMode === 'party1v1') currentDeck = playerDeckParty;
+                else currentDeck = playerDeck;
+
                 if (currentDeck.length === 8) {
                     battleButton.disabled = false;
                     battleButton.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -2658,9 +3122,9 @@ const firebaseConfig = {
                 const cardData = cardCollection[cardId];
                 if (!card) return; // Exit if card invalid
                 
-                // In 2v2 mode, treat all cards as unlocked and level 15 for display only
-                const isLocked = (gameMode === '2v2') ? false : (!cardData || !cardData.unlocked);
-                const displayLevel = (gameMode === '2v2') ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
+                const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
+                const isLocked = isParty ? false : (!cardData || !cardData.unlocked);
+                const displayLevel = isParty ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
                 
                 // --- FIX: Check if card.stats exists ---
                 const stats = card.stats ? card.stats[displayLevel] : null;
@@ -2718,7 +3182,11 @@ const firebaseConfig = {
                     if(isLocked) cardInfoLevel.textContent = `Unlocks in Arena ${card.arena}`;
                 } else {
                     // Is unlocked and has stats: Show buttons and progress
-                    const currentDeck = gameMode === '2v2' ? playerDeck2v2 : playerDeck;
+                    let currentDeck;
+                    if (gameMode === '2v2') currentDeck = playerDeck2v2;
+                    else if (gameMode === 'party1v1') currentDeck = playerDeckParty;
+                    else currentDeck = playerDeck;
+
                     const isInDeck = currentDeck.includes(cardId);
                     let addRemoveBtn = document.createElement('button');
                     addRemoveBtn.id = 'addRemoveBtn';
@@ -2769,7 +3237,11 @@ const firebaseConfig = {
             }
             
             async function addToDeck(cardId) {
-                const currentDeck = gameMode === '2v2' ? playerDeck2v2 : playerDeck;
+                let currentDeck;
+                if (gameMode === '2v2') currentDeck = playerDeck2v2;
+                else if (gameMode === 'party1v1') currentDeck = playerDeckParty;
+                else currentDeck = playerDeck;
+
                 if (currentDeck.length < 8) {
                     currentDeck.push(cardId);
                     renderDeckScreen();
@@ -2779,7 +3251,11 @@ const firebaseConfig = {
                 }
             }
             async function removeFromDeck(cardId) {
-                const currentDeck = gameMode === '2v2' ? playerDeck2v2 : playerDeck;
+                let currentDeck;
+                if (gameMode === '2v2') currentDeck = playerDeck2v2;
+                else if (gameMode === 'party1v1') currentDeck = playerDeckParty;
+                else currentDeck = playerDeck;
+
                 const index = currentDeck.indexOf(cardId);
                 if (index > -1) {
                     currentDeck.splice(index, 1);
@@ -2809,7 +3285,12 @@ const firebaseConfig = {
 
             function startGameDecks() {
                 // Player
-                gameDeck = shuffleDeck(playerDeck);
+                let deckToUse;
+                if (gameMode === '2v2') deckToUse = playerDeck2v2;
+                else if (gameMode === 'party1v1') deckToUse = playerDeckParty;
+                else deckToUse = playerDeck;
+
+                gameDeck = shuffleDeck(deckToUse);
                 hand = [];
                 discardPile = [];
                 for (let i = 0; i < 4; i++) { hand.push(gameDeck.pop()); }
@@ -2986,22 +3467,32 @@ const firebaseConfig = {
             // ==============================================
             // GAME OBJECTS (CLASSES)
             // ==============================================
-            class GameObject {
-                constructor(x, y, radius, team, health) { this.x = x; this.y = y; this.radius = radius; this.team = team; this.health = health; this.maxHealth = health; this.id = Math.random(); }
-                // FIX: Removed bad code from here
+                        class GameObject {
+                constructor(x, y, radius, team, health) { 
+                    this.x = x; this.y = y; this.radius = radius; this.team = team; this.health = health; this.maxHealth = health; this.id = Math.random(); 
+                    // Visual Effects
+                    this.spawnTimer = 0;
+                    this.spawnMax = 12;
+                    this.prevHealth = health;
+                    this.hitFlashTimer = 0;
+                }
                 drawHealthBar(level) { 
                     const barWidth = this.radius * 2; 
                     const barHeight = 5; 
                     const barX = this.x - this.radius; 
-                    const barY = this.y - this.radius - (this instanceof Tower ? 5 : 10); // Towers' bars are closer
+                    const barY = this.y - this.radius - (this instanceof Tower ? 8 : 12); 
                     
+                    // Simple Shadow for bar
+                    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                    ctx.fillRect(barX + 1, barY + 1, barWidth, barHeight);
+
                     if (this.health < this.maxHealth) {
-                        ctx.fillStyle = '#dc2626'; 
+                        ctx.fillStyle = '#7f1d1d'; // Dark Red bg
                         ctx.fillRect(barX, barY, barWidth, barHeight); 
-                        ctx.fillStyle = '#16a34a'; 
+                        ctx.fillStyle = '#22c55e'; 
                         ctx.fillRect(barX, barY, barWidth * (this.health / this.maxHealth), barHeight); 
                     } else {
-                        ctx.fillStyle = '#16a34a'; 
+                        ctx.fillStyle = '#22c55e'; 
                         ctx.fillRect(barX, barY, barWidth, barHeight); 
                     }
                     // Black outline
@@ -3009,41 +3500,142 @@ const firebaseConfig = {
                     ctx.lineWidth = 1;
                     ctx.strokeRect(barX, barY, barWidth, barHeight);
                     
-                    // Draw Level
                     if (level) {
-                        ctx.font = 'bold 10px Inter';
+                        ctx.font = 'bold 11px Inter';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'bottom';
-                        ctx.fillStyle = this.team === 'player' ? '#fff' : '#fde047'; // Player level white, AI yellow
-                        
+                        ctx.lineWidth = 3;
+                        ctx.strokeStyle = 'black';
+                        ctx.fillStyle = this.team === 'player' ? '#fff' : '#fcd34d'; 
                         let textX = this.x;
-                        let textY = this.y - this.radius - 12;
-                        
-                        // Adjust position for combined double king tower
-                        if (this.isCombinedDoubleKing) {
-                            textY = this.y - this.height/2 - 12;
-                        }
-                        
+                        let textY = this.y - this.radius - 14;
+                        if (this.isCombinedDoubleKing) textY = this.y - this.height/2 - 14;
+                        ctx.strokeText(`Lvl ${level}`, textX, textY);
                         ctx.fillText(`Lvl ${level}`, textX, textY);
                     }
                 }
                 draw(color, emoji, level) { 
+                    // Spawn Animation Logic
+                    let scale = 1;
+                    if (this.spawnTimer < this.spawnMax) {
+                        this.spawnTimer++;
+                        const t = this.spawnTimer / this.spawnMax;
+                        // Elastic pop effect
+                        scale = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+                        if (scale > 1.2) scale = 1.2;
+                        if (t >= 1) scale = 1;
+                    }
+
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.scale(scale, scale);
+                    
+                    // Check Damage for Flash
+                    if (this.health < this.prevHealth) {
+                        this.hitFlashTimer = 5;
+                        this.prevHealth = this.health;
+                    }
+
+                    // Shadow
+                    ctx.beginPath();
+                    ctx.ellipse(0, this.radius * 0.4, this.radius, this.radius * 0.4, 0, 0, Math.PI*2);
+                    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                    ctx.fill();
+
+                    // Unit Body
                     ctx.beginPath(); 
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); 
+                    ctx.arc(0, 0, this.radius, 0, Math.PI * 2); 
                     ctx.fillStyle = color; 
+                    
+                    // Hit Flash Override
+                    if (this.hitFlashTimer > 0) {
+                        ctx.fillStyle = '#ffffff';
+                        this.hitFlashTimer--;
+                    }
+
                     ctx.fill(); 
                     ctx.strokeStyle = 'black'; 
                     ctx.lineWidth = 2; 
                     ctx.stroke(); 
+                    
                     if (emoji) { 
                         ctx.font = `${this.radius * 1.5}px Arial`; 
                         ctx.textAlign = 'center'; 
                         ctx.textBaseline = 'middle'; 
-                        ctx.fillText(emoji, this.x, this.y); 
-                    } 
+                        // No shadow for text inside to keep clean
+                        ctx.fillText(emoji, 0, 0); 
+                    }
+
+                    ctx.restore(); // Restore scale/translate
+
                     this.drawHealthBar(level); 
                 }
                 update() {}
+            }
+
+            class DeathEffect extends GameObject {
+                constructor(x, y, emoji) {
+                    super(x, y, 0, 'neutral', 1);
+                    this.emoji = emoji;
+                    this.timer = 20;
+                    this.rise = 0;
+                }
+                update() {
+                    this.timer--;
+                    this.rise += 1;
+                    if (this.timer <= 0) this.health = 0;
+                }
+                draw() {
+                    ctx.save();
+                    ctx.globalAlpha = this.timer / 20;
+                    ctx.font = '24px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = 'black'; // Shadow
+                    ctx.fillText(this.emoji || '💀', this.x, this.y - this.rise);
+                    ctx.restore();
+                }
+            }
+
+            class ParticleExplosion extends GameObject {
+                constructor(x, y, color) {
+                    super(x, y, 0, 'neutral', 1);
+                    this.particles = [];
+                    // Bigger and more particles
+                    for(let i=0; i<12; i++) {
+                        const angle = (Math.PI * 2 * i) / 12;
+                        this.particles.push({ 
+                            x: 0, y: 0, 
+                            vx: Math.cos(angle) * 4, vy: Math.sin(angle) * 4,
+                            life: 20,
+                            size: 4 + Math.random() * 4
+                        });
+                    }
+                    this.color = color || '#ffc107';
+                }
+                update() {
+                    let active = false;
+                    this.particles.forEach(p => {
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.life--;
+                        if (p.life > 0) active = true;
+                    });
+                    if (!active) this.health = 0;
+                }
+                draw() {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.fillStyle = this.color;
+                    this.particles.forEach(p => {
+                        if (p.life > 0) {
+                            ctx.globalAlpha = p.life / 20;
+                            ctx.beginPath();
+                            ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+                            ctx.fill();
+                        }
+                    });
+                    ctx.restore();
+                }
             }
 
             class Tower extends GameObject {
@@ -3119,85 +3711,110 @@ const firebaseConfig = {
                 draw() { 
                     ctx.save(); 
                     
-                    // Draw the tower base (blue rectangle)
-                    const fillColor = this.team === 'player' ? '#3b82f6' : '#ef4444';
-                    ctx.fillStyle = fillColor;
+                    // Enhanced Tower Visuals
+                    const baseColor = this.team === 'player' ? '#1e3a8a' : '#7f1d1d'; // Darker base
+                    const mainColor = this.team === 'player' ? '#3b82f6' : '#ef4444'; // Main color
+                    const highlight = this.team === 'player' ? '#60a5fa' : '#f87171'; // Highlight
                     
-                    if (this.isCombinedDoubleKing) {
-                        // Make the rectangle smaller but keep the same proportions for 2v2 king tower
-                        const rectWidth = this.radius * 2.5;  // Reduced from 3.5 to 2.5
-                        const rectHeight = this.radius * 1.6; // Reduced from 2.2 to 1.6 (keeping same ratio)
-                        ctx.fillRect(
-                            this.x - rectWidth/2, 
-                            this.y - rectHeight/2, 
-                            rectWidth, 
-                            rectHeight
-                        );
-                        // Add border
-                        ctx.strokeStyle = 'black';
-                        ctx.lineWidth = 2;
-                        ctx.strokeRect(
-                            this.x - rectWidth/2, 
-                            this.y - rectHeight/2, 
-                            rectWidth, 
-                            rectHeight
-                        );
-                    } else if (this.dyingAnimationTimer > 0) { 
+                    // Shake effect if dying
+                    if (this.dyingAnimationTimer > 0) { 
                         ctx.globalAlpha = Math.max(0, this.dyingAnimationTimer / 30); 
                         const shakeX = (Math.random() - 0.5) * 4; 
                         const shakeY = (Math.random() - 0.5) * 4; 
-                        ctx.fillRect(
-                            this.x - this.radius + shakeX, 
-                            this.y - this.radius + shakeY, 
-                            this.radius * 2, 
-                            this.radius * 2
-                        );
-                    } else {
-                        // Regular tower drawing
-                        ctx.fillRect(
-                            this.x - this.radius, 
-                            this.y - this.radius, 
-                            this.radius * 2, 
-                            this.radius * 2
-                        );
-                        ctx.strokeStyle = 'black';
-                        ctx.lineWidth = 2;
-                        ctx.strokeRect(
-                            this.x - this.radius, 
-                            this.y - this.radius, 
-                            this.radius * 2, 
-                            this.radius * 2
-                        );
+                        ctx.translate(shakeX, shakeY);
                     }
-                    
-                    // Draw the emoji on top
-                    const emojiSize = this.isCombinedDoubleKing ? this.radius * 0.8 : this.radius * 1.5; // Reduced from 1.2 to 0.8 for 2v2
-                    ctx.font = `${emojiSize}px Arial`; 
-                    ctx.textAlign = 'center'; 
-                    ctx.textBaseline = 'middle';
-                    
+
                     if (this.isCombinedDoubleKing) {
-                        // Draw two smaller crown emojis further apart
-                        const emojiSpacing = this.radius * 0.8; // Increased spacing between emojis
+                        // Double King Tower logic (simplified for now but using new colors)
+                        const w = this.radius * 2.5;
+                        const h = this.radius * 1.6;
+                        ctx.fillStyle = baseColor;
+                        ctx.fillRect(this.x - w/2, this.y - h/2 + 5, w, h); // Shadow/Base
+                        ctx.fillStyle = mainColor;
+                        ctx.fillRect(this.x - w/2, this.y - h/2, w, h);
+                        ctx.strokeStyle = '#000';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(this.x - w/2, this.y - h/2, w, h);
+                        
+                        // Battlements
+                        const batW = w / 5;
+                        ctx.fillStyle = mainColor;
+                        for(let i=0; i<5; i+=2) {
+                             ctx.fillRect(this.x - w/2 + i*batW, this.y - h/2 - 6, batW, 6);
+                             ctx.strokeRect(this.x - w/2 + i*batW, this.y - h/2 - 6, batW, 6);
+                        }
+
+                        const emojiSpacing = this.radius * 0.8;
+                        ctx.font = `${this.radius * 0.8}px Arial`;
+                        ctx.textAlign = 'center'; 
+                        ctx.textBaseline = 'middle';
                         ctx.fillText('👑', this.x - emojiSpacing/2, this.y);
                         ctx.fillText('👑', this.x + emojiSpacing/2, this.y);
+
                     } else {
-                        const emoji = this.isKing ? '👑' : '👸'; 
-                        ctx.fillText(emoji, this.x, this.y);
-                    } 
+                        // Standard Tower Visuals (Castle Style)
+                        const w = this.radius * 2;
+                        const h = this.radius * 2;
+                        
+                        // REMOVED Darker Base Shadow as requested
+                        // Main Body
+                        ctx.fillStyle = mainColor;
+                        ctx.fillRect(this.x - this.radius, this.y - this.radius, w, h);
+                        
+                        // 3D Highlight (Left side)
+                        ctx.fillStyle = highlight;
+                        ctx.fillRect(this.x - this.radius, this.y - this.radius, 4, h);
+
+                        // Stone Texture (Horizontal Lines)
+                        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                        ctx.fillRect(this.x - this.radius, this.y - this.radius + h/3, w, 2);
+                        ctx.fillRect(this.x - this.radius, this.y - this.radius + 2*h/3, w, 2);
+
+                        // Battlements (Top)
+                        const batW = w / 3;
+                        const batH = 8;
+                        ctx.fillStyle = mainColor;
+                        // Left Battlement
+                        ctx.fillRect(this.x - this.radius, this.y - this.radius - batH, batW/2, batH);
+                        ctx.strokeRect(this.x - this.radius, this.y - this.radius - batH, batW/2, batH);
+                        // Middle Battlement
+                        ctx.fillRect(this.x - batW/4, this.y - this.radius - batH, batW/2, batH);
+                        ctx.strokeRect(this.x - batW/4, this.y - this.radius - batH, batW/2, batH);
+                        // Right Battlement
+                        ctx.fillRect(this.x + this.radius - batW/2, this.y - this.radius - batH, batW/2, batH);
+                        ctx.strokeRect(this.x + this.radius - batW/2, this.y - this.radius - batH, batW/2, batH);
+
+                        // Border
+                        ctx.strokeStyle = '#000';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(this.x - this.radius, this.y - this.radius, w, h);
+                        
+                        // Door (for King Tower) or Window
+                        if (this.isKing) {
+                             ctx.fillStyle = '#4b2e2e'; // Dark wood
+                             ctx.beginPath();
+                             ctx.arc(this.x, this.y + this.radius, this.radius/2.5, Math.PI, 0);
+                             ctx.fill();
+                        }
+
+                        // Emoji
+                        const emoji = this.isKing ? '👑' : '👸';
+                        ctx.font = `${this.radius * 1.3}px Arial`;
+                        ctx.textAlign = 'center'; 
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(emoji, this.x, this.y - 2); // Slight offset up
+                    }
                     
-                    // Draw activation animation if needed
+                    // Draw activation animation
                     if (this.activationAnimation > 0) { 
                         this.activationAnimation--; 
                         ctx.fillStyle = `rgba(255, 255, 0, ${0.5 * (this.activationAnimation / 30)})`; 
                         ctx.beginPath(); 
-                        ctx.arc(this.x, this.y, this.radius + 10, 0, Math.PI * 2); 
+                        ctx.arc(this.x, this.y, this.radius + 15, 0, Math.PI * 2); 
                         ctx.fill(); 
                     } 
                     
-                    // Draw health bar
                     this.drawHealthBar(this.level);
-                    
                     ctx.restore(); 
                 }
             }
@@ -4702,14 +5319,28 @@ class StoneGiant extends Unit {
             }
 
             class AngerSpell extends GameObject {
-                constructor(x, y, team, radius, duration) {
+                constructor(x, y, team, radius, duration, spawnDamage) {
                     super(x, y, radius, team, 1);
                     this.duration = duration * 60;
                     this.lifetime = this.duration;
                     this.angeredUnits = new Set();
+                    this.spawnDamage = spawnDamage || 150; // High range damage on spawn
+                    this.hasDealtDamage = false;
                 }
                 update() {
                     this.lifetime--;
+                    // Spawn Damage (One-time)
+                    if (!this.hasDealtDamage) {
+                        this.hasDealtDamage = true;
+                        for (const obj of gameObjects) {
+                            if (obj.team !== this.team && (obj instanceof Unit || obj instanceof Building || obj instanceof Tower)) {
+                                if (getDistance(this, obj) < this.radius) {
+                                    obj.health -= this.spawnDamage;
+                                }
+                            }
+                        }
+                        gameObjects.push(new ExplosionEffect(this.x, this.y, this.radius));
+                    }
                     if (this.lifetime <= 0) {
                         // Spell expired: all buffed units/buildings/towers immediately lose Anger.
                         this.angeredUnits.forEach(unit => {
@@ -4737,11 +5368,11 @@ class StoneGiant extends Unit {
                                     obj.isAngered = true;
                                     if (obj.attackDamage !== undefined) {
                                         obj.originalDamage = obj.attackDamage;
-                                        obj.attackDamage *= 2;
+                                        obj.attackDamage = Math.floor(obj.attackDamage * 1.25); // 1.25x Damage
                                     }
                                     if (obj.attackCooldown !== undefined) {
                                         obj.originalCooldown = obj.attackCooldown;
-                                        obj.attackCooldown = Math.floor(obj.attackCooldown / 1.5);
+                                        obj.attackCooldown = Math.floor(obj.attackCooldown / 1.5); // 1.5x Speed
                                     }
                                     this.angeredUnits.add(obj);
                                 }
@@ -4872,7 +5503,7 @@ class StoneGiant extends Unit {
                 }
             }
 
-            class Projectile extends GameObject {
+                        class Projectile extends GameObject {
                 constructor(x, y, target, team, damage, splashRadius = 0) { 
                     super(x, y, 4, team, 1); 
                     this.target = target; 
@@ -4898,6 +5529,8 @@ class StoneGiant extends Unit {
                                     }
                                 }
                             }
+                            // Spawn Explosion Visual
+                            gameObjects.push(new ParticleExplosion(this.x, this.y, '#ff5722'));
                         }
                         
                         this.health = 0; 
@@ -4914,13 +5547,17 @@ class StoneGiant extends Unit {
                     ctx.fill(); 
                 }
             }
-            
+
             class FireballProjectile extends Projectile {
-                draw() { 
-                    ctx.beginPath(); 
-                    ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2); 
-                    ctx.fillStyle = this.team === 'player' ? '#ffc107' : '#ff6f00'; 
-                    ctx.fill(); 
+                constructor(x, y, target, team, damage, splashRadius = 0) {
+                    super(x, y, target, team, damage, splashRadius);
+                    this.radius = 6;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = this.team === 'player' ? '#ffc107' : '#ff6f00';
+                    ctx.fill();
                 }
             }
 
@@ -5098,8 +5735,8 @@ class StoneGiant extends Unit {
                                 stats: { 1: { health: 150, jumpRadius: 100, effectRadius: 60, healDuration: 3 } } },
                     'bombSpirit': { name: 'Bomb Spirit', cost: 2, emoji: '💣', type: 'Spirit', unitClass: BombSpirit, placementRadius: 8, isFlying: false, arena: 6, targets: 'Air & Ground', aggroRange: 200,
                                 stats: { 1: { health: 150, jumpRadius: 100, effectRadius: 50, damage: 200 } } },
-                    'anger': { name: 'Anger', cost: 3, emoji: '😡', type: 'Spell', radius: 60, placementRadius: 60, arena: 6, targets: '-',
-                                stats: { 1: { duration: 5 } } },
+                    'anger': { name: 'Anger', cost: 3, emoji: '😡', type: 'Spell', radius: 60, placementRadius: 60, arena: 6, targets: 'Air & Ground', 
+                                stats: { 1: { duration: 5, damage: 110 } } }, // Nerfed damage buff in AngerSpell class logic
                     // Arena 8 (NEW CARDS)
                     'chaosElemental': { name: 'Chaos Elemental', cost: 5, emoji: '👹', type: 'Melee', unitClass: ChaosElemental, placementRadius: 12, isFlying: false, arena: 8, targets: 'Ground', aggroRange: 100,
                                 stats: { 1: { health: 750, damage: 110, hitSpeed: 1.1, speed: 1.0 }, 2: { health: 825, damage: 121, hitSpeed: 1.1, speed: 1.0 }, 3: { health: 908, damage: 133, hitSpeed: 1.1, speed: 1.0 }, 4: { health: 998, damage: 146, hitSpeed: 1.1, speed: 1.0 }, 5: { health: 1098, damage: 161, hitSpeed: 1.1, speed: 1.0 }, 6: { health: 1208, damage: 177, hitSpeed: 1.1, speed: 1.0 } } },
@@ -5229,26 +5866,31 @@ class StoneGiant extends Unit {
                 if (!card) return null;
                 
                 const cardData = cardCollection[cardId];
-                // In 2v2 mode, treat all cards as unlocked and level 15
-                const isLocked = (gameMode === '2v2') ? false : (!inHand && (!cardData || !cardData.unlocked));
+                // In 2v2 or Party mode, treat all cards as unlocked and level 15
+                const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
+                const isLocked = isParty ? false : (!inHand && (!cardData || !cardData.unlocked));
                 
                 const cardEl = document.createElement('div');
-                cardEl.className = `card-ui ${isSmall ? 'card-ui-small' : ''}`;
+                cardEl.className = `card-ui btn-shine ${isSmall ? 'card-ui-small' : ''}`;
                 cardEl.dataset.unit = cardId;
                 
                 if (isLocked) { // Removed !inHand check, it's now at the top
                     cardEl.classList.add('card-ui-locked');
+                    let lockedText = ``;
+                    if (card.arena !== 1) {
+                        lockedText = `<div class="card-ui-locked-arena">Unlocks in Arena ${card.arena}</div>`;
+                    }
                     cardEl.innerHTML = `
                         <div class="card-ui-cost">${card.cost}</div>
                         <span class="card-ui-name">${card.name}</span>
                         <span class="card-ui-emoji">${card.emoji}</span>
                         <span class="card-ui-type">${card.type}</span>
-                        <div class="card-ui-locked-arena">Unlocks in Arena ${card.arena}</div>
+                        ${lockedText}
                     `;
                     return cardEl;
                 }
 
-                const displayLevel = (gameMode === '2v2') ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
+                const displayLevel = isParty ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
                 const displayCount = (cardData && cardData.count) ? cardData.count : 0;
                 
                 cardEl.dataset.cost = card.cost;
@@ -5306,7 +5948,7 @@ class StoneGiant extends Unit {
             
             function startGameDecks() {
                 // Player
-                gameDeck = shuffleDeck(playerDeck);
+                gameDeck = shuffleDeck(gameMode === '2v2' ? playerDeck2v2 : playerDeck);
                 hand = [];
                 discardPile = [];
                 for (let i = 0; i < 4; i++) { hand.push(gameDeck.pop()); }
@@ -5423,8 +6065,9 @@ class StoneGiant extends Unit {
                     currentAiStatLevel = Math.floor(Math.random() * 2) + 5; // 5 or 6
                 }
                 
-                const playerTowerLevel = (gameMode === '2v2') ? 15 : towerLevel;
-                const aiTowerLevel = (gameMode === '2v2') ? 15 : currentAiStatLevel;
+                const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
+                const playerTowerLevel = isParty ? 15 : towerLevel;
+                const aiTowerLevel = isParty ? 15 : currentAiStatLevel;
                 
                 if (gameMode === '2v2') {
                     // 2v2: Two princess towers per side, one combined double king tower per side (rectangular, same height as normal king)
@@ -5517,8 +6160,9 @@ class StoneGiant extends Unit {
                 const card = allCards[cardId];
                 if (!card || card.cost > aiElixir) return;
                 
-                // Get AI's level for this card (force 15 in 2v2)
-                const cardLevel = (gameMode === '2v2') ? 15 : level;
+                // Get AI's level for this card (force 15 in 2v2 or Party 1v1)
+                const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
+                const cardLevel = isParty ? 15 : level;
                 
                 if (card.type === 'Spell') {
                     let target = null;
@@ -5545,7 +6189,7 @@ class StoneGiant extends Unit {
                             gameObjects.push(new PoisonSpell(target.x, target.y, 'ai', s.damagePerSecond, card.radius, s.duration));
                         } else if (cardId === 'anger') { // NEW
                             const s = card.stats[cardLevel];
-                            gameObjects.push(new AngerSpell(target.x, target.y, 'ai', card.radius, s.duration));
+                            gameObjects.push(new AngerSpell(target.x, target.y, 'ai', card.radius, s.duration, s.damage));
                         } else if (cardId === 'voidTrap') { // NEW
                             const damage = card.stats[cardLevel].damage;
                             gameObjects.push(new VoidTrapEffect(target.x, target.y, 'ai', card.radius, damage));
@@ -6114,12 +6758,16 @@ class StoneGiant extends Unit {
             async function showWinScreen() {
                 if (!gameRunning) return;
                 gameRunning = false;
-                isOvertime = false; // NEW: Stop overtime check
+                isOvertime = false;
                 isTieBreaker = false;
                 cancelAnimationFrame(gameLoopId);
-                trophies += 30;
-                updateArena();
-                trophyDisplay.textContent = `🏆 ${trophies}`;
+                
+                // Trophies only for Trophy Road
+                if (gameMode === 'trophy') {
+                    trophies += 30;
+                    updateArena();
+                    trophyDisplay.textContent = `🏆 ${trophies}`;
+                }
                 
                 // Show Play Again button for multiplayer
                 if (is2v2Friend && !is2v2AITeammate) {
@@ -6137,13 +6785,25 @@ class StoneGiant extends Unit {
                     trophyChests.push({ id: 'wood', openTime: 0 });
                     renderChests();
                 }
-                messageText.textContent = gameMode === '2v2' ? 'You Win!' : 'You Win! (+30 🏆, +50 💰, 📦)';
+                let msg = 'You Win!';
+                if (gameMode === 'trophy') msg += ' (+30 🏆, +50 💰, 📦)';
+                else msg += ' (+50 💰, 📦)';
+                
+                messageText.textContent = msg;
                 messageOverlay.style.display = 'flex';
                 startButton.style.display = 'none';
                 menuButton.style.display = 'inline-block';
+                
+                // Give gold/chest in all modes (except trophies in non-trophy modes)
+                // Note: showWinScreen runs trophies+=30 only for trophy mode above, but duplication here must be fixed
+                // The original code had a bug where it added trophies twice in non-2v2. I will fix.
                 if (gameMode !== '2v2') {
-                    trophies += 30;
-                    gold += 50;
+                    // Removed duplicate trophies logic
+                    // Just gold and chests for now
+                }
+                // Give rewards for ALL modes
+                gold += 50;
+                if (trophyChests.length < 4) {
                     trophyChests.push({ id: 'wood', openTime: 0 });
                     renderChests();
                 }
@@ -6170,7 +6830,7 @@ class StoneGiant extends Unit {
                 // Calculate minimum trophy floor for current arena
                 let minTrophyFloor = 0;
                 let lossAmount = 0;
-                if (gameMode !== '2v2') {
+                if (gameMode === 'trophy') {
                     for (const floor in arenaFloors) {
                         if (trophies >= parseInt(floor)) {
                             minTrophyFloor = parseInt(floor);
@@ -6185,7 +6845,12 @@ class StoneGiant extends Unit {
                     updateArena();
                     trophyDisplay.textContent = `🏆 ${trophies}`;
                 }
-                messageText.textContent = gameMode === '2v2' ? 'You Lose!' : `${message} (-${lossAmount} 🏆)`;
+                
+                if (gameMode === 'trophy') {
+                     messageText.textContent = `${message} (-${lossAmount} 🏆)`;
+                } else {
+                     messageText.textContent = message;
+                }
                 messageOverlay.style.display = 'flex';
                 startButton.style.display = 'none';
                 menuButton.style.display = 'inline-block';
@@ -6252,7 +6917,11 @@ class StoneGiant extends Unit {
                     }
 
                     // Handle units/projectiles/spells
-                    if (obj instanceof Unit || obj instanceof Projectile || obj instanceof Spell || obj instanceof PoisonSpell || obj instanceof AngerSpell || obj instanceof FreezeEffect || obj instanceof HealEffect || obj instanceof ExplosionEffect || obj instanceof VoidTrapEffect || obj instanceof ChaosOrbEffect) {
+                    if (obj instanceof Unit || obj instanceof Projectile || obj instanceof Spell || obj instanceof PoisonSpell || obj instanceof AngerSpell || obj instanceof FreezeEffect || obj instanceof HealEffect || obj instanceof ExplosionEffect || obj instanceof VoidTrapEffect || obj instanceof ChaosOrbEffect || obj instanceof ParticleExplosion || obj instanceof DeathEffect) {
+                        // Spawn Death Effect for Units
+                        if (obj instanceof Unit) {
+                             gameObjects.push(new DeathEffect(obj.x, obj.y, obj.emoji));
+                        }
                         // Special case: Battle Ram needs to spawn barbs
                         if (obj instanceof BattleRam && !obj.didHit) {
                             obj.spawnBarbs();
@@ -6566,7 +7235,7 @@ class StoneGiant extends Unit {
                         gameObjects.push(new PoisonSpell(clampedX, clampedY, 'player', s.damagePerSecond, card.radius, s.duration));
                     } else if (selectedSpawningUnit.id === 'anger') { // NEW
                         const s = card.stats[level];
-                        gameObjects.push(new AngerSpell(clampedX, clampedY, 'player', card.radius, s.duration));
+                        gameObjects.push(new AngerSpell(clampedX, clampedY, 'player', card.radius, s.duration, s.damage));
                     } else if (selectedSpawningUnit.id === 'voidTrap') { // NEW
                         const damage = card.stats[level].damage;
                         gameObjects.push(new VoidTrapEffect(clampedX, clampedY, 'player', card.radius, damage));
@@ -6615,12 +7284,61 @@ class StoneGiant extends Unit {
 
             // --- NEW: Intro Animation Timer ---
             setTimeout(() => {
-                // Only switch if we are still on the intro screen
-                // (e.g., user didn't get logged in by Firebase auto-login first)
                 if (currentScreen === 'intro') { 
                     showScreen('login');
                 }
-            }, 2500); // 2.5 second intro
+            }, 2500); 
+            
+            // Initialize Button Effects
+            function addRippleEffect(btn) {
+                if (btn.dataset.hasRipple) return;
+                btn.dataset.hasRipple = 'true';
+                // Only add btn-shine if not already present to avoid overriding specific styles
+                if (!btn.classList.contains('btn-shine')) btn.classList.add('btn-shine');
+                
+                // Ensure relative positioning for ripple containment
+                const computedStyle = window.getComputedStyle(btn);
+                if (computedStyle.position === 'static') {
+                    btn.style.position = 'relative';
+                }
+                if (computedStyle.overflow !== 'hidden') {
+                    btn.style.overflow = 'hidden';
+                }
+
+                btn.addEventListener('click', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.className = 'ripple-btn';
+                    // Center the ripple on the click
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+                    // Make it big enough
+                    ripple.style.width = '1px';
+                    ripple.style.height = '1px';
+                    
+                    this.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 600);
+                });
+            }
+            
+            // Apply to existing buttons
+            document.querySelectorAll('button, .card-ui, .nav-btn, .mode-tab, .chest-slot, .login-btn, .arena-btn, .debug-btn').forEach(btn => addRippleEffect(btn));
+            
+            // MutationObserver to handle dynamic elements
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === 1) {
+                            if (node.matches('button, .card-ui, .nav-btn, .chest-slot')) addRippleEffect(node);
+                            node.querySelectorAll('button, .card-ui, .nav-btn, .chest-slot').forEach(btn => addRippleEffect(btn));
+                        }
+                    });
+                });
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
             // --- END: Intro Animation ---
         } // Close window.onload function
     </script>
@@ -6632,7 +7350,7 @@ class StoneGiant extends Unit {
             <button id="aiTeammateBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold mb-3 transition">
                 Play with AI Teammate
             </button>
-            <button id="friendTeammateBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold mb-3 transition">
+            <button id="friendTeammateBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold mb-3 transition" style="display:none">
                 Play with Friend
             </button>
             <button id="cancelTeammateBtn" class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg font-bold transition">
@@ -6687,394 +7405,6 @@ class StoneGiant extends Unit {
     </div>
 </div>
 
-<!-- Party System Modals -->
-<div id="createPartyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-gray-800 rounded-lg p-6 w-80">
-        <h2 class="text-2xl font-bold text-center mb-4">Create Party</h2>
-        <form id="createPartyForm" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium mb-1">Party Name</label>
-                <input type="text" id="partyName" placeholder="Enter party name" 
-                       class="w-full p-2 bg-gray-700 rounded text-white">
-            </div>
-            <div>
-                <label class="block text-sm font-medium mb-1">Password (optional)</label>
-                <input type="password" id="partyPassword" placeholder="Leave empty for public" 
-                       class="w-full p-2 bg-gray-700 rounded text-white">
-            </div>
-            <div class="flex space-x-2">
-                <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded">
-                    Create
-                </button>
-                <button type="button" onclick="hideCreatePartyModal()" 
-                        class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded">
-                    Cancel
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
 
-<div id="joinPartyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-gray-800 rounded-lg p-6 w-96">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-bold">Join Party</h2>
-            <button onclick="refreshPartyList()" class="p-2 hover:bg-gray-700 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-            </button>
-        </div>
-        <div id="partyList" class="space-y-2 max-h-96 overflow-y-auto mb-4">
-            <div class="text-center py-4 text-gray-400">Loading parties...</div>
-        </div>
-        <button onclick="hideJoinPartyModal()" 
-                class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded">
-            Close
-        </button>
-    </div>
-</div>
-
-<!-- Multiplayer Scripts -->
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-<script>
-// Multiplayer variables
-let socket;
-let currentLobbyId = null;
-let playerId = null;
-let isConnected = false;
-let playerName = 'Player' + Math.floor(Math.random() * 1000);
-let publicLobbies = [];
-
-// Get DOM elements
-const createPartyModal = document.getElementById('createPartyModal');
-const joinPartyModal = document.getElementById('joinPartyModal');
-const partyList = document.getElementById('partyList');
-const createPartyForm = document.getElementById('createPartyForm');
-const partyNameInput = document.getElementById('partyName');
-const partyPasswordInput = document.getElementById('partyPassword');
-const refreshPartyListBtn = document.getElementById('refreshPartyList');
-const loadingScreen = document.getElementById('loadingScreen');
-const menuScreen = document.getElementById('menuScreen');
-const gameScreen = document.getElementById('gameScreen');
-const messageText = document.getElementById('messageText');
-const menuButton = document.getElementById('menuButton');
-const messageOverlay = document.getElementById('messageOverlay');
-
-// Connect to WebSocket server
-function connectToServer() {
-    // Using a free public WebSocket server
-    socket = io('https://emoji-royale-server.onrender.com', {
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        timeout: 20000
-    });
-
-    // Connection established
-    socket.on('connect', () => {
-        console.log('Connected to server');
-        playerId = socket.id;
-        isConnected = true;
-        showMessage('Connected to server');
-        // Request the latest party list
-        socket.emit('getPartyList');
-    });
-
-    // Handle connection errors
-    socket.on('connect_error', (error) => {
-        console.error('Connection error:', error);
-        showMessage('Connection error: ' + error.message, true);
-    });
-
-    // Handle disconnection
-    socket.on('disconnect', (reason) => {
-        console.log('Disconnected from server:', reason);
-        isConnected = false;
-        if (reason === 'io server disconnect') {
-            socket.connect();
-        }
-    });
-
-    // Handle party list updates
-    socket.on('partyList', (lobbies) => {
-        publicLobbies = lobbies;
-        updatePartyListUI();
-    });
-
-    // Handle party created
-    socket.on('partyCreated', (party) => {
-        currentLobbyId = party.id;
-        isHost = true;
-        showMessage(`Party "${party.name}" created! Waiting for players...`);
-    });
-
-    // Handle player joined
-    socket.on('playerJoined', (party) => {
-        if (isHost && party.players.length === 2) {
-            startMultiplayerGame();
-        }
-    });
-
-    // Handle game starting
-    socket.on('gameStarting', (gameData) => {
-        hideMessage();
-        startMultiplayerGame(gameData);
-    });
-
-    // Handle game action from opponent
-    socket.on('gameAction', (actionData) => {
-        handleIncomingGameAction(actionData);
-    });
-
-    // Handle opponent disconnected
-    socket.on('opponentDisconnected', () => {
-        showMessage('Opponent disconnected!', true);
-        if (gameRunning) {
-            showWinScreen('Opponent disconnected! You win!');
-        }
-    });
-
-    // Handle errors
-    socket.on('error', (error) => {
-        showMessage('Error: ' + error, true);
-    });
-}
-
-// Update the party list UI
-function updatePartyListUI() {
-    if (!partyList) return;
-    
-    if (publicLobbies.length === 0) {
-        partyList.innerHTML = '<div class="text-center py-4 text-gray-400">No parties available. Create one!</div>';
-        return;
-    }
-
-    partyList.innerHTML = publicLobbies.map(party => `
-        <div class="party-item p-3 bg-gray-700 rounded-lg flex justify-between items-center">
-            <div>
-                <h3 class="font-bold">${party.name}</h3>
-                <p class="text-sm text-gray-300">Players: ${party.players.length}/2</p>
-            </div>
-            <div class="flex items-center space-x-2">
-                ${party.hasPassword ? '🔒' : '🌐'}
-                <button onclick="joinParty('${party.id}')" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">
-                    Join
-                </button>
-            </div>
-        </div>
-    `).join('');
-}
-
-// Create a new party
-function createParty(e) {
-    e.preventDefault();
-    const name = partyNameInput.value.trim() || `Party-${Math.floor(Math.random() * 1000)}`;
-    const password = partyPasswordInput.value.trim();
-    
-    socket.emit('createParty', { 
-        name, 
-        password: password || null,
-        playerName
-    });
-    
-    hideCreatePartyModal();
-}
-
-// Join an existing party
-function joinParty(partyId, password = '') {
-    const party = publicLobbies.find(p => p.id === partyId);
-    if (!party) return;
-    
-    if (party.hasPassword && !password) {
-        password = prompt('Enter party password:');
-        if (!password) return;
-    }
-    
-    socket.emit('joinParty', { 
-        partyId, 
-        password,
-        playerName 
-    });
-}
-
-// Refresh the party list
-function refreshPartyList() {
-    socket.emit('getPartyList');
-}
-
-// Start the multiplayer game
-function startMultiplayerGame(gameData = null) {
-    hideCreateCodeModal();
-    hideJoinCodeModal();
-    
-    // Set up the game
-    gameMode = '2v2';
-    is2v2AITeammate = false;
-    initGame();
-    
-    if (gameData) {
-        // Apply game data if provided
-    }
-    
-    showScreen('game');
-    
-    if (!gameLoopId) {
-        gameLoop();
-    }
-}
-
-// Send a game action to the opponent
-function sendGameAction(action, data) {
-    if (!isConnected || !currentLobbyId) return;
-    
-    const actionData = {
-        action,
-        data,
-        timestamp: Date.now()
-    };
-    
-    socket.emit('gameAction', {
-        lobbyId: currentLobbyId,
-        ...actionData
-    });
-}
-
-// Handle incoming game actions
-function handleIncomingGameAction(actionData) {
-    const { action, data } = actionData;
-    
-    switch (action) {
-        case 'playCard':
-            // Handle card played by opponent
-            const { cardId, x, y } = data;
-            // Add logic to spawn opponent's card
-            break;
-            
-        case 'useAbility':
-            // Handle ability used by opponent
-            break;
-    }
-}
-
-// Update the player list in the UI
-function updatePlayerList(players) {
-    const playerList = document.getElementById('playerList');
-    if (playerList) {
-        playerList.innerHTML = players.map(p => 
-            `<div class="text-lg">${p.name} ${p.id === playerId ? '(You)' : ''}</div>`
-        ).join('');
-    }
-}
-
-// Event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    // Connect to the server when the page loads
-    connectToServer();
-    
-    // Set up create party form
-    if (createPartyForm) {
-        createPartyForm.addEventListener('submit', createParty);
-    }
-    
-    // Set up refresh button
-    if (refreshPartyListBtn) {
-        refreshPartyListBtn.addEventListener('click', refreshPartyList);
-    }
-    
-    // Auto-refresh party list every 5 seconds
-    setInterval(refreshPartyList, 5000);
-    
-    // Menu button handler
-    if (menuButton) {
-        menuButton.addEventListener('click', () => {
-            showScreen('menu');
-            if (currentLobbyId) {
-                socket.emit('leaveLobby', { lobbyId: currentLobbyId });
-                currentLobbyId = null;
-                isHost = false;
-            }
-        });
-    }
-});
-
-// UI Functions
-function showCreatePartyModal() {
-    if (createPartyModal) {
-        createPartyModal.style.display = 'flex';
-        partyNameInput.focus();
-    }
-}
-
-function hideCreatePartyModal() {
-    if (createPartyModal) {
-        createPartyModal.style.display = 'none';
-        if (createPartyForm) createPartyForm.reset();
-    }
-}
-
-function showJoinPartyModal() {
-    if (joinPartyModal) {
-        joinPartyModal.style.display = 'flex';
-        refreshPartyList();
-    }
-}
-
-function hideJoinPartyModal() {
-    if (joinPartyModal) {
-        joinPartyModal.style.display = 'none';
-    }
-}
-
-// Show create code modal
-function showCreateCodeModal() {
-    if (createCodeModal) {
-        createCodeModal.style.display = 'flex';
-        createLobby();
-    }
-}
-
-// Hide create code modal
-function hideCreateCodeModal() {
-    if (createCodeModal) {
-        createCodeModal.style.display = 'none';
-    }
-}
-
-// Show join code modal
-function showJoinCodeModal() {
-    if (joinCodeModal) {
-        joinCodeModal.style.display = 'flex';
-        if (codeInput) {
-            codeInput.value = '';
-            codeInput.focus();
-        }
-    }
-}
-
-// Hide join code modal
-function hideJoinCodeModal() {
-    if (joinCodeModal) {
-        joinCodeModal.style.display = 'none';
-    }
-}
-
-// Show a message to the user
-function showMessage(message, isError = false) {
-    if (!messageText) return;
-    
-    messageText.textContent = message;
-    messageText.className = isError ? 'text-red-400' : 'text-white';
-    messageOverlay.style.display = 'flex';
-}
-
-// Hide the message overlay
-function hideMessage() {
-    if (messageOverlay) {
-        messageOverlay.style.display = 'none';
-    }
-}
-</script>
 </body>
 </html>
