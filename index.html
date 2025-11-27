@@ -164,9 +164,22 @@
             0%, 100% { transform: translateY(0) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(5deg); }
         }
+        /* Click Pulse Effect */
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            100% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0); }
+        }
+        .btn-pulse-anim {
+            animation: pulse-ring 0.4s ease-out;
+        }
         #arenaEmoji {
             display: inline-block;
             animation: floatRotate 6s ease-in-out infinite;
+        }
+        .ui-text-effect {
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            font-weight: 900;
+            letter-spacing: 0.5px;
         }
         /* Enhanced Button Hovers */
         .login-btn, .arena-btn, .modal-btn, #battleButton, .debug-btn, #navBtnMenu, #navBtnDeck, #navBtnTower, #navBtnDebug, 
@@ -236,6 +249,13 @@
             background-image:
                 linear-gradient(rgba(147, 51, 234, 0.08) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(147, 51, 234, 0.08) 1px, transparent 1px);
+        }
+        /* CHRISTMAS THEME */
+        canvas.christmas {
+            background-color: #ffffff; /* Pure White Snow */
+            background-image:
+                radial-gradient(#cbd5e1 2px, transparent 2px); /* Subtle snowflakes */
+            background-size: 24px 24px;
         }
         
         #gameContainer {
@@ -425,7 +445,7 @@
             position: absolute;
             top: 0;
             bottom: 0;
-            width: 25%; /* 4 buttons = 25% width */
+            width: 20%; /* 5 buttons = 20% width */
             background-color: rgba(250, 204, 21, 0.15);
             border-left: 1px solid rgba(250, 204, 21, 0.4);
             border-right: 1px solid rgba(250, 204, 21, 0.4);
@@ -601,15 +621,24 @@
             max-width: 350px;
             border: 4px solid #4b5563; /* gray-600 */
             position: relative;
+            max-height: 85vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
         #cardInfoCloseBtn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
+            position: sticky;
+            top: 0;
+            right: 0;
+            margin-left: auto;
             font-size: 2rem;
             line-height: 1;
             cursor: pointer;
             color: #9ca3af; /* gray-400 */
+            background: rgba(55, 65, 81, 0.95);
+            padding: 0 8px;
+            border-radius: 4px;
+            z-index: 50;
         }
         #cardInfoStats, #towerInfoStats {
             font-size: 0.9rem;
@@ -689,6 +718,9 @@
         #chestRewardList {
             font-size: 1.2rem;
             margin-top: 1rem;
+            max-height: 40vh; /* Limit height for scrolling */
+            overflow-y: auto; /* Enable scroll bar */
+            width: 100%;
         }
         #chestRewardList div {
             display: flex;
@@ -823,33 +855,33 @@
             <!-- Header -->
             <div class="flex justify-between items-center w-full">
                 <div class="bg-gray-800 px-4 py-2 rounded-lg">
-                    <span id="goldDisplay" class="text-xl font-bold text-yellow-400">💰 500</span>
+                    <span id="goldDisplay" class="text-xl font-bold text-yellow-400 ui-text-effect">💰 500</span>
                 </div>
                 <div class="bg-gray-800 px-4 py-2 rounded-lg">
-                    <span id="trophyDisplay" class="text-xl font-bold text-blue-400">🏆 0</span>
+                    <span id="trophyDisplay" class="text-xl font-bold text-blue-400 ui-text-effect">🏆 0</span>
                 </div>
             </div>
             
             <!-- Arena Display -->
-            <div id="modeDisplay" class="text-yellow-600 font-bold text-xl mb-2">Trophy Road</div>
+            <div id="modeDisplay" class="text-yellow-600 font-bold text-xl mb-2 ui-text-effect">Trophy Road</div>
             <!-- Mode Selector Buttons -->
             <div class="flex w-11/12 mb-4 bg-gray-800 rounded-lg p-1 gap-1">
-                <button id="modeTrophy" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-red-600 text-white shadow-md btn-shine">Trophy Road</button>
-                <button id="modeParty1v1" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-gray-700 text-gray-400 shadow-md btn-shine">1v1</button>
-                <button id="mode2v2" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-gray-700 text-gray-400 shadow-md btn-shine">2v2</button>
+                <button id="modeTrophy" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-red-600 text-white shadow-md btn-shine ui-text-effect">Trophy Road</button>
+                <button id="modeParty1v1" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-gray-700 text-gray-400 shadow-md btn-shine ui-text-effect">1v1</button>
+                <button id="mode2v2" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-gray-700 text-gray-400 shadow-md btn-shine ui-text-effect">2v2</button>
             </div>
             <div class="flex flex-col items-center my-8">
                 <span id="arenaEmoji" class="text-8xl">🏞️</span>
-                <h2 id="arenaName" class="text-2xl font-bold mt-2">Arena 1: Emoji Valley</h2>
+                <h2 id="arenaName" class="text-2xl font-bold mt-2 ui-text-effect">Arena 1: Emoji Valley</h2>
             </div>
 
             <!-- Battle Button -->
-            <button id="battleButton" class="bg-red-600 hover:bg-red-700 text-white w-3/4 py-4 rounded-lg shadow-lg text-3xl font-extrabold transition transform hover:scale-105 btn-shine">
+            <button id="battleButton" class="bg-red-600 hover:bg-red-700 text-white w-3/4 py-4 rounded-lg shadow-lg text-3xl font-extrabold transition transform hover:scale-105 btn-shine ui-text-effect">
                 BATTLE!
             </button>
             
             <!-- NEW: Arena Button -->
-            <button id="arenaButton" class="arena-btn bg-blue-600 hover:bg-blue-700 mt-4 w-3/4 py-3 text-xl font-bold btn-shine">
+            <button id="arenaButton" class="arena-btn bg-blue-600 hover:bg-blue-700 mt-4 w-3/4 py-3 text-xl font-bold btn-shine ui-text-effect">
                 Arenas
             </button>
             
@@ -879,29 +911,48 @@
     ========================================================
     -->
     <div id="deckScreen" class="screen flex-col items-center p-4">
-        <div class="flex-grow flex flex-col items-center w-full max-w-md pt-8 pb-24">
-            <h1 id="deckCount" class="text-2xl font-bold">Deck (0 / 8)</h1>
-            <div id="deckCardGrid" class="grid grid-cols-4 gap-2 my-4">
-                <!-- Deck cards injected by JS -->
-            </div>
-            
-            <hr class="border-gray-600 w-full my-4">
-            
-            <h2 class="text-2xl font-bold">Your Collection</h2>
-            <div id="collectionCardGrid" class="grid grid-cols-4 gap-2 my-4">
-                <!-- Collection cards injected by JS -->
+        <div class="flex-grow flex flex-col items-center w-full max-w-md pt-6 pb-24">
+            <!-- Battle Deck Section -->
+            <div class="w-full bg-gray-800 rounded-xl p-4 shadow-lg border-2 border-gray-700 mb-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+                <div class="flex justify-between items-end mb-4">
+                     <div>
+                        <h1 class="text-2xl font-black italic tracking-wider text-white" style="text-shadow: 2px 2px 0 #000;">BATTLE DECK</h1>
+                        <p id="deckCount" class="text-xs text-gray-400 font-bold uppercase tracking-widest">0/8 Cards</p>
+                     </div>
+                     <div class="text-right">
+                         <div class="text-xs text-purple-400 font-bold uppercase tracking-widest mb-1">Avg Elixir</div>
+                         <div id="avgElixir" class="text-2xl font-black text-purple-300 leading-none drop-shadow-md">0.0</div>
+                     </div>
+                </div>
+                
+                <div id="deckCardGrid" class="grid grid-cols-4 gap-2 justify-items-center">
+                    <!-- Deck cards injected by JS (Big cards) -->
+                </div>
             </div>
 
-            <!-- NEW: Locked Cards Section -->
-            <hr class="border-gray-600 w-full my-4">
-            <h2 class="text-2xl font-bold">Not Unlocked</h2>
-            <div id="lockedCardGrid" class="grid grid-cols-4 gap-2 my-4">
+            <!-- Collection Header -->
+            <div class="w-full flex items-center mb-4 px-2">
+                <h2 class="text-xl font-bold text-gray-300 flex-grow">Collection</h2>
+                <div class="h-px bg-gray-700 flex-grow ml-4"></div>
+            </div>
+
+            <div id="collectionCardGrid" class="grid grid-cols-4 gap-2 mb-8 justify-items-center w-full">
+                <!-- Collection cards injected by JS (Small cards) -->
+            </div>
+
+            <!-- Locked Header -->
+            <div class="w-full flex items-center mb-4 px-2">
+                <h2 class="text-xl font-bold text-gray-500 flex-grow">Locked</h2>
+                <div class="h-px bg-gray-800 flex-grow ml-4"></div>
+            </div>
+
+            <div id="lockedCardGrid" class="grid grid-cols-4 gap-2 mb-4 justify-items-center w-full">
                 <!-- Locked cards injected by JS -->
             </div>
 
         </div>
-        
-        </div>
+    </div>
 
     <!-- 
     ========================================================
@@ -946,7 +997,7 @@
     -->
     <div id="arenaScreen" class="screen flex-col items-center p-4">
         <div class="flex-grow flex flex-col items-center w-full max-w-md pt-8 pb-24">
-            <h1 class="text-3xl font-bold mb-8">Arenas</h1>
+            <h1 class="text-3xl font-bold mb-8 ui-text-effect">Arenas</h1>
             
             <div class="space-y-4 w-full">
                 <!-- Arena 1 -->
@@ -1024,6 +1075,42 @@
 
     <!-- 
     ========================================================
+    SCREEN: EVENTS
+    ========================================================
+    -->
+    <div id="eventsScreen" class="screen flex-col items-center p-4">
+        <div class="flex-grow flex flex-col items-center w-full max-w-md pt-8 pb-24">
+            <h1 class="text-3xl font-bold text-red-500 mb-2" style="text-shadow: 0 0 15px white, 0 0 30px #ef4444;">🎄 Christmas Event 🎄</h1>
+            <p class="text-green-400 font-bold mb-8" style="text-shadow: 0 0 15px #4ade80, 0 0 30px #22c55e;">Winter Wonderland</p>
+            
+            <div class="bg-gray-800 p-6 rounded-lg w-full mb-6 border-2 border-red-600 relative overflow-hidden">
+                <!-- Snow decoration -->
+                <div class="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20" style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 20px 20px;"></div>
+                
+                <h2 class="text-xl font-bold mb-2" style="text-shadow: 0 0 8px white;">🎁 Daily Holiday Gift</h2>
+                <p class="text-sm text-gray-300 mb-4" style="text-shadow: 0 0 2px black;">Log in every day to claim a free gift from Santa!</p>
+                
+                <div id="christmasGiftStatus" class="text-center mb-4 text-yellow-300 font-bold text-lg" style="text-shadow: 0 0 8px #fde047;"></div>
+                
+                <button id="claimChristmasBtn" class="w-full py-3 bg-red-600 hover:bg-red-700 rounded-lg font-bold text-white shadow-lg btn-shine border-b-4 border-red-800 active:border-b-0 active:translate-y-1">
+                    Open Gift
+                </button>
+            </div>
+
+            <div class="bg-gray-800 p-6 rounded-lg w-full border-2 border-green-600 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20" style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 15px 15px;"></div>
+                <h2 class="text-xl font-bold mb-2" style="text-shadow: 0 0 8px white;">☃️ Snowman Challenge</h2>
+                <p class="text-sm text-gray-300 mb-4" style="text-shadow: 0 0 2px black;">Defeat the Snowman King's icy army!</p>
+                <div id="snowmanChallengeStatus" class="text-center mb-4 text-blue-300 font-bold text-lg" style="text-shadow: 0 0 15px #93c5fd, 0 0 25px #3b82f6;">Win 100 Gold & a Box! 💰📦</div>
+                <button id="btnSnowmanChallenge" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-white shadow-lg btn-shine border-b-4 border-blue-800 active:border-b-0 active:translate-y-1">
+                    Play Challenge
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 
+    ========================================================
     SCREEN: DEBUG (NEW)
     ========================================================
     -->
@@ -1059,20 +1146,23 @@
         <div id="gameContainer">
             <div id="timerDisplay" class="absolute top-2 right-2 text-2xl font-bold bg-black bg-opacity-50 px-4 py-1 rounded-lg z-10">2:00</div>
             <!-- AI Teammate UI (2v2) -->
-            <div id="aiTeammateUI" class="absolute bottom-[-350px] left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none" style="display:none;">
-                <div class="flex justify-center items-end space-x-2">
-                    <div class="flex flex-col items-center">
-                        <span class="text-xs mb-1">NEXT</span>
-                        <div id="aiTeammateNext" class="card-ui-small"></div>
+            <div id="aiTeammateUI" class="absolute bottom-[-340px] left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none z-50 transition-all" style="display:none;">
+                <div class="bg-gray-900 bg-opacity-95 p-3 rounded-xl border-2 border-gray-600 shadow-xl flex flex-col items-center gap-2">
+                    <div class="flex justify-center items-end space-x-3">
+                        <div class="flex flex-col items-center opacity-90">
+                            <span class="text-[10px] text-gray-300 font-bold mb-1 tracking-widest ui-text-effect">NEXT</span>
+                            <div id="aiTeammateNext" class="card-ui-small transform scale-75 origin-bottom"></div>
+                        </div>
+                        <div id="aiTeammateHand" class="flex justify-center space-x-[-5px] transform scale-90"></div>
                     </div>
-                    <div id="aiTeammateHand" class="flex justify-center space-x-2"></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div class="text-white text-xs">Teammate Elixir</div>
-                    <div class="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
-                        <div id="aiTeammateElixirBar" class="h-full bg-purple-500 transition-all duration-300" style="width: 0%"></div>
+                    <div class="flex items-center gap-2 w-full px-2">
+                        <span class="text-[10px] font-bold text-purple-300 uppercase tracking-wider ui-text-effect">Ally</span>
+                        <div class="flex-grow h-3 bg-gray-800 rounded-full border border-gray-600 overflow-hidden relative">
+                            <div class="absolute inset-0" style="background-image: repeating-linear-gradient(90deg, transparent, transparent 19%, rgba(255,255,255,0.1) 20%); background-size: 10% 100%;"></div>
+                            <div id="aiTeammateElixirBar" class="h-full bg-gradient-to-r from-purple-600 to-purple-400" style="width: 0%"></div>
+                        </div>
+                        <span id="aiTeammateElixirCount" class="text-xs font-black text-white ui-text-effect">0</span>
                     </div>
-                    <div id="aiTeammateElixirCount" class="text-white text-xs">0/10</div>
                 </div>
             </div>
             <!-- NEW: Placement Overlay -->
@@ -1096,24 +1186,29 @@
         </div>
 
         <!-- Card UI Bar -->
-        <div class="bg-gray-800 p-4 shadow-inner w-full max-w-md mt-2 rounded-lg" style="padding-bottom: env(safe-area-inset-bottom, 1rem);">
+        <div class="bg-gradient-to-b from-gray-800 to-gray-900 p-4 border-t-4 border-gray-700 shadow-2xl w-full max-w-md mt-2 rounded-xl relative z-20" style="padding-bottom: env(safe-area-inset-bottom, 1rem);">
             <div class="max-w-md mx-auto">
                 <!-- Elixir Bar -->
-                <div class="mb-4">
-                    <div class="w-full bg-gray-700 rounded-full h-6 border-2 border-gray-900 shadow-inner">
-                        <div id="elixirBar" class="bg-purple-500 h-full rounded-full transition-all duration-100 ease-linear text-right pr-2 font-bold" style="width: 30%;">
-                            <span id="elixirText">3</span>
+                <div class="mb-4 relative">
+                     <div class="flex justify-between text-xs font-bold text-purple-300 mb-1 px-1 uppercase tracking-wider ui-text-effect" style="text-shadow: 1px 1px 0 #000;">
+                        <span>Elixir</span>
+                    </div>
+                    <div class="w-full bg-gray-900 rounded-full h-8 border-2 border-gray-600 shadow-inner relative overflow-hidden">
+                        <!-- Background Grid for Elixir -->
+                        <div class="absolute inset-0" style="background-image: repeating-linear-gradient(90deg, transparent, transparent 19%, rgba(255,255,255,0.1) 20%); background-size: 10% 100%;"></div>
+                        <div id="elixirBar" class="bg-gradient-to-r from-purple-600 to-purple-400 h-full rounded-full transition-all duration-100 ease-linear flex items-center justify-end pr-3 shadow-[0_0_10px_rgba(168,85,247,0.5)]" style="width: 30%;">
+                            <span id="elixirText" class="text-white font-black text-lg ui-text-effect">3</span>
                         </div>
                     </div>
                 </div>
                 
                 <!-- 4-Card Hand + Next Card -->
-                <div class="flex justify-center items-end space-x-2">
-                    <div class="flex flex-col items-center">
-                        <span class="text-xs mb-1">NEXT</span>
-                        <div id="nextCardSlot" class="card-ui-small"></div>
+                <div class="flex justify-center items-end space-x-3">
+                    <div class="flex flex-col items-center bg-gray-900 p-2 rounded-lg border border-gray-700">
+                        <span class="text-[10px] text-gray-400 font-bold mb-1 tracking-widest ui-text-effect">NEXT</span>
+                        <div id="nextCardSlot" class="card-ui-small transform scale-90 origin-bottom"></div>
                     </div>
-                    <div id="cardHand" class="flex justify-center space-x-2"></div>
+                    <div id="cardHand" class="flex justify-center space-x-1 pb-1"></div>
                 </div>
             </div>
         </div>
@@ -1127,7 +1222,7 @@
     <div id="cardInfoModal">
         <div id="cardInfoModalContent">
             <span id="cardInfoCloseBtn">&times;</span>
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-4 mb-4">
                 <div id="cardInfoDisplay" class="flex-shrink-0"></div>
                 <div>
                     <h2 id="cardInfoName" class="text-2xl font-bold">Card Name</h2>
@@ -1135,17 +1230,39 @@
                     <p id="cardInfoLevel" class="text-lg font-bold text-yellow-300">Level 1</p>
                 </div>
             </div>
-            <hr class="border-gray-500 my-4">
-            <div id="cardInfoStats" class="space-y-1"></div>
-            <!-- NEW: Add/Remove Button container -->
-            <div id="cardInfoButtons">
-                <!-- Add/Remove button injected by JS -->
+            
+            <!-- Tabs -->
+            <div class="flex w-full bg-gray-700 rounded-lg p-1 mb-4">
+                <button id="cardTabStats" class="flex-1 py-2 rounded text-sm font-bold transition bg-gray-600 text-white shadow-md">Stats</button>
+                <button id="cardTabPreview" class="flex-1 py-2 rounded text-sm font-bold transition text-gray-400 hover:bg-gray-600 hover:text-white">Preview</button>
             </div>
-            <div id="cardInfoProgressContainer">
-                <div id="cardInfoProgressBar" style="width: 0%;"></div>
-                <div id="cardInfoProgressText">0 / 0</div>
+
+            <!-- Stats Panel -->
+            <div id="cardInfoStatsPanel">
+                <hr class="border-gray-500 my-4">
+                <div id="cardInfoStats" class="space-y-1"></div>
+                <div id="cardInfoButtons"></div>
+                <div id="cardInfoProgressContainer">
+                    <div id="cardInfoProgressBar" style="width: 0%;"></div>
+                    <div id="cardInfoProgressText">0 / 0</div>
+                </div>
+                <button id="cardInfoButton" class="modal-btn"></button>
             </div>
-            <button id="cardInfoButton" class="modal-btn"></button>
+
+            <!-- Preview Panel -->
+            <div id="cardInfoPreviewPanel" class="hidden flex-col items-center w-full">
+                <canvas id="cardPreviewCanvas" width="300" height="200" class="bg-gray-800 rounded-lg mb-4 border-2 border-gray-600 shadow-inner"></canvas>
+                <div class="w-full text-left space-y-3">
+                    <div>
+                        <h4 class="text-green-400 font-bold text-sm uppercase tracking-wider mb-2 border-b border-gray-700 pb-1">Good Against</h4>
+                        <div id="previewStrong" class="flex flex-wrap gap-2 min-h-[40px] bg-gray-900 bg-opacity-50 p-2 rounded-lg"></div>
+                    </div>
+                    <div id="previewWeakContainer">
+                        <h4 class="text-red-400 font-bold text-sm uppercase tracking-wider mb-2 border-b border-gray-700 pb-1">Weak Against</h4>
+                        <div id="previewWeak" class="flex flex-wrap gap-2 min-h-[40px] bg-gray-900 bg-opacity-50 p-2 rounded-lg"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -1231,7 +1348,7 @@
     <div id="bottomNav" class="bg-gray-800 w-full max-w-[400px] rounded-t-lg shadow-inner p-1 btn-shine">
         <div class="relative w-full h-full">
             <div id="navHighlight"></div>
-            <div class="grid grid-cols-4 relative z-10">
+            <div class="grid grid-cols-5 relative z-10" style="grid-template-columns: repeat(5, minmax(0, 1fr));">
                 <button id="navBtnMenu" class="nav-btn flex flex-col items-center text-yellow-400 py-1" data-screen="menu">
                     <span class="text-3xl">⚔️</span>
                     <span class="text-xs font-bold">Battle</span>
@@ -1243,6 +1360,10 @@
                 <button id="navBtnTower" class="nav-btn flex flex-col items-center text-gray-400 py-1" data-screen="tower">
                     <span class="text-3xl">👑</span>
                     <span class="text-xs font-bold">Tower</span>
+                </button>
+                <button id="navBtnEvents" class="nav-btn flex flex-col items-center text-gray-400 py-1" data-screen="events">
+                    <span class="text-3xl">🎄</span>
+                    <span class="text-xs font-bold">Events</span>
                 </button>
                 <button id="navBtnDebug" class="nav-btn flex flex-col items-center text-gray-400 py-1" data-screen="debug">
                     <span class="text-3xl">🧪</span>
@@ -1577,6 +1698,7 @@ const firebaseConfig = {
         let aiDiscardPile = [];
         let towerLevel = 1;
         let towerCardCount = 0;
+        let lastClaimDate = "";
         // --- NEW: Level Cap at 15 ---
         const towerUpgradeCosts = {
             1: { cards: 2, gold: 50 }, 2: { cards: 4, gold: 150 }, 3: { cards: 10, gold: 400 },
@@ -1966,7 +2088,7 @@ const firebaseConfig = {
 
             // --- Game Elements (from gameScreen) ---
             const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
+            let ctx = canvas.getContext('2d');
             const elixirBar = document.getElementById('elixirBar');
             const elixirText = document.getElementById('elixirText');
             const messageOverlay = document.getElementById('messageOverlay');
@@ -2054,6 +2176,7 @@ const firebaseConfig = {
                 playerDeck = initNewUserCards(true);
                 playerDeck2v2 = []; 
                 playerDeckParty = [];
+                lastClaimDate = "";
                 // We don't save here, we let the game save after a win/loss
             }
 
@@ -2079,6 +2202,7 @@ const firebaseConfig = {
                     playerDeck = dataToLoad.playerDeck || initNewUserCards(true);
                     playerDeck2v2 = dataToLoad.playerDeck2v2 || [];
                     playerDeckParty = dataToLoad.playerDeckParty || [];
+                    lastClaimDate = dataToLoad.lastClaimDate || "";
                     return;
                 }
 
@@ -2102,6 +2226,7 @@ const firebaseConfig = {
                     playerDeck = data.playerDeck || initNewUserCards(true);
                     playerDeck2v2 = data.playerDeck2v2 || [];
                     playerDeckParty = data.playerDeckParty || [];
+                    lastClaimDate = data.lastClaimDate || "";
                     } else {
                         // First time user: init defaults
                         initNewUser();
@@ -2155,6 +2280,7 @@ const firebaseConfig = {
                             playerDeck,
                             playerDeck2v2,
                             playerDeckParty,
+                            lastClaimDate,
                             lastSaved: new Date().toISOString()
                         };
                         await setDoc(userDocRef, dataToSave, { merge: true });
@@ -2202,7 +2328,7 @@ const firebaseConfig = {
                 // Generate key
                 const dataToSave = {
                     trophies, gold, towerLevel, towerCardCount, 
-                    trophyChests, cardCollection, playerDeck, playerDeck2v2, playerDeckParty
+                    trophyChests, cardCollection, playerDeck, playerDeck2v2, playerDeckParty, lastClaimDate
                 };
                 const jsonString = JSON.stringify(dataToSave);
                 const saveKey = btoa(jsonString); // Base64 encode
@@ -2396,7 +2522,7 @@ const firebaseConfig = {
             // ==============================================
             // SCREEN & NAVIGATION LOGIC
             // ==============================================
-            const navOrder = ['menu', 'deck', 'tower', 'debug'];
+                        const navOrder = ['menu', 'deck', 'tower', 'events', 'debug'];
             function showScreen(screenId) {
                 // Handle Screen Transitions
                 const prevScreenIndex = navOrder.indexOf(currentScreen);
@@ -2419,7 +2545,7 @@ const firebaseConfig = {
                 });
                 
                 // Handle Persistent Nav
-                if (['menu', 'deck', 'tower', 'debug'].includes(screenId)) {
+                if (['menu', 'deck', 'tower', 'events', 'debug'].includes(screenId)) {
                     persistentNav.style.display = 'block';
                     // Slight delay to allow display:block to apply before transform if needed
                     requestAnimationFrame(() => persistentNav.style.transform = 'translate(-50%, 0)');
@@ -2433,7 +2559,7 @@ const firebaseConfig = {
                             btn.classList.remove('text-gray-400');
                             // Move Highlight
                             if (navHighlight) {
-                                navHighlight.style.left = `${index * 25}%`;
+                                navHighlight.style.left = `${index * 20}%`;
                             }
                         }
                     });
@@ -2444,6 +2570,7 @@ const firebaseConfig = {
                 
                 if (screenId === 'deck') { renderDeckScreen(); }
                 if (screenId === 'tower') { renderTowerScreen(); }
+                if (screenId === 'events') { updateChristmasUI(); }
                 if (screenId === 'menu') { 
                     updateArena(); 
                     trophyDisplay.textContent = `🏆 ${trophies}`; 
@@ -2480,6 +2607,9 @@ const firebaseConfig = {
 
 
             function updateArena() {
+                // Reset theme first
+                canvas.className = '';
+                
                 let currentTrophyFloor = 0;
                 let arenaDisplayName = "Arena 1: Emoji Valley";
                 let emoji = "🏞️";
@@ -2512,7 +2642,12 @@ const firebaseConfig = {
                 }
                 arenaName.textContent = arenaDisplayName;
                 arenaEmoji.textContent = emoji;
-                canvas.className = currentArenaTheme;
+                
+                if (gameMode === 'snowman_challenge') {
+                    canvas.className = 'christmas';
+                } else {
+                    canvas.className = currentArenaTheme;
+                }
             }
 
             function renderChests() {
@@ -2549,6 +2684,7 @@ const firebaseConfig = {
             }
             
             let currentChestIndex = -1;
+            let isChristmasOpening = false;
             let currentChestStars = 1;
             let chestClicks = 0;
             const MAX_CHEST_CLICKS = 4;
@@ -2569,6 +2705,8 @@ const firebaseConfig = {
                 currentChestIndex = index;
                 currentChestStars = 1;
                 chestClicks = 0;
+                isChristmasOpening = false;
+                document.getElementById('chestEmoji').textContent = '📦';
                 
                 chestOpenOverlay.style.display = 'flex';
                 document.getElementById('chestRewardList').innerHTML = '';
@@ -2593,14 +2731,15 @@ const firebaseConfig = {
                     document.getElementById('chestClickCounter').textContent = `Tap to Upgrade (${chestClicks}/4)`;
                     
                     // Upgrade Logic
-                    const chances = {1: 0.6, 2: 0.5, 3: 0.35, 4: 0.2}; // Slightly easier odds for click spam feel
+                    let chances = {1: 0.5, 2: 0.3, 3: 0.15, 4: 0.05}; // Standard
+                    if (isChristmasOpening) {
+                        chances = {1: 0.70, 2: 0.60, 3: 0.30, 4: 0.15}; // 70%, 60%, 30%, 15%
+                    }
                     const roll = Math.random();
                     const required = chances[currentChestStars] || 0;
 
                     if (currentChestStars < 5 && roll < required) {
                         currentChestStars++;
-                        chestEmoji.classList.remove('shake-anim'); // Remove shake if upgrading
-                        void chestEmoji.offsetWidth;
                         chestEmoji.classList.add('animate-pulse');
                         setTimeout(() => chestEmoji.classList.remove('animate-pulse'), 500);
                         updateChestUI(currentChestStars, 'Upgrade Successful! ✨');
@@ -2617,7 +2756,11 @@ const firebaseConfig = {
             });
 
             function finalizeChest(index, stars) {
-                trophyChests.splice(index, 1);
+                if (!isChristmasOpening) {
+                    trophyChests.splice(index, 1);
+                } else {
+                    lastClaimDate = new Date().toDateString();
+                }
                 document.getElementById('chestEmoji').style.display = 'none';
                 document.getElementById('chestStatusText').textContent = 'Rewards';
                 
@@ -2660,6 +2803,10 @@ const firebaseConfig = {
                         document.getElementById('chestCloseButton').classList.add('animate-bounce');
                         renderChests();
                         updateArena();
+                        if (isChristmasOpening) {
+                            updateChristmasUI();
+                            isChristmasOpening = false;
+                        }
                         saveUserData();
                         return;
                     }
@@ -2686,6 +2833,7 @@ const firebaseConfig = {
 
             navButtons.forEach(btn => { 
                 btn.addEventListener('click', () => { 
+                    if (btn.dataset.screen === currentScreen) return;
                     if (btn.dataset.screen === 'debug') {
                         if (isLocalFile) {
                             showDebugPassword();
@@ -2698,7 +2846,12 @@ const firebaseConfig = {
             // NEW: Show update log function
             function showUpdateLog() {
                 const updates = [
-                    { date: '11/25/2025', title: 'Latest Update', items: [
+                    { date: '11/27/2025', title: 'Latest Update', items: [
+                        '🎄 Winter Wonderland Event is Live!',
+                        '☃️ Snowman Challenge: Battle the Snowman King!',
+                        '✨ Visual Updates: New glowing text effects in Events tab'
+                    ]},
+                    { date: '11/25/2025', title: 'Previous Update', items: [
                         'Added 2v2 Mode: Team up with an AI teammate against two AI opponents',
                         'New King Tower Visuals: Combined king tower in 2v2 mode shows two crowns',
                         'AI Improvements: 2v2 AI opponents and teammates now use all available cards',
@@ -2820,7 +2973,16 @@ const firebaseConfig = {
             arenaBackButton.addEventListener('click', () => {
                 showScreen('menu');
             });
-            menuButton.addEventListener('click', () => { showScreen('menu'); gameRunning = false; cancelAnimationFrame(gameLoopId); });
+            menuButton.addEventListener('click', () => { 
+                gameRunning = false; 
+                cancelAnimationFrame(gameLoopId); 
+                // Reset mode if leaving challenge to prevent theme leak
+                if (gameMode === 'snowman_challenge') {
+                    gameMode = 'trophy';
+                    updateModeUI();
+                }
+                showScreen('menu'); 
+            });
 
             // ==============================================
             if (isLocalFile) {
@@ -2928,6 +3090,73 @@ const firebaseConfig = {
             }
 
 
+            // --- Christmas Event Logic ---
+            const claimChristmasBtn = document.getElementById('claimChristmasBtn');
+            const christmasGiftStatus = document.getElementById('christmasGiftStatus');
+            
+            function updateChristmasUI() {
+                if (!claimChristmasBtn) return;
+                const today = new Date().toDateString();
+                if (lastClaimDate === today) {
+                    claimChristmasBtn.disabled = true;
+                    claimChristmasBtn.textContent = 'Come Back Tomorrow!';
+                    claimChristmasBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    christmasGiftStatus.textContent = '🎁 Gift Claimed!';
+                } else {
+                    claimChristmasBtn.disabled = false;
+                    claimChristmasBtn.textContent = 'Open Santa\'s Gift 🎁';
+                    claimChristmasBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    christmasGiftStatus.textContent = '✨ Gift Available! ✨';
+                }
+            }
+
+            const btnSnowmanChallenge = document.getElementById('btnSnowmanChallenge');
+            if (btnSnowmanChallenge) {
+                btnSnowmanChallenge.addEventListener('click', () => {
+                     gameMode = 'snowman_challenge';
+                     updateArena(); // Force theme update
+                     // Start Game directly
+                     showScreen('loading');
+                     loadingScreen.querySelector('p').textContent = 'Entering the Frozen Arena...';
+                     setTimeout(() => {
+                        showScreen('game');
+                        messageText.textContent = 'Snowman Challenge!';
+                        startButton.style.display = 'none';
+                        menuButton.style.display = 'none';
+                        messageOverlay.style.display = 'flex';
+                        setTimeout(() => {
+                            initGame();
+                            lastTime = performance.now();
+                            gameLoopId = requestAnimationFrame(gameLoop);
+                        }, 1500);
+                     }, 1000);
+                });
+            }
+
+            if (claimChristmasBtn) {
+                claimChristmasBtn.addEventListener('click', () => {
+                    const today = new Date().toDateString();
+                    if (lastClaimDate !== today) {
+                        // Start Christmas Opening
+                        isChristmasOpening = true;
+                        currentChestStars = 1;
+                        chestClicks = 0;
+                        currentChestIndex = -1;
+
+                        chestOpenOverlay.style.display = 'flex';
+                        document.getElementById('chestRewardList').innerHTML = '';
+                        document.getElementById('chestCloseButton').style.display = 'none';
+                        const emojiEl = document.getElementById('chestEmoji');
+                        emojiEl.textContent = '🎁';
+                        emojiEl.style.display = 'block';
+                        document.getElementById('chestClickArea').style.pointerEvents = 'auto';
+                        document.getElementById('chestClickCounter').textContent = 'Tap to Upgrade (0/4)';
+                        
+                        updateChestUI(1, 'Santa\'s Gift! 🎅');
+                    }
+                });
+            }
+
             // ==============================================
             // CARD & DECK LOGIC
             // ==============================================
@@ -3014,16 +3243,24 @@ const firebaseConfig = {
                 else if (gameMode === 'party1v1') currentDeck = playerDeckParty;
                 else currentDeck = playerDeck;
 
-                deckCount.textContent = `Deck (${currentDeck.length} / 8)`;
-                
-                // Render Deck
+                const deckCountEl = document.getElementById('deckCount');
+                if (deckCountEl) deckCountEl.textContent = `${currentDeck.length} / 8`;
+
+                // Calculate Average Elixir
+                let totalCost = 0;
+                currentDeck.forEach(id => { if (allCards[id]) totalCost += allCards[id].cost; });
+                const avg = currentDeck.length > 0 ? (totalCost / currentDeck.length).toFixed(1) : "0.0";
+                const avgElixirEl = document.getElementById('avgElixir');
+                if (avgElixirEl) avgElixirEl.textContent = avg;
+
+                // Render Deck (BIG CARDS, isSmall=false)
                 currentDeck.forEach(cardId => { 
-                    const cardEl = createCardDOM(cardId, true); 
+                    const cardEl = createCardDOM(cardId, false); 
                     cardEl.addEventListener('click', () => openCardModal(cardId)); 
                     deckCardGrid.appendChild(cardEl); 
                 });
                 
-                // Render Collection & Locked Cards
+                // Render Collection & Locked Cards (SMALL CARDS, isSmall=true)
                 for (const cardId in allCards) {
                     if (cardId === 'tower' || cardId === 'miniStoneGiant') continue; 
                     
@@ -3036,7 +3273,6 @@ const firebaseConfig = {
                     
                     if (isParty) {
                         // In party modes, all cards go to collection and visually look unlocked
-                        // createCardDOM handles the visual unlocking for Party Mode
                         collectionCardGrid.appendChild(cardEl);
                     } else {
                         // Normal mode: respect locks
@@ -3110,34 +3346,98 @@ const firebaseConfig = {
                 }
             }
 
-            // --- FUNCTION MOVED ---
-            // initCardSystem() was here, but it needs to be after classes are defined.
+            // --- PREVIEW SYSTEM VARIABLES ---
+            let previewAnimationId = null;
+            let previewSimulationObjects = [];
+            let currentPreviewCardId = null;
+            let currentPreviewOpponentId = null;
+            let previewSpellTimer = 0;
+            const previewCanvas = document.getElementById('cardPreviewCanvas');
+            const previewCtx = previewCanvas.getContext('2d');
 
-            // --- ERROR FIX: Added checks for card and card.stats ---
+            // --- Helper: Get Counters ---
+            function getCardCounters(card) {
+                const strong = [];
+                const weak = [];
+                // Simplified Logic for Demo Purposes
+                const allIds = Object.keys(allCards).filter(id => id !== 'tower' && id !== 'miniStoneGiant');
+                
+                allIds.forEach(id => {
+                    const other = allCards[id];
+                    if (id === card.id) return;
+                    
+                    // Swarm Logic
+                    if (card.type === 'Swarm') {
+                        if (other.type === 'Tank' || other.type === 'Building' || (other.type === 'Melee' && !other.stats[1].splashRadius)) strong.push(id);
+                        if (other.type === 'Spell' || (other.stats[1] && other.stats[1].splashRadius)) weak.push(id);
+                    }
+                    // Tank Logic
+                    else if (card.type === 'Tank' || card.type === 'WinCon') {
+                        if (other.type === 'Building') strong.push(id);
+                        if (other.type === 'Swarm' || (other.type === 'Melee' && other.stats[1].damage > 150)) weak.push(id);
+                    }
+                    // Ranged Logic
+                    else if (card.type === 'Ranged') {
+                        if (other.isFlying) strong.push(id);
+                        if (other.type === 'Melee' && other.stats[1].speed > 1.2) weak.push(id);
+                    }
+                    // Flying Logic
+                    else if (card.isFlying) {
+                        if (other.type === 'Melee' || other.type === 'Tank') strong.push(id);
+                        if (other.type === 'Ranged' || other.targets === 'Air & Ground') weak.push(id);
+                    }
+                    // Spell Logic
+                    else if (card.type === 'Spell') {
+                        if (other.type === 'Swarm' || (other.type === 'Ranged' && other.stats[1].health < 300)) strong.push(id);
+                    }
+                    // Melee Logic
+                    else if (card.type === 'Melee') {
+                        if (other.type === 'Ranged') strong.push(id);
+                        if (other.isFlying) weak.push(id);
+                    }
+                    // Building Logic
+                    else if (card.type === 'Building') {
+                         if (other.type === 'Tank') strong.push(id); // Buildings distract tanks
+                         if (other.type === 'Spell') weak.push(id);
+                    }
+                });
+                
+                // Limit results
+                return { 
+                    strong: strong.sort(() => 0.5 - Math.random()).slice(0, 5), 
+                    weak: weak.sort(() => 0.5 - Math.random()).slice(0, 5) 
+                };
+            }
+
             function openCardModal(cardId) {
                 const card = allCards[cardId];
+                // Assign ID to card object for reference if missing
+                card.id = cardId;
+                currentPreviewCardId = cardId;
+                
                 const cardData = cardCollection[cardId];
-                if (!card) return; // Exit if card invalid
+                if (!card) return;
                 
                 const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
                 const isLocked = isParty ? false : (!cardData || !cardData.unlocked);
                 const displayLevel = isParty ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
-                
-                // --- FIX: Check if card.stats exists ---
                 const stats = card.stats ? card.stats[displayLevel] : null;
 
+                // --- Header ---
                 cardInfoDisplay.innerHTML = '';
                 cardInfoDisplay.appendChild(createCardDOM(cardId, false));
                 cardInfoName.textContent = card.name;
-                cardInfoType.textContent = card.type || 'Special'; // Fallback
+                cardInfoType.textContent = card.type || 'Special';
                 cardInfoLevel.textContent = isLocked ? "Not Unlocked" : `Level ${displayLevel}`;
-                
+
+                // --- Reset Tabs ---
+                switchTab('stats');
+
+                // --- Populate Stats Tab ---
                 cardInfoStats.innerHTML = `<div>Targets: <span>${card.targets || '-'}</span></div>`;
                 if (card.isFlying) cardInfoStats.innerHTML += `<div>Placement: <span>Air</span></div>`;
                 else if (card.type !== 'Spell' && card.type !== 'Building') cardInfoStats.innerHTML += `<div>Placement: <span>Ground</span></div>`;
-                
 
-                // --- FIX: Only loop stats if stats is not null ---
                 if (stats) {
                     for (const [key, value] of Object.entries(stats)) { 
                         if (key !== 'barbLevel') cardInfoStats.innerHTML += `<div>${key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ')}: <span>${value}</span></div>`; 
@@ -3145,40 +3445,30 @@ const firebaseConfig = {
                     if (card.type === 'Spell') { cardInfoStats.innerHTML += `<div>Radius: <span>${card.radius}</span></div>`; }
                     if (stats.damage && stats.hitSpeed) { const dps = (stats.damage / stats.hitSpeed).toFixed(1); cardInfoStats.innerHTML += `<div>DPS: <span>${dps}</span></div>`; }
                 }
-
-                // Show skeleton stats for Mage card
+                // Extra stats logic (Mage, StoneGiant) ...
                 if (cardId === 'mage') {
-                    // Skeletons spawned by Mage use the base skeleton stats (level 1)
                     const skelStats = allCards['skeletons'] && allCards['skeletons'].stats ? allCards['skeletons'].stats[1] : null;
                     if (skelStats) {
                         cardInfoStats.innerHTML += `<div class='mt-2 font-bold text-yellow-300'>Spawns 4 Skeletons every 5s:</div>`;
                         cardInfoStats.innerHTML += `<div>Skeleton HP: <span>${skelStats.health}</span></div>`;
-                        cardInfoStats.innerHTML += `<div>Skeleton Damage: <span>${skelStats.damage}</span></div>`;
-                        cardInfoStats.innerHTML += `<div>Skeleton Hit Speed: <span>${skelStats.hitSpeed}</span></div>`;
-                        cardInfoStats.innerHTML += `<div>Skeleton Speed: <span>${skelStats.speed}</span></div>`;
-                        cardInfoStats.innerHTML += `<div>Skeleton Aggro Range: <span>100</span></div>`;
                     }
                 }
-
                 if (cardId === 'stoneGiant') {
                     const miniStats = allCards['stoneGiant'] && allCards['stoneGiant'].miniStats ? allCards['stoneGiant'].miniStats[1] : null;
                     if (miniStats) {
                         cardInfoStats.innerHTML += `<div class='mt-2 font-bold text-yellow-300'>Splits into 2 Mini Stone Giants:</div>`;
                         cardInfoStats.innerHTML += `<div>Mini HP: <span>${miniStats.health}</span></div>`;
-                        cardInfoStats.innerHTML += `<div>Mini Damage: <span>${miniStats.damage}</span></div>`;
-                        cardInfoStats.innerHTML += `<div>Mini Hit Speed: <span>${miniStats.hitSpeed}</span></div>`;
                     }
                 }
 
+                // Buttons & Progress
                 cardInfoButtons.innerHTML = '';
                 cardInfoProgressContainer.style.display = 'none';
                 cardInfoButton.style.display = 'none';
 
-                // --- FIX: Also check for !stats ---
                 if (isLocked || !stats) {
                     if(isLocked) cardInfoLevel.textContent = `Unlocks in Arena ${card.arena}`;
                 } else {
-                    // Is unlocked and has stats: Show buttons and progress
                     let currentDeck;
                     if (gameMode === '2v2') currentDeck = playerDeck2v2;
                     else if (gameMode === 'party1v1') currentDeck = playerDeckParty;
@@ -3190,7 +3480,6 @@ const firebaseConfig = {
                     if (isInDeck) {
                         addRemoveBtn.textContent = 'Remove from Deck';
                         addRemoveBtn.className = 'modal-btn remove';
-                        addRemoveBtn.disabled = false;
                         addRemoveBtn.onclick = () => removeFromDeck(cardId);
                     } else {
                         addRemoveBtn.textContent = 'Add to Deck';
@@ -3217,19 +3506,247 @@ const firebaseConfig = {
                         cardInfoButton.disabled = !canUpgrade;
                         cardInfoButton.onclick = () => upgradeCard(cardId);
                     } else {
-                        // Is max level
                         cardInfoProgressContainer.style.display = 'none';
                         cardInfoButton.className = 'modal-btn';
                         cardInfoButton.textContent = 'Max Level (15)';
                         cardInfoButton.disabled = true;
                     }
                 }
+                
+                // --- Populate Preview Tab ---
+                const counters = getCardCounters(card);
+                const previewStrong = document.getElementById('previewStrong');
+                const previewWeak = document.getElementById('previewWeak');
+                const previewWeakContainer = document.getElementById('previewWeakContainer');
+
+                previewStrong.innerHTML = '<p class="text-xs text-gray-400 w-full italic mb-1">Click card to simulate battle:</p>';
+                previewWeak.innerHTML = '<p class="text-xs text-gray-400 w-full italic mb-1">Click card to simulate battle:</p>';
+
+                counters.strong.forEach(cid => {
+                    const el = createCardDOM(cid, true);
+                    el.onclick = (e) => {
+                        e.stopPropagation();
+                        currentPreviewOpponentId = cid;
+                        // Highlight selection
+                        document.querySelectorAll('#previewStrong .card-ui, #previewWeak .card-ui').forEach(c => c.style.borderColor = '');
+                        el.style.borderColor = '#fbbf24'; // yellow-400
+                        // Reset animation loop
+                        startPreviewLoop();
+                    };
+                    previewStrong.appendChild(el);
+                });
+
+                if (card.type === 'Spell') {
+                    previewWeakContainer.style.display = 'none';
+                } else {
+                    previewWeakContainer.style.display = 'block';
+                    counters.weak.forEach(cid => {
+                        const el = createCardDOM(cid, true);
+                        el.onclick = (e) => {
+                            e.stopPropagation();
+                            currentPreviewOpponentId = cid;
+                            // Highlight selection
+                            document.querySelectorAll('#previewStrong .card-ui, #previewWeak .card-ui').forEach(c => c.style.borderColor = '');
+                            el.style.borderColor = '#fbbf24'; // yellow-400
+                            startPreviewLoop();
+                        };
+                        previewWeak.appendChild(el);
+                    });
+                }
+
                 cardInfoModal.style.display = 'flex';
             }
+
+            // --- Tab Switching Logic ---
+            const tabStats = document.getElementById('cardTabStats');
+            const tabPreview = document.getElementById('cardTabPreview');
+            const panelStats = document.getElementById('cardInfoStatsPanel');
+            const panelPreview = document.getElementById('cardInfoPreviewPanel');
+
+            tabStats.addEventListener('click', () => switchTab('stats'));
+            tabPreview.addEventListener('click', () => switchTab('preview'));
+
+            function switchTab(tab) {
+                if(tab === 'stats') {
+                    panelStats.style.display = 'block';
+                    panelPreview.style.display = 'none';
+                    panelPreview.classList.remove('flex');
+                    tabStats.classList.add('bg-gray-600', 'text-white', 'shadow-md');
+                    tabStats.classList.remove('text-gray-400', 'hover:bg-gray-600', 'hover:text-white');
+                    tabPreview.classList.remove('bg-gray-600', 'text-white', 'shadow-md');
+                    tabPreview.classList.add('text-gray-400', 'hover:bg-gray-600', 'hover:text-white');
+                    stopPreviewLoop();
+                } else {
+                    panelStats.style.display = 'none';
+                    panelPreview.style.display = 'flex';
+                    tabPreview.classList.add('bg-gray-600', 'text-white', 'shadow-md');
+                    tabPreview.classList.remove('text-gray-400', 'hover:bg-gray-600', 'hover:text-white');
+                    tabStats.classList.remove('bg-gray-600', 'text-white', 'shadow-md');
+                    tabStats.classList.add('text-gray-400', 'hover:bg-gray-600', 'hover:text-white');
+                    startPreviewLoop();
+                }
+            }
+
+            function startPreviewLoop() {
+                if (previewAnimationId) cancelAnimationFrame(previewAnimationId);
+                previewSimulationObjects = [];
+                previewSpellTimer = 0;
+                let previewOpponentSpellTimer = 0;
+                
+                const card = allCards[currentPreviewCardId];
+                const opponent = currentPreviewOpponentId ? allCards[currentPreviewOpponentId] : null;
+                
+                // --- Setup Simulation Board ---
+                // 1. Add Towers (Arena 1 Theme)
+                // Blue Princess (Bottom)
+                previewSimulationObjects.push(new Tower(130, 180, 'player', false, 9));
+                // Red Princess (Top)
+                previewSimulationObjects.push(new Tower(130, 20, 'ai', false, 9));
+
+                const spawnX = 130;
+                const blueSpawnY = 140;
+                const redSpawnY = 60;
+
+                // 2. Spawn Main Unit (Player Team) at Bottom
+                if (card.type !== 'Spell') {
+                    try {
+                        const level = 10;
+                        if (card.unitClass) {
+                             const unit = new card.unitClass(spawnX, blueSpawnY, 'player', level);
+                             if (unit instanceof GameObject) previewSimulationObjects.push(unit);
+                        }
+                    } catch(e) { console.warn("Preview spawn error", e); }
+                } else {
+                    previewSpellTimer = 60;
+                }
+
+                // 3. Spawn Opponent (AI Team) at Top
+                if (opponent) {
+                    try {
+                         if (opponent.type !== 'Spell') {
+                             const level = 10;
+                             if (opponent.unitClass) {
+                                 const unit = new opponent.unitClass(spawnX, redSpawnY, 'ai', level);
+                                 if (unit instanceof GameObject) previewSimulationObjects.push(unit);
+                             }
+                         } else {
+                             previewOpponentSpellTimer = 90;
+                         }
+                    } catch(e) {}
+                }
+
+                function loop() {
+                    // --- TEMPORARY CONTEXT SWAP ---
+                    // We swap the global 'ctx' variable to 'previewCtx' so that GameObject.draw()
+                    // draws onto the preview canvas instead of the main game canvas.
+                    const mainCtx = ctx;
+                    ctx = previewCtx;
+
+                    ctx.clearRect(0, 0, 300, 200);
+                    
+                    // --- Draw Arena 1 Background ---
+                    ctx.fillStyle = '#15803d'; // Green Grass
+                    ctx.fillRect(0, 0, 300, 200);
+                    
+                    // River
+                    ctx.fillStyle = '#3b82f6'; // Blue River
+                    ctx.fillRect(0, 90, 300, 20);
+                    
+                    // Bridge (Left aligned for spawn x=130)
+                    ctx.fillStyle = '#a16207'; // Brown
+                    ctx.fillRect(115, 85, 30, 30);
+
+                    // Swap Globals for Logic Update
+                    const globalGameObjects = gameObjects;
+                    gameObjects = previewSimulationObjects;
+
+                    try {
+                        // Main Spell Logic
+                        if (card.type === 'Spell' && previewSpellTimer > 0) {
+                             previewSpellTimer--;
+                             if (previewSpellTimer === 0) {
+                                 const level = 10; const s = card.stats[level];
+                                 // Target opponent unit if exists, else top tower
+                                 let tx = 130, ty = 60;
+                                 const target = gameObjects.find(o => o.team === 'ai' && o instanceof Unit);
+                                 if (target) { tx = target.x; ty = target.y; }
+                                 else { tx = 130; ty = 20; } // Fallback to tower
+
+                                 if (currentPreviewCardId === 'poison') gameObjects.push(new PoisonSpell(tx, ty, 'player', s.damagePerSecond, card.radius, s.duration));
+                                 else if (currentPreviewCardId === 'anger') gameObjects.push(new AngerSpell(tx, ty, 'player', card.radius, s.duration, s.damage));
+                                 else if (currentPreviewCardId === 'voidTrap') gameObjects.push(new VoidTrapEffect(tx, ty, 'player', card.radius, s.damage));
+                                 else if (currentPreviewCardId === 'chaosOrb') gameObjects.push(new ChaosOrbEffect(tx, ty, 'player', card.radius, s.damage));
+                                 else gameObjects.push(new Spell(tx, ty, 'player', s.damage, card.radius, card.emoji));
+                             }
+                        }
+                        
+                        // Opponent Spell Logic
+                        if (opponent && opponent.type === 'Spell' && previewOpponentSpellTimer > 0) {
+                             previewOpponentSpellTimer--;
+                             if (previewOpponentSpellTimer === 0) {
+                                 const level = 10; const s = opponent.stats[level];
+                                 // Target player unit if exists, else bottom tower
+                                 let tx = 130, ty = 140;
+                                 const target = gameObjects.find(o => o.team === 'player' && o instanceof Unit);
+                                 if (target) { tx = target.x; ty = target.y; }
+                                 else { tx = 130; ty = 180; }
+                                 
+                                 if (currentPreviewOpponentId === 'poison') gameObjects.push(new PoisonSpell(tx, ty, 'ai', s.damagePerSecond, opponent.radius, s.duration));
+                                 else if (currentPreviewOpponentId === 'anger') gameObjects.push(new AngerSpell(tx, ty, 'ai', opponent.radius, s.duration, s.damage));
+                                 else if (currentPreviewOpponentId === 'voidTrap') gameObjects.push(new VoidTrapEffect(tx, ty, 'ai', opponent.radius, s.damage));
+                                 else if (currentPreviewOpponentId === 'chaosOrb') gameObjects.push(new ChaosOrbEffect(tx, ty, 'ai', opponent.radius, s.damage));
+                                 else gameObjects.push(new Spell(tx, ty, 'ai', s.damage, opponent.radius, opponent.emoji));
+                             }
+                        }
+
+                        // Update All
+                        previewSimulationObjects.forEach(o => o.update());
+                        
+                        // Cleanup Dead
+                         previewSimulationObjects = previewSimulationObjects.filter(obj => {
+                            if (obj.health > 0) return true;
+                            if (obj instanceof Unit) gameObjects.push(new DeathEffect(obj.x, obj.y, obj.emoji));
+                            if (obj instanceof BattleRam && !obj.didHit) obj.spawnBarbs();
+                            if (obj instanceof StoneGiant && !obj.didSpawnMinis) obj.spawnMinis();
+                            
+                            // Don't remove towers in preview, just let them sit at 0 HP or reset
+                            if (obj instanceof Tower) { 
+                                if(obj.health <= 0) obj.health = 0; // Keep dead tower visible
+                                return true; 
+                            }
+                            return false;
+                        });
+
+                    } catch(e) { console.error("Preview Loop Error:", e); }
+                    finally {
+                         // Restore Globals
+                        gameObjects = globalGameObjects;
+                    }
+
+                    // Draw All
+                    previewSimulationObjects.forEach(o => o.draw());
+                    
+                    // Indicators
+                    if (card.type === 'Spell' && previewSpellTimer > 0) {
+                        ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = '#60a5fa';
+                        ctx.beginPath(); ctx.arc(130, 60, card.radius, 0, Math.PI*2); ctx.fill(); ctx.restore();
+                    }
+
+                    // --- RESTORE MAIN CONTEXT ---
+                    ctx = mainCtx;
+                    previewAnimationId = requestAnimationFrame(loop);
+                }
+                loop();
+            }
+
+            function stopPreviewLoop() {
+                if (previewAnimationId) cancelAnimationFrame(previewAnimationId);
+                previewSimulationObjects = [];
+                currentPreviewOpponentId = null;
+            }
             
-            // --- SYNTAX ERROR FIX ---
-            // The extra '}' was removed and this function was defined correctly
             function closeModal() {
+                stopPreviewLoop();
                 cardInfoModal.style.display = 'none';
             }
             
@@ -3295,21 +3812,23 @@ const firebaseConfig = {
                 renderHand();
                 
                 // AI
-                const aiArenaLevel = getAILevel(); // This is 1, 2, 3, 4 or 5
-                
-                // AI gets cards from its arena level, NO tower card
-                const aiArenaCards = getUnlockedCards(false, aiArenaLevel);
-                
-                // Build a random 8-card deck
-                aiDeck = [];
-                let availableCards = [...aiArenaCards];
-                for (let i = 0; i < 8; i++) {
-                    if (availableCards.length === 0) availableCards = [...aiArenaCards]; // Refill if needed
-                    let cardIndex = Math.floor(Math.random() * availableCards.length);
-                    aiDeck.push(availableCards.splice(cardIndex, 1)[0]);
+                if (gameMode === 'snowman_challenge') {
+                    // Special Deck for Snowman Challenge (Removed Snowman card, added Ice Spirit theme)
+                    aiDeck = shuffleDeck(['coldSpirit', 'coldSpirit', 'giant', 'archer', 'arrows', 'skeletons', 'knight', 'fireball']);
+                } else {
+                    // Normal AI Deck Logic
+                    const aiArenaLevel = getAILevel(); 
+                    const aiArenaCards = getUnlockedCards(false, aiArenaLevel);
+                    
+                    aiDeck = [];
+                    let availableCards = [...aiArenaCards];
+                    for (let i = 0; i < 8; i++) {
+                        if (availableCards.length === 0) availableCards = [...aiArenaCards]; 
+                        let cardIndex = Math.floor(Math.random() * availableCards.length);
+                        aiDeck.push(availableCards.splice(cardIndex, 1)[0]);
+                    }
+                    aiDeck = shuffleDeck(aiDeck);
                 }
-                
-                aiDeck = shuffleDeck(aiDeck);
                 aiHand = [];
                 aiDiscardPile = [];
                 for (let i = 0; i < 4; i++) { if(aiDeck.length > 0) aiHand.push(aiDeck.pop()); }
@@ -3659,6 +4178,45 @@ const firebaseConfig = {
                         }
                     });
                     ctx.restore();
+                }
+            }
+
+            class DamageText extends GameObject {
+                constructor(x, y, damage) {
+                    super(x, y, 0, 'neutral', 1);
+                    this.damage = Math.floor(damage);
+                    this.life = 40;
+                    this.maxLife = 40;
+                    this.vY = -1.5;
+                    this.vX = (Math.random() - 0.5) * 1;
+                }
+                update() {
+                    this.life--;
+                    this.x += this.vX;
+                    this.y += this.vY;
+                    if (this.life <= 0) this.health = 0;
+                }
+                draw() {
+                    ctx.save();
+                    const alpha = Math.max(0, this.life / 20);
+                    ctx.globalAlpha = alpha;
+                    ctx.font = 'bold 16px Inter';
+                    ctx.fillStyle = '#ef4444';
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 2;
+                    ctx.textAlign = 'center';
+                    ctx.strokeText(`-${this.damage}`, this.x, this.y);
+                    ctx.fillText(`-${this.damage}`, this.x, this.y);
+                    ctx.restore();
+                }
+            }
+
+            function applyDamage(target, amount) {
+                if (target && target.health > 0) {
+                    target.health -= amount;
+                    if (amount > 0) {
+                        gameObjects.push(new DamageText(target.x, target.y - (target.radius || 10), amount));
+                    }
                 }
             }
 
@@ -4018,7 +4576,7 @@ const firebaseConfig = {
                             return;
                         }
                         if (this.attackRange <= this.radius + this.target.radius + 5) { // Melee
-                            this.target.health -= this.attackDamage; 
+                            applyDamage(this.target, this.attackDamage); 
                         } else { // Ranged
                             let projectileType = Projectile;
                             let damage = this.attackDamage;
@@ -4317,7 +4875,7 @@ const firebaseConfig = {
                         if (this.target instanceof PhantomKnight && this.target.isInvisible) {
                             return;
                         }
-                        this.target.health -= this.attackDamage;
+                        applyDamage(this.target, this.attackDamage);
                         this.spawnBarbs(); // Spawn on hit
                     } 
                 }
@@ -4339,7 +4897,7 @@ const firebaseConfig = {
                                 // Skip invisible Phantom Knights
                                 if (obj instanceof PhantomKnight && obj.isInvisible) continue;
                                 if (getDistance(this, obj) < this.splashRadius) {
-                                    obj.health -= this.attackDamage;
+                                    applyDamage(obj, this.attackDamage);
                                 }
                             }
                         }
@@ -4435,7 +4993,7 @@ const firebaseConfig = {
                                 // Skip invisible Phantom Knights
                                 if (obj instanceof PhantomKnight && obj.isInvisible) continue;
                                 if (isInside(obj, this.x, this.y, this.attackWidth, this.attackHeight, this.attackAngle)) {
-                                    obj.health -= this.attackDamage;
+                                    applyDamage(obj, this.attackDamage);
                                 }
                             }
                         }
@@ -4688,7 +5246,7 @@ const firebaseConfig = {
                         this.isInvisible = false;
                         this.lastAttackTime = 0;
                         if (this.attackRange <= this.radius + this.target.radius + 5) {
-                            this.target.health -= this.attackDamage;
+                            applyDamage(this.target, this.attackDamage);
                         } else {
                             let projectileType = Projectile;
                             let damage = this.attackDamage;
@@ -4859,7 +5417,7 @@ class ColdSpirit extends Unit {
                         if (obj.team !== this.team && (obj instanceof Unit || obj instanceof Building || obj instanceof Tower)) {
                             // Don't skip invisible Phantom Knights here - spells/explosions can hit them
                             if (getDistance(this, obj) < this.effectRadius) {
-                                obj.health -= this.damage;
+                                applyDamage(obj, this.damage);
                             }
                         }
                     }
@@ -4935,7 +5493,7 @@ class ColdSpirit extends Unit {
                     }
                     // Deal damage to all in chain
                     for (const obj of chain) {
-                        obj.health -= this.damage;
+                        applyDamage(obj, this.damage);
                         // Special: If obj is a king tower, activate it
                         if (obj instanceof Tower && obj.isKing && !obj.isActive) {
                             obj.isActive = true;
@@ -5229,6 +5787,141 @@ class StoneGiant extends Unit {
     // let Unit.update / Unit.draw handle behavior
 }
 
+            class Projectile extends GameObject {
+                constructor(x, y, target, team, damage, splashRadius = 0) { 
+                    super(x, y, 4, team, 1); 
+                    this.target = target; 
+                    this.damage = damage; 
+                    this.speed = 5; 
+                    this.splashRadius = splashRadius;
+                }
+                update() { 
+                    if (!this.target || this.target.health <= 0) { this.health = 0; return; }
+                    if (this.target instanceof PhantomKnight && this.target.isInvisible) { this.health = 0; return; }
+                    const dist = getDistance(this, this.target); 
+                    if (dist < this.speed) { 
+                        // Hit target
+                        applyDamage(this.target, this.damage); 
+                        
+                        // Handle splash
+                        if (this.splashRadius > 0) {
+                            for (const obj of gameObjects) {
+                                if (obj.team !== this.team && obj !== this.target && (obj instanceof Unit || obj instanceof Tower || obj instanceof Building)) {
+                                    if (obj instanceof PhantomKnight && obj.isInvisible) continue;
+                                    if (getDistance(this.target, obj) < this.splashRadius) {
+                                        applyDamage(obj, this.damage); // Splash does full damage
+                                    }
+                                }
+                            }
+                            // Spawn Explosion Visual
+                            gameObjects.push(new ParticleExplosion(this.x, this.y, '#ff5722'));
+                        }
+                        
+                        this.health = 0; 
+                        return; 
+                    } 
+                    const angle = Math.atan2(this.target.y - this.y, this.target.x - this.x); 
+                    this.x += Math.cos(angle) * this.speed; 
+                    this.y += Math.sin(angle) * this.speed; 
+                }
+                draw() { 
+                    ctx.beginPath(); 
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); 
+                    ctx.fillStyle = this.team === 'player' ? '#a5f3fc' : '#fecaca'; 
+                    ctx.fill(); 
+                }
+            }
+
+            class FireballProjectile extends Projectile {
+                constructor(x, y, target, team, damage, splashRadius = 0) {
+                    super(x, y, target, team, damage, splashRadius);
+                    this.radius = 6;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = this.team === 'player' ? '#ffc107' : '#ff6f00';
+                    ctx.fill();
+                }
+            }
+
+            // SnowmanKing extends Tower so that Building-targeters (Giants, etc) will target it automatically.
+            class SnowmanKing extends Tower {
+                constructor(x, y, team) {
+                    super(x, y, team, true, 1); // isKing = true
+                    this.health = 4000;
+                    this.maxHealth = 4000;
+                    this.speed = 1.0; 
+                    this.radius = 20;
+                    this.attackDamage = 0;
+                    // Random Movement Props
+                    this.targetX = x;
+                    this.targetY = y;
+                    this.pauseTimer = 0;
+                    this.pickNewTarget();
+                }
+                
+                pickNewTarget() {
+                    const margin = 40;
+                    let minY, maxY;
+                    // Use scoped constants WIDTH, HEIGHT, RIVER_Y
+                    if (this.team === 'player') {
+                        minY = RIVER_Y + margin;
+                        maxY = HEIGHT - margin;
+                    } else {
+                        minY = margin;
+                        maxY = RIVER_Y - margin;
+                    }
+                    const minX = margin;
+                    const maxX = WIDTH - margin;
+                    
+                    this.targetX = minX + Math.random() * (maxX - minX);
+                    this.targetY = minY + Math.random() * (maxY - minY);
+                }
+
+                update() {
+                    if (this.health <= 0) return;
+                    if (this.dyingAnimationTimer > 0) this.dyingAnimationTimer--;
+
+                    // Handle Pause
+                    if (this.pauseTimer > 0) {
+                        this.pauseTimer--;
+                        return;
+                    }
+
+                    // Calculate movement
+                    const dx = this.targetX - this.x;
+                    const dy = this.targetY - this.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+
+                    if (dist < 5) {
+                        // Reached target -> Pause then pick new target
+                        this.pauseTimer = 60 + Math.random() * 60; // Pause 1-2s
+                        this.pickNewTarget();
+                    } else {
+                        // Move towards target
+                        this.x += (dx / dist) * this.speed;
+                        this.y += (dy / dist) * this.speed;
+                    }
+                }
+                draw() {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.beginPath();
+                    ctx.ellipse(0, this.radius * 0.4, this.radius, this.radius * 0.4, 0, 0, Math.PI*2);
+                    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                    ctx.fill();
+                    ctx.font = '40px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.shadowColor = 'white';
+                    ctx.shadowBlur = 10;
+                    ctx.fillText('☃️', 0, 0);
+                    ctx.restore();
+                    this.drawHealthBar();
+                }
+            }
+
             // --- EFFECT CLASSES (NEW) ---
             class FreezeEffect extends GameObject {
                 constructor(x, y, team, radius, duration) {
@@ -5359,7 +6052,7 @@ class StoneGiant extends Unit {
                         for (const obj of gameObjects) {
                             if (obj.team !== this.team && (obj instanceof Unit || obj instanceof Building || obj instanceof Tower)) {
                                 if (getDistance(this, obj) < this.radius) {
-                                    obj.health -= this.spawnDamage;
+                                    applyDamage(obj, this.spawnDamage);
                                 }
                             }
                         }
@@ -5454,7 +6147,7 @@ class StoneGiant extends Unit {
                         for (const obj of gameObjects) {
                             if (obj.team !== this.team && !this.hitObjects.has(obj) && (obj instanceof Unit || obj instanceof Tower || obj instanceof Building)) {
                                 if (getDistance(this, obj) < this.radius) {
-                                    obj.health -= this.damage;
+                                    applyDamage(obj, this.damage);
                                     this.hitObjects.add(obj);
                                 }
                             }
@@ -5499,7 +6192,7 @@ class StoneGiant extends Unit {
                         for (const obj of gameObjects) {
                             if (obj.team !== this.team && !this.hitObjects.has(obj) && (obj instanceof Unit || obj instanceof Tower || obj instanceof Building)) {
                                 if (getDistance(this, obj) < this.radius) {
-                                    obj.health -= this.damage;
+                                    applyDamage(obj, this.damage);
                                     this.hitObjects.add(obj);
                                 }
                             }
@@ -5527,64 +6220,6 @@ class StoneGiant extends Unit {
                 }
             }
 
-                        class Projectile extends GameObject {
-                constructor(x, y, target, team, damage, splashRadius = 0) { 
-                    super(x, y, 4, team, 1); 
-                    this.target = target; 
-                    this.damage = damage; 
-                    this.speed = 5; 
-                    this.splashRadius = splashRadius;
-                }
-                update() { 
-                    if (!this.target || this.target.health <= 0) { this.health = 0; return; }
-                    if (this.target instanceof PhantomKnight && this.target.isInvisible) { this.health = 0; return; }
-                    const dist = getDistance(this, this.target); 
-                    if (dist < this.speed) { 
-                        // Hit target
-                        this.target.health -= this.damage; 
-                        
-                        // Handle splash
-                        if (this.splashRadius > 0) {
-                            for (const obj of gameObjects) {
-                                if (obj.team !== this.team && obj !== this.target && (obj instanceof Unit || obj instanceof Tower || obj instanceof Building)) {
-                                    if (obj instanceof PhantomKnight && obj.isInvisible) continue;
-                                    if (getDistance(this.target, obj) < this.splashRadius) {
-                                        obj.health -= this.damage; // Splash does full damage
-                                    }
-                                }
-                            }
-                            // Spawn Explosion Visual
-                            gameObjects.push(new ParticleExplosion(this.x, this.y, '#ff5722'));
-                        }
-                        
-                        this.health = 0; 
-                        return; 
-                    } 
-                    const angle = Math.atan2(this.target.y - this.y, this.target.x - this.x); 
-                    this.x += Math.cos(angle) * this.speed; 
-                    this.y += Math.sin(angle) * this.speed; 
-                }
-                draw() { 
-                    ctx.beginPath(); 
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); 
-                    ctx.fillStyle = this.team === 'player' ? '#a5f3fc' : '#fecaca'; 
-                    ctx.fill(); 
-                }
-            }
-
-            class FireballProjectile extends Projectile {
-                constructor(x, y, target, team, damage, splashRadius = 0) {
-                    super(x, y, target, team, damage, splashRadius);
-                    this.radius = 6;
-                }
-                draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = this.team === 'player' ? '#ffc107' : '#ff6f00';
-                    ctx.fill();
-                }
-            }
-
             class Spell extends GameObject {
                 constructor(x, y, team, damage, radius, emoji) {
                     super(x, y, radius, team, 1);
@@ -5599,7 +6234,7 @@ class StoneGiant extends Unit {
                         for (const obj of gameObjects) {
                             if (obj.team !== this.team && (obj instanceof Unit || obj instanceof Tower || obj instanceof Building)) {
                                 if (getDistance(this, obj) < this.radius) {
-                                    obj.health -= this.damage;
+                                    applyDamage(obj, this.damage);
                                 }
                             }
                         }
@@ -5665,7 +6300,7 @@ class StoneGiant extends Unit {
                         for (const obj of gameObjects) {
                             if (obj.team !== this.team && (obj instanceof Unit || obj instanceof Tower || obj instanceof Building)) {
                                 if (getDistance(this, obj) < this.radius) {
-                                    obj.health -= this.damagePerSecond;
+                                    applyDamage(obj, this.damagePerSecond);
                                 }
                             }
                         }
@@ -5822,7 +6457,9 @@ class StoneGiant extends Unit {
 
             function drawArena() {
                 // River
-                if (currentArenaTheme === 'arena-3') {
+                if (gameMode === 'snowman_challenge') {
+                     ctx.fillStyle = '#bfdbfe'; // Icy River
+                } else if (currentArenaTheme === 'arena-3') {
                     ctx.fillStyle = '#f45d22'; // Lava
                 } else if (currentArenaTheme === 'arena-2') {
                     ctx.fillStyle = '#4a90e2'; // Lighter blue
@@ -6101,6 +6738,11 @@ class StoneGiant extends Unit {
                     gameObjects.push(new Tower(LANE_LEFT_X, 100, 'ai', false, aiTowerLevel));
                     gameObjects.push(new Tower(LANE_RIGHT_X, 100, 'ai', false, aiTowerLevel));
                     gameObjects.push(new Tower(WIDTH / 2, 50, 'ai', true, aiTowerLevel, true)); // combined double king
+                } else if (gameMode === 'snowman_challenge') {
+                    // Snowman Challenge: No Towers, Just Snowman Kings!
+                    // Spawn them slightly forward so they have room to run
+                    gameObjects.push(new SnowmanKing(WIDTH / 2, HEIGHT - 150, 'player'));
+                    gameObjects.push(new SnowmanKing(WIDTH / 2, 150, 'ai'));
                 } else {
                     // Normal: two princess towers, one king tower per side
                     gameObjects.push(new Tower(LANE_LEFT_X, HEIGHT - 100, 'player', false, playerTowerLevel));
@@ -6246,18 +6888,29 @@ class StoneGiant extends Unit {
                     return;
                 }
                 
-                // Determine spawn Y
-                let spawnY;
+                // Determine spawn Y & X
+                let spawnY, spawnX;
                 if (isDefensive) {
-                    // Spawn behind princess towers
-                    spawnY = 150 + Math.random() * 50;
+                    if (gameMode === 'snowman_challenge') {
+                         // Snowman Defense: Spawn near the King to protect it
+                         const aiKing = gameObjects.find(t => t.team === 'ai' && t.isKing);
+                         if (aiKing) {
+                             spawnY = aiKing.y + (Math.random() * 60 - 30);
+                             spawnX = aiKing.x + (Math.random() * 60 - 30);
+                         } else {
+                             spawnY = 150 + Math.random() * 50;
+                             spawnX = Math.random() < 0.5 ? LANE_LEFT_X : LANE_RIGHT_X;
+                         }
+                    } else {
+                        // Spawn behind princess towers
+                        spawnY = 150 + Math.random() * 50;
+                        spawnX = Math.random() < 0.5 ? LANE_LEFT_X : LANE_RIGHT_X;
+                    }
                 } else {
                     // Spawn at the back
                     spawnY = 50 + Math.random() * 50;
+                    spawnX = Math.random() < 0.5 ? LANE_LEFT_X : LANE_RIGHT_X;
                 }
-                
-                // Determine spawn X (which lane)
-                const spawnX = Math.random() < 0.5 ? LANE_LEFT_X : LANE_RIGHT_X;
                 
                 // Check if spawn is valid (not on top of another building)
                 let canSpawn = true;
@@ -6701,7 +7354,7 @@ class StoneGiant extends Unit {
                 const F = AI_SPAWN_ZONE_LIMIT; // 150 (500 * 0.3)
                 const M = W / 2; // 200 (mid-line)
 
-                if (!aiLeftTowerDestroyed && !aiRightTowerDestroyed) {
+                if (gameMode === 'snowman_challenge' || (!aiLeftTowerDestroyed && !aiRightTowerDestroyed)) {
                     // Block full top half
                     pathData = `M0 0 L${W} 0 L${W} ${R} L0 ${R} Z`;
                 } else if (aiLeftTowerDestroyed && !aiRightTowerDestroyed) {
@@ -6791,6 +7444,11 @@ class StoneGiant extends Unit {
                     trophies += 30;
                     updateArena();
                     trophyDisplay.textContent = `🏆 ${trophies}`;
+                }
+                
+                if (gameMode === 'snowman_challenge') {
+                     gold += 50; // Bonus for Challenge
+                     messageText.textContent = 'Challenge Complete! (+100 💰 & Box 📦)';
                 }
                 
                 // Show Play Again button for multiplayer
@@ -7123,13 +7781,20 @@ class StoneGiant extends Unit {
             function checkPlacement(x, y, radius, cardType) {
                 // Check if in allowed zone
                 let inAllowedZone = false;
-                if (y > RIVER_Y) {
-                    inAllowedZone = true; // Always allowed in player's base
-                } else if (y > AI_SPAWN_ZONE_LIMIT) { // Can't place in "far end"
-                    // Check enemy territory
-                    if (aiLeftTowerDestroyed && x < WIDTH / 2) inAllowedZone = true;
-                    if (aiRightTowerDestroyed && x > WIDTH / 2) inAllowedZone = true;
+                
+                if (gameMode === 'snowman_challenge') {
+                    // Strict restriction: Player side only
+                    if (y > RIVER_Y) inAllowedZone = true;
+                } else {
+                    if (y > RIVER_Y) {
+                        inAllowedZone = true; // Always allowed in player's base
+                    } else if (y > AI_SPAWN_ZONE_LIMIT) { // Can't place in "far end"
+                        // Check enemy territory
+                        if (aiLeftTowerDestroyed && x < WIDTH / 2) inAllowedZone = true;
+                        if (aiRightTowerDestroyed && x > WIDTH / 2) inAllowedZone = true;
+                    }
                 }
+                
                 if (!inAllowedZone) return false;
 
                 // Check for collision
@@ -7315,6 +7980,8 @@ class StoneGiant extends Unit {
             }, 2500); 
             
             // Initialize Button Effects
+            const rippleTargets = 'button, .card-ui, .nav-btn, .mode-tab, .chest-slot, .login-btn, .arena-btn, .debug-btn';
+            
             function addRippleEffect(btn) {
                 if (btn.dataset.hasRipple) return;
                 btn.dataset.hasRipple = 'true';
@@ -7332,8 +7999,12 @@ class StoneGiant extends Unit {
 
                 btn.addEventListener('click', function(e) {
                     const rect = this.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
+                    // Fallback for non-mouse events
+                    const clientX = e.clientX !== undefined ? e.clientX : (rect.left + rect.width / 2);
+                    const clientY = e.clientY !== undefined ? e.clientY : (rect.top + rect.height / 2);
+                    
+                    const x = clientX - rect.left;
+                    const y = clientY - rect.top;
                     
                     const ripple = document.createElement('span');
                     ripple.className = 'ripple-btn';
@@ -7346,19 +8017,24 @@ class StoneGiant extends Unit {
                     
                     this.appendChild(ripple);
                     setTimeout(() => ripple.remove(), 600);
+
+                    // Trigger Pulse Ring
+                    this.classList.remove('btn-pulse-anim');
+                    void this.offsetWidth; // Trigger reflow
+                    this.classList.add('btn-pulse-anim');
                 });
             }
             
             // Apply to existing buttons
-            document.querySelectorAll('button, .card-ui, .nav-btn, .mode-tab, .chest-slot, .login-btn, .arena-btn, .debug-btn').forEach(btn => addRippleEffect(btn));
+            document.querySelectorAll(rippleTargets).forEach(btn => addRippleEffect(btn));
             
             // MutationObserver to handle dynamic elements
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
                     mutation.addedNodes.forEach((node) => {
                         if (node.nodeType === 1) {
-                            if (node.matches('button, .card-ui, .nav-btn, .chest-slot')) addRippleEffect(node);
-                            node.querySelectorAll('button, .card-ui, .nav-btn, .chest-slot').forEach(btn => addRippleEffect(btn));
+                            if (node.matches(rippleTargets)) addRippleEffect(node);
+                            node.querySelectorAll(rippleTargets).forEach(btn => addRippleEffect(btn));
                         }
                     });
                 });
