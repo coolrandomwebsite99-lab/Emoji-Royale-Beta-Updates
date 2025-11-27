@@ -193,7 +193,7 @@
             transition: background-color 0.5s ease; /* For arena theme change */
         }
         /* Arena Themes */
-        canvas.arena-1 { background-color: #f1f5f9; } /* Explicit Snow White */
+        canvas.arena-1 { background-color: #15803d; }
         canvas.arena-2 { background-color: #6abf82; }
         canvas.arena-3 { 
             background-color: #4a4a4a;
@@ -867,10 +867,6 @@
             <!-- NEW: Save Data Button -->
             <button id="saveDataBtn" class="login-btn guest mt-8 w-3/4 btn-shine">
                 Save Data
-            </button>
-            
-            <button id="logoutBtn" class="login-btn cancel-btn mt-4 w-3/4 btn-shine">
-                Logout
             </button>
 
         </div>
@@ -2266,6 +2262,7 @@ const firebaseConfig = {
                     activeBtn.classList.add('active');
                 }
                 if (modeDisplay) modeDisplay.textContent = modeText;
+                updateAITeammateUI(); // NEW: Update AI Teammate UI visibility when mode changes
             }
 
             modeTrophy.addEventListener('click', () => { gameMode = 'trophy'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
@@ -5773,7 +5770,7 @@ class StoneGiant extends Unit {
                             if (newStats.jumpRadius) newStats.jumpRadius = Math.round(newStats.jumpRadius * 1.05);
                             if (newStats.effectRadius) newStats.effectRadius = Math.round(newStats.effectRadius * 1.05);
                             // Prevent splashRadius upgrade for AxeSwinger
-                            if (cardId !== 'axeSwinger' && newStats.splashRadius) newStats.splashRadius = Math.round(newStats.splashRadius * 1.1);
+                            // Removed the line that upgrades splashRadius for all cards.
                             // Update levels for spawner cards
                             if (cardId === 'battleRam' || cardId === 'barbarianHut') newStats.barbLevel = level;
                             card.stats[level] = newStats;
@@ -7227,7 +7224,8 @@ class StoneGiant extends Unit {
                 const clampedY = Math.max(0, Math.min(HEIGHT, y));
                 
                 const card = allCards[selectedSpawningUnit.id];
-                const level = (gameMode === '2v2') ? 15 : (cardCollection[selectedSpawningUnit.id] ? cardCollection[selectedSpawningUnit.id].level : 1);
+                const isPartyModeForLevel = (gameMode === '2v2' || gameMode === 'party1v1');
+                const level = isPartyModeForLevel ? 15 : (cardCollection[selectedSpawningUnit.id] ? cardCollection[selectedSpawningUnit.id].level : 1);
                 
                 if (card.type === 'Spell') {
                     if (selectedSpawningUnit.id === 'poison') { // NEW
