@@ -3473,11 +3473,12 @@ const firebaseConfig = {
                     this.prevHealth = health;
                     this.hitFlashTimer = 0;
                 }
-                drawHealthBar(level) { 
+                                drawHealthBar(level) {
                     const barWidth = this.radius * 2; 
                     const barHeight = 5; 
                     const barX = this.x - this.radius; 
-                    const barY = this.y - this.radius - (this instanceof Tower ? 8 : 12); 
+                    // Adjusted barY to make space for health text
+                    const barY = this.y - this.radius - (this instanceof Tower ? (this.isKing ? 15 : 10) : 12); 
                     
                     // Simple Shadow for bar
                     ctx.fillStyle = 'rgba(0,0,0,0.5)';
@@ -3497,6 +3498,7 @@ const firebaseConfig = {
                     ctx.lineWidth = 1;
                     ctx.strokeRect(barX, barY, barWidth, barHeight);
                     
+                    let levelTextY = null;
                     if (level) {
                         ctx.font = 'bold 11px Inter';
                         ctx.textAlign = 'center';
@@ -3505,10 +3507,35 @@ const firebaseConfig = {
                         ctx.strokeStyle = 'black';
                         ctx.fillStyle = this.team === 'player' ? '#fff' : '#fcd34d'; 
                         let textX = this.x;
-                        let textY = this.y - this.radius - 14;
-                        if (this.isCombinedDoubleKing) textY = this.y - this.height/2 - 14;
-                        ctx.strokeText(`Lvl ${level}`, textX, textY);
-                        ctx.fillText(`Lvl ${level}`, textX, textY);
+                        levelTextY = barY - 2; // Position level text slightly above the bar
+                        if (this.isCombinedDoubleKing) levelTextY = this.y - this.height/2 - 14;
+                        ctx.strokeText(`Lvl ${level}`, textX, levelTextY);
+                        ctx.fillText(`Lvl ${level}`, textX, levelTextY);
+                    }
+
+                    // NEW: Draw health text ONLY for towers
+                    if (this instanceof Tower) {
+                        ctx.font = 'bold 10px Inter'; // Slightly smaller font for health
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'top'; // Align to top of text, so Y is the top edge
+                        ctx.fillStyle = 'white';
+                        ctx.strokeStyle = 'black';
+                        ctx.lineWidth = 2;
+                        const healthText = `${Math.round(this.health)}`; // Show current health only
+
+                        let healthTextY;
+                        if (this.isCombinedDoubleKing) {
+                            // The combined king tower is drawn with height `this.radius * 1.6` centered at `this.y`.
+                            // So its bottom edge is `this.y + (this.radius * 1.6 / 2)`.
+                            healthTextY = this.y + (this.radius * 1.6 / 2) + 5; // 5px below the bottom of the drawn rect
+                        } else {
+                            // Standard towers are drawn with height `this.radius * 2` centered at `this.y`.
+                            // So its bottom edge is `this.y + this.radius`.
+                            healthTextY = this.y + this.radius + 5; // 5px below the bottom of the drawn rect
+                        }
+                        
+                        ctx.strokeText(healthText, this.x, healthTextY);
+                        ctx.fillText(healthText, this.x, healthTextY);
                     }
                 }
                 draw(color, emoji, level) { 
