@@ -1271,8 +1271,8 @@
             
             <!-- Tabs -->
             <div class="flex w-full bg-gray-700 rounded-lg p-1 mb-4">
-                <button id="cardTabStats" class="flex-1 py-2 rounded text-sm font-bold transition bg-gray-600 text-white shadow-md">Stats</button>
-                <button id="cardTabPreview" class="flex-1 py-2 rounded text-sm font-bold transition text-gray-400 hover:bg-gray-600 hover:text-white">Preview</button>
+                <button id="cardTabStats" class="flex-1 py-2 rounded text-sm font-bold transition bg-gray-600 text-white shadow-md flex justify-center items-center">Stats</button>
+                <button id="cardTabPreview" class="flex-1 py-2 rounded text-sm font-bold transition text-gray-400 hover:bg-gray-600 hover:text-white flex justify-center items-center">Preview</button>
             </div>
 
             <!-- Stats Panel -->
@@ -1290,7 +1290,7 @@
             <!-- Preview Panel -->
             <div id="cardInfoPreviewPanel" class="hidden flex-col items-center w-full">
                 <canvas id="cardPreviewCanvas" width="300" height="200" class="bg-gray-800 rounded-lg mb-4 border-2 border-gray-600 shadow-inner"></canvas>
-                <div class="w-full text-left space-y-3">
+                <div class="w-full text-center space-y-3">
                     <div>
                         <h4 id="previewStrongHeader" class="text-green-400 font-bold text-sm uppercase tracking-wider mb-2 border-b border-gray-700 pb-1">Good Against</h4>
                         <div id="previewStrong" class="flex flex-wrap gap-2 min-h-[40px] bg-gray-900 bg-opacity-50 p-2 rounded-lg"></div>
@@ -1745,6 +1745,8 @@ const firebaseConfig = {
         let aiDiscardPile = [];
         let towerLevel = 1;
         let towerCardCount = 0;
+        let selectedTower = 'princess';
+        let towerCollection = {};
         let lastClaimDate = "";
         // --- NEW: Level Cap at 15 ---
         const towerUpgradeCosts = {
@@ -1753,6 +1755,12 @@ const firebaseConfig = {
             7: { cards: 200, gold: 8000 }, 8: { cards: 400, gold: 16000 }, 9: { cards: 800, gold: 32000 },
             10: { cards: 1000, gold: 50000 }, 11: { cards: 1500, gold: 75000 }, 12: { cards: 2000, gold: 100000 },
             13: { cards: 3000, gold: 150000 }, 14: { cards: 5000, gold: 200000 },
+        };
+        const towerDefs = {
+            'princess': { name: 'Princess', emoji: '👸', desc: 'Standard tower.', healthMod: 1, dmgMod: 1, speedMod: 1, special: null },
+            'waffle': { name: 'Waffle Maker', emoji: '🧇', desc: 'King throws waffles that level up troops! Weaker stats.', healthMod: 0.8, dmgMod: 0.8, speedMod: 1.2, special: 'waffle' },
+            'machineGun': { name: 'Machine Gun', emoji: '🔫', desc: 'Bursts rapid fire for 3s then slows down.', healthMod: 0.7, dmgMod: 0.6, speedMod: 0.25, special: 'burst' },
+            'rocketeer': { name: 'Rocketeer', emoji: '🚀', desc: 'Slow but heavy damage. Low health.', healthMod: 0.5, dmgMod: 5.0, speedMod: 3.0, special: 'rocket' }
         };
         const towerStats = {
             1: { kingHealth: 2000, princessHealth: 1000, damage: 50, hitSpeed: 1 },
@@ -2227,6 +2235,8 @@ const firebaseConfig = {
                 gold = 500;
                 towerLevel = 1;
                 towerCardCount = 0;
+                selectedTower = 'princess';
+                towerCollection = { 'princess': { level: 1, count: 0, unlocked: true } };
                 trophyChests = [];
                 cardCollection = initNewUserCards(false);
                 playerDeck = initNewUserCards(true);
@@ -2277,6 +2287,8 @@ const firebaseConfig = {
                         gold = data.gold || 500;
                         towerLevel = data.towerLevel || 1;
                         towerCardCount = data.towerCardCount || 0;
+                        selectedTower = data.selectedTower || 'princess';
+                        towerCollection = data.towerCollection || { 'princess': { level: data.towerLevel || 1, count: data.towerCardCount || 0, unlocked: true } };
                         trophyChests = data.trophyChests || [];
                     cardCollection = data.cardCollection || initNewUserCards(false);
                     playerDeck = data.playerDeck || initNewUserCards(true);
@@ -2331,6 +2343,8 @@ const firebaseConfig = {
                             gold,
                             towerLevel,
                             towerCardCount,
+                            selectedTower,
+                            towerCollection,
                             trophyChests,
                             cardCollection,
                             playerDeck,
@@ -2660,10 +2674,11 @@ const firebaseConfig = {
 
             // NEW: Show update log function
             function showUpdateLog() {
-                const updates = [
-                    { date: '11/28/2025', title: 'Arena 9 & 10 Update', items: [
-                        '🪦 Added Arena 9: Titan\'s Peak (2000+ trophies)!',
-                        '🦴 New Card: Skeleton Yard - Spell that continuously spawns Skeletons.',
+            const updates = [
+                { date: '11/28/2025', title: 'Tower Power & Arena Update', items: [
+                    '🏰 New Towers! Waffle Maker 🧇, Machine Gun 🔫, Rocketeer 🚀',
+                    '🪦 Added Arena 9: Titan\'s Peak (2000+ trophies)!',
+                    '🦴 New Card: Skeleton Yard - Spell that continuously spawns Skeletons.',
                         '💀💣 New Card: Huge Skeleton - Tank that drops a giant bomb on death.',
                         '🥷 New Card: Ninja - Fast melee unit with high burst damage.',
                         '☄️ New Card: Meteor - Powerful damage spell.',
@@ -2987,7 +3002,18 @@ const firebaseConfig = {
             // NEW: Show update log function
             function showUpdateLog() {
                 const updates = [
-                    { date: '11/27/2025', title: 'Latest Update', items: [
+                    { date: '11/28/2025', title: 'Tower Power & Arena Update', items: [
+                        '🏰 New Special Towers! (Unlock at Arena 10+)',
+                        '🧇 Waffle Maker: Heals and Levels up friendly troops!',
+                        '🔫 Machine Gun: Rapid fire bursts for high DPS!',
+                        '🚀 Rocketeer: Slow but devastating rocket attacks!',
+                        '👁️ Tower Preview: Test towers in the Tower Menu!',
+                        '🪦 Added Arena 9: Titan\'s Peak (2000+ trophies)',
+                        '🔥 Added Arena 10: Chaos Realm (2250+ trophies)',
+                        '💀 New Cards: Huge Skeleton, Ninja, Meteor, Skeleton Yard',
+                        '⚡ New Cards: Zap Giant, Mega Smasher, Flame Dragon, Bot'
+                    ]},
+                    { date: '11/27/2025', title: 'Winter Event', items: [
                         '🎄 Winter Wonderland Event is Live!',
                         '☃️ Snowman Challenge: Battle the Snowman King!',
                         '✨ Visual Updates: New glowing text effects in Events tab'
@@ -3460,45 +3486,188 @@ const firebaseConfig = {
             }
             
             function renderTowerScreen() {
-                towerLevelDisplay.textContent = `Tower Level ${towerLevel}`;
-                const stats = towerStats[towerLevel] || towerStats[Object.keys(towerStats).length];
-                const dps = (stats.damage / stats.hitSpeed).toFixed(1);
+                // --- NEW: Render Collection Grid ---
+                const screenDiv = document.querySelector('#towerScreen > div');
+                screenDiv.innerHTML = `
+                    <h1 class="text-3xl font-bold mb-4">Tower Collection</h1>
+                    <p class="text-sm text-gray-400 mb-6">Reach Arena 10 to unlock special towers!</p>
+                    <div id="towerGrid" class="grid grid-cols-2 gap-4 w-full"></div>
+                `;
+                const grid = document.getElementById('towerGrid');
                 
-                towerInfoStats.innerHTML = `
-                    <div>King Health: <span>${stats.kingHealth}</span></div>
-                    <div>Princess Health: <span>${stats.princessHealth}</span></div>
-                    <div>Damage: <span>${stats.damage}</span></div>
-                    <div>Hit Speed: <span>${stats.hitSpeed}s</span></div>
-                    <div class="col-span-2 text-center">DPS: <span>${dps}</span></div>
+                Object.keys(towerDefs).forEach(type => {
+                    const def = towerDefs[type];
+                    const data = towerCollection[type] || { level: 1, count: 0, unlocked: false };
+                    // Unlock others at Arena 10 (2250 trophies)
+                    if (type !== 'princess' && trophies >= 2250 && !data.unlocked) {
+                        data.unlocked = true;
+                        towerCollection[type] = data;
+                    }
+                    
+                    const el = document.createElement('div');
+                    el.className = `relative bg-gray-800 border-4 rounded-xl p-4 flex flex-col items-center cursor-pointer transition transform hover:scale-105 ${selectedTower === type ? 'border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.5)]' : 'border-gray-600'}`;
+                    if (!data.unlocked) el.classList.add('grayscale');
+
+                    // Progress Bar Calculation
+                    const costs = towerUpgradeCosts[data.level];
+                    let progressHTML = '';
+                    if (costs && data.unlocked) {
+                        const pct = Math.min(100, (data.count / costs.cards) * 100);
+                        const canUp = data.count >= costs.cards && gold >= costs.gold;
+                        progressHTML = `<div class="w-full h-2 bg-gray-900 rounded-full mt-2 overflow-hidden border border-gray-700"><div class="h-full ${canUp ? 'bg-yellow-400' : 'bg-blue-500'}" style="width: ${pct}%"></div></div>`;
+                    }
+                    
+                    el.innerHTML = `
+                        <div class="text-5xl mb-2">${def.emoji}</div>
+                        <h3 class="font-bold text-white">${def.name}</h3>
+                        <p class="text-xs text-gray-400 text-center mt-1">${def.desc}</p>
+                        ${data.unlocked ? `<div class="mt-2 text-yellow-300 font-bold">Lvl ${data.level}</div>` : '<div class="mt-2 text-red-400 font-bold text-xs">Arena 10+</div>'}
+                        ${progressHTML}
+                        ${selectedTower === type ? '<div class="absolute top-2 right-2 text-yellow-400">✅</div>' : ''}
+                    `;
+                    el.onclick = () => openTowerModal(type);
+                    grid.appendChild(el);
+                });
+            }
+            
+            function openTowerModal(type) {
+                const def = towerDefs[type];
+                const data = towerCollection[type] || { level: 1, count: 0, unlocked: false };
+                currentPreviewCardId = type; // Set for preview loop
+                
+                // Re-use card modal logic mostly
+                cardInfoDisplay.innerHTML = `<div class="text-8xl">${def.emoji}</div>`;
+                cardInfoName.textContent = def.name;
+                cardInfoType.textContent = 'Tower';
+                cardInfoLevel.textContent = `Level ${data.level}`;
+                
+                // Good/Weak Against
+                const previewStrongHeader = document.getElementById('previewStrongHeader');
+                const previewWeakHeader = document.getElementById('previewWeakHeader');
+                const previewStrong = document.getElementById('previewStrong');
+                const previewWeak = document.getElementById('previewWeak');
+
+                let sText = "Good Against: Balanced Units";
+                let wText = "Weak Against: Tanks, Swarms";
+                let sDesc = "Versatile defense against most threats.";
+                let wDesc = "Can be overwhelmed by large numbers.";
+
+                if (type === 'waffle') {
+                    sText = "Good Against: Friendly Troops (Support)";
+                    wText = "Weak Against: Rushes";
+                    sDesc = "King throws waffles to heal/level up allies. Princess towers are weaker.";
+                    wDesc = "Lower stats make defense harder without troop support.";
+                } else if (type === 'machineGun') {
+                    sText = "Good Against: Swarms, Glass Cannons";
+                    wText = "Weak Against: Tanks (Recharge)";
+                    sDesc = "Bursts fire rapidly, shredding low HP units.";
+                    wDesc = "Vulnerable during the long recharge period after bursting.";
+                } else if (type === 'rocketeer') {
+                    sText = "Good Against: Tanks, Clusters";
+                    wText = "Weak Against: Fast Swarms";
+                    sDesc = "Deals massive damage per hit.";
+                    wDesc = "Very slow fire rate makes it bad against many small units.";
+                }
+
+                if (previewStrongHeader) previewStrongHeader.textContent = sText;
+                if (previewWeakHeader) previewWeakHeader.textContent = wText;
+                
+                if (previewStrong) { previewStrong.style.display = 'flex'; previewStrong.innerHTML = `<div class="text-xs text-gray-400">${sDesc}</div>`; }
+                if (previewWeak) { previewWeak.style.display = 'flex'; previewWeak.innerHTML = `<div class="text-xs text-gray-400">${wDesc}</div>`; }
+
+                // Stats
+                const base = towerStats[data.level];
+                const hp = Math.round(base.princessHealth * def.healthMod);
+                const dmg = Math.round(base.damage * def.dmgMod);
+                const spd = (base.hitSpeed * def.speedMod).toFixed(1);
+                
+                let extraStats = '';
+                if (type === 'waffle') extraStats = '<div>Ability: <span>Waffle Throw</span></div><div>Rate: <span>25s</span></div>';
+                if (type === 'machineGun') extraStats = '<div>Ability: <span>Rapid Burst</span></div><div>Burst: <span>3s</span></div>';
+                if (type === 'rocketeer') extraStats = '<div>Type: <span>High Damage</span></div><div>Speed: <span>Slow</span></div>';
+
+                cardInfoStats.innerHTML = `
+                    <div>Health: <span>${hp}</span></div>
+                    <div>Damage: <span>${dmg}</span></div>
+                    <div>Hit Speed: <span>${spd}s</span></div>
+                    ${extraStats}
+                    <div class="text-xs text-gray-400 mt-2">${def.desc}</div>
                 `;
                 
-                const costs = towerUpgradeCosts[towerLevel];
-                if (costs) {
-                    towerInfoProgressContainer.style.display = 'block';
-                    const progress = (towerCardCount / costs.cards);
-                    towerInfoProgressBar.style.width = `${Math.min(100, progress * 100)}%`;
-                    towerInfoProgressText.textContent = `${towerCardCount} / ${costs.cards}`;
-                    
-                    const canUpgrade = towerCardCount >= costs.cards && gold >= costs.gold;
-                    towerUpgradeButton.textContent = `Upgrade (💰 ${costs.gold})`;
-                    towerUpgradeButton.disabled = !canUpgrade;
-                } else {
-                    towerInfoProgressContainer.style.display = 'none';
-                    towerUpgradeButton.textContent = 'Max Level (15)';
-                    towerUpgradeButton.disabled = true;
-                }
-            }
-            if (towerUpgradeButton) towerUpgradeButton.addEventListener('click', () => {
-                const costs = towerUpgradeCosts[towerLevel];
-                if (costs && towerCardCount >= costs.cards && gold >= costs.gold) {
-                    towerCardCount -= costs.cards;
-                    gold -= costs.gold;
-                    towerLevel++;
-                    goldDisplay.textContent = `💰 ${gold}`;
+                cardInfoButtons.innerHTML = '';
+                
+                // Equip Button
+                const equipBtn = document.createElement('button');
+                const isLocked = !data.unlocked;
+                equipBtn.className = `modal-btn ${selectedTower === type ? 'bg-gray-500' : (isLocked ? 'bg-gray-600 cursor-not-allowed' : 'bg-blue-600')}`;
+                equipBtn.textContent = selectedTower === type ? 'Equipped' : (isLocked ? 'Locked' : 'Equip');
+                
+                equipBtn.disabled = (selectedTower === type) || isLocked;
+                equipBtn.onclick = () => {
+                    selectedTower = type;
                     renderTowerScreen();
+                    closeModal();
                     saveUserData();
+                };
+                cardInfoButtons.appendChild(equipBtn);
+                
+                // Upgrade Logic
+                const costs = towerUpgradeCosts[data.level];
+                if (costs) {
+                    cardInfoProgressContainer.style.display = 'block';
+                    const progress = (data.count / costs.cards);
+                    cardInfoProgressBar.style.width = `${Math.min(100, progress * 100)}%`;
+                    cardInfoProgressText.textContent = `${data.count} / ${costs.cards}`;
+                    
+                    cardInfoButton.style.display = 'block';
+                    const canUpgrade = data.count >= costs.cards && gold >= costs.gold;
+                    cardInfoButton.className = 'modal-btn upgrade';
+                    cardInfoButton.textContent = `Upgrade (💰 ${costs.gold})`;
+                    cardInfoButton.disabled = !canUpgrade;
+                    cardInfoButton.onclick = () => {
+                        data.count -= costs.cards;
+                        gold -= costs.gold;
+                        data.level++;
+                        goldDisplay.textContent = `💰 ${gold}`;
+                        openTowerModal(type); // Refresh
+                        renderTowerScreen();
+                        saveUserData();
+                    };
+                } else {
+                    cardInfoProgressContainer.style.display = 'none';
+                    cardInfoButton.style.display = 'none';
                 }
-            });
+                
+                // Enable preview tab for towers
+                document.getElementById('cardTabPreview').style.display = 'flex';
+                document.getElementById('cardTabStats').click();
+
+                // Populate Test Cards List for Tower Preview
+                const allCardsList = document.getElementById('previewAllCardsList');
+                const searchInput = document.getElementById('previewSearchInput');
+                allCardsList.innerHTML = '';
+                searchInput.value = '';
+                previewCameraY = 0;
+
+                const sortedCards = Object.keys(allCards)
+                    .filter(id => id !== 'tower' && id !== 'miniStoneGiant')
+                    .sort((a, b) => allCards[a].name.localeCompare(allCards[b].name));
+
+                sortedCards.forEach(cid => {
+                    const el = createCardDOM(cid, true);
+                    el.onclick = (e) => {
+                        e.stopPropagation();
+                        currentPreviewOpponentId = cid;
+                        document.querySelectorAll('#previewAllCardsList .card-ui').forEach(c => c.style.borderColor = '');
+                        el.style.borderColor = '#3b82f6';
+                        startPreviewLoop();
+                    };
+                    el.dataset.searchName = allCards[cid].name.toLowerCase();
+                    allCardsList.appendChild(el);
+                });
+                
+                cardInfoModal.style.display = 'flex';
+            }
 
 
             function updateBattleButtonState() {
@@ -3524,6 +3693,7 @@ const firebaseConfig = {
             let currentPreviewCardId = null;
             let currentPreviewOpponentId = null;
             let previewSpellTimer = 0;
+            let previewCameraY = 0;
             const previewCanvas = document.getElementById('cardPreviewCanvas');
             const previewCtx = previewCanvas.getContext('2d');
 
@@ -3922,17 +4092,33 @@ const firebaseConfig = {
                 let previewFrame = 0;
                 // Capture the global deltaTime before the preview loop overwrites it.
                 const originalGlobalDeltaTime = deltaTime;
-                let lastPreviewTime = performance.now(); // Initialize for the first frame's deltaTime calculation.
+                let lastPreviewTime = performance.now();
 
-                const card = allCards[currentPreviewCardId];
+                // Handle Tower Previews
+                let card = allCards[currentPreviewCardId];
+                let playerTowerType = 'princess';
+                if (!card && towerDefs[currentPreviewCardId]) {
+                    // It is a tower preview
+                    card = { type: 'TowerPreview', name: towerDefs[currentPreviewCardId].name };
+                    playerTowerType = currentPreviewCardId;
+                }
+
                 const opponent = currentPreviewOpponentId ? allCards[currentPreviewOpponentId] : null;
                 
                 // --- Setup Simulation Board ---
                 // 1. Add Towers (Arena 1 Theme)
-                // Blue Princess (Bottom)
-                previewSimulationObjects.push(new Tower(130, 180, 'player', false, 9));
+                // Blue Princess (Bottom) - Use selected tower type if previewing tower
+                previewSimulationObjects.push(new Tower(130, 180, 'player', false, 10, false, playerTowerType));
                 // Red Princess (Top)
-                previewSimulationObjects.push(new Tower(130, 20, 'ai', false, 9));
+                previewSimulationObjects.push(new Tower(130, 20, 'ai', false, 10));
+                
+                // Waffle Preview Extras
+                if (currentPreviewCardId === 'waffle') {
+                    // Add King Tower for Waffle Preview (off-screen normally, viewable via switch)
+                    previewSimulationObjects.push(new Tower(130, 280, 'player', true, 10, false, 'waffle'));
+                    // Add Friendly Unit to be buffed
+                    previewSimulationObjects.push(new Knight(130, 240, 'player', 10));
+                }
 
                 const spawnX = 130;
                 const blueSpawnY = 140;
@@ -3946,7 +4132,7 @@ const firebaseConfig = {
 
                 try {
                     // 2. Spawn Main Unit (Player Team) at Bottom
-                    if (card.type !== 'Spell') {
+                    if (card.type !== 'Spell' && card.type !== 'TowerPreview') {
                         const level = 10;
                         if (card.unitClass) {
                              const unit = new card.unitClass(spawnX, blueSpawnY, 'player', level);
@@ -3969,6 +4155,12 @@ const firebaseConfig = {
                          } else {
                              previewOpponentSpellTimer = 90;
                          }
+                    } else if (currentPreviewCardId === 'machineGun') {
+                         // Force spawn a tank for MG preview so user sees the slow down
+                         const tank = new Giant(spawnX, redSpawnY, 'ai', 10);
+                         tank.health = 5000; 
+                         tank.maxHealth = 5000;
+                         previewSimulationObjects.push(tank);
                     }
                 } catch(e) {
                     console.warn("Preview spawn error", e);
@@ -3991,22 +4183,22 @@ const firebaseConfig = {
                          return;
                     }
                     // --- TEMPORARY CONTEXT SWAP ---
-                    // We swap the global 'ctx' variable to 'previewCtx' so that GameObject.draw()
-                    // draws onto the preview canvas instead of the main game canvas.
                     const mainCtx = ctx;
                     ctx = previewCtx;
 
                     ctx.clearRect(0, 0, 300, 200);
+                    ctx.save();
+                    ctx.translate(0, -previewCameraY);
                     
-                    // --- Draw Arena 1 Background ---
+                    // --- Draw Arena 1 Background (Extended for Scrolling) ---
                     ctx.fillStyle = '#15803d'; // Green Grass
-                    ctx.fillRect(0, 0, 300, 200);
+                    ctx.fillRect(0, 0, 300, 400); // Taller for scroll
                     
                     // River
                     ctx.fillStyle = '#3b82f6'; // Blue River
                     ctx.fillRect(0, 90, 300, 20);
                     
-                    // Bridge (Left aligned for spawn x=130)
+                    // Bridge
                     ctx.fillStyle = '#a16207'; // Brown
                     ctx.fillRect(115, 85, 30, 30);
 
@@ -4111,6 +4303,7 @@ const firebaseConfig = {
                         ctx.beginPath(); ctx.arc(130, 60, card.radius, 0, Math.PI*2); ctx.fill(); ctx.restore();
                     }
 
+                    ctx.restore(); // Restore Camera Transform
                     // --- RESTORE MAIN CONTEXT ---
                     ctx = mainCtx;
                     previewAnimationId = requestAnimationFrame(loop);
@@ -4599,24 +4792,133 @@ const firebaseConfig = {
                 }
             }
 
+            class WaffleProjectile extends GameObject {
+                constructor(x, y, target) {
+                    super(x, y, 6, 'neutral', 1);
+                    this.target = target;
+                    this.speed = 4;
+                }
+                update() {
+                    if (!this.target || this.target.health <= 0) { this.health = 0; return; }
+                    const dist = getDistance(this, this.target);
+                    if (dist < this.speed) {
+                        // Level up logic
+                        if (this.target instanceof Unit) {
+                             this.target.level = (this.target.level || 1) + 1;
+                             gameObjects.push(new DamageText(this.target.x, this.target.y - 30, "UP!"));
+                             // Recalculate stats based on new level if possible, or just heal full
+                             this.target.health = this.target.maxHealth; // Simple bonus: full heal
+                        }
+                        this.health = 0;
+                        return;
+                    }
+                    const angle = Math.atan2(this.target.y - this.y, this.target.x - this.x);
+                    this.x += Math.cos(angle) * this.speed * (deltaTime * 60);
+                    this.y += Math.sin(angle) * this.speed * (deltaTime * 60);
+                }
+                draw() {
+                    ctx.font = '20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('🧇', this.x, this.y);
+                }
+            }
+
             class Tower extends GameObject {
-                constructor(x, y, team, isKing = false, level = 1, isCombinedDoubleKing = false) {
-                    const s = towerStats[level] || towerStats[1];
+                constructor(x, y, team, isKing = false, level = 1, isCombinedDoubleKing = false, type = 'princess') {
+                    const base = towerStats[level] || towerStats[1];
+                    const def = towerDefs[type] || towerDefs['princess'];
+                    
+                    // Apply mods only to non-king towers (except for ability inheritance)
+                    const hMod = isKing ? 1 : def.healthMod;
+                    const dMod = isKing ? 1 : def.dmgMod;
+                    const sMod = isKing ? 1 : def.speedMod;
+
                     const width = isCombinedDoubleKing ? 40 : (isKing ? 25 : 20);
                     const height = isCombinedDoubleKing ? 35 : (isKing ? 25 : 20);
-                    super(x, y, width, team, isKing ? s.kingHealth : s.princessHealth);
+                    super(x, y, width, team, (isKing ? base.kingHealth : base.princessHealth) * hMod);
+                    
+                    this.machineGunTimer = 0;
+                    this.type = type;
+                    this.def = def;
                     this.isKing = isKing;
                     this.isCombinedDoubleKing = isCombinedDoubleKing;
                     this.height = height;
-                    this.level = level; // Store level
+                    this.level = level;
                     this.attackRange = 150;
-                    this.attackDamage = s.damage;
-                    this.attackCooldown = s.hitSpeed * 60;
+                    this.attackDamage = base.damage * dMod;
+                    this.baseAttackCooldown = (base.hitSpeed * sMod) * 60;
+                    this.attackCooldown = this.baseAttackCooldown;
                     this.cooldownTimer = 0;
                     this.target = null;
-                    this.isActive = isKing ? false : true; // Princess towers are active by default
+                    this.isActive = isKing ? false : true;
                     this.activationAnimation = 0;
                     this.dyingAnimationTimer = 0;
+                    
+                    // Special timers
+                    this.waffleTimer = 25 * 60;
+                    // Machine Gun State
+                    this.mgState = 'ready'; // 'ready' (bursting) or 'recharging'
+                    this.mgTimer = 180; // 3s burst capacity initially
+                }
+                
+                update() {
+                    if (this.health <= 0) return;
+                    if (this.cooldownTimer > 0) { this.cooldownTimer -= deltaTime * 60; }
+
+                    // Waffle Ability (King Only)
+                    if (this.isKing && this.def.special === 'waffle') {
+                        if (this.waffleTimer > 0) this.waffleTimer -= deltaTime * 60;
+                        if (this.waffleTimer <= 0) {
+                            const friend = gameObjects.find(o => o.team === this.team && o instanceof Unit);
+                            if (friend) {
+                                gameObjects.push(new WaffleProjectile(this.x, this.y, friend));
+                                this.waffleTimer = 25 * 60;
+                            }
+                        }
+                    }
+
+                    // Machine Gun Logic (Non-King)
+                    if (!this.isKing && this.def.special === 'burst') {
+                        if (this.mgState === 'ready') {
+                            this.attackCooldown = 15; // 0.25s Fast Fire
+                            if (this.target) {
+                                this.mgTimer -= deltaTime * 60;
+                                if (this.mgTimer <= 0) {
+                                    this.mgState = 'recharging';
+                                    this.mgTimer = 600; // 10s recharge
+                                    this.cooldownTimer = 90; // Force immediate slow delay
+                                }
+                            }
+                        } else {
+                            this.attackCooldown = 90; // 1.5s Slow Fire
+                            this.mgTimer -= deltaTime * 60;
+                            if (this.mgTimer <= 0) {
+                                this.mgState = 'ready';
+                                this.mgTimer = 180; // Reset to 3s burst
+                            }
+                        }
+                    }
+
+
+
+                    let kingNeedsToActivate = false;
+                    if (this.isKing) {
+                        const princessTowersDown = gameObjects.filter(t => t.team === this.team && !t.isKing && t.health > 0).length === 0;
+                        if (princessTowersDown || this.health < this.maxHealth) {
+                            if (!this.isActive) { 
+                                this.isActive = true; 
+                                this.activationAnimation = 30; 
+                            }
+                            kingNeedsToActivate = true;
+                        }
+                        if (!kingNeedsToActivate) return;
+                    }
+
+                    if (this.isActive) {
+                        this.findTarget();
+                        if (this.target && this.cooldownTimer <= 0) { this.attack(); }
+                    }
                 }
                 findTarget() { 
                     if (this.target && this.target.health > 0 && getDistance(this, this.target) <= this.attackRange) { return; } 
@@ -4636,39 +4938,27 @@ const firebaseConfig = {
                 attack() { 
                     if (this.target) { 
                         if (this.isCombinedDoubleKing) {
-                            // Fire two projectiles with slight horizontal offset
                             const offset = 8;
                             gameObjects.push(new Projectile(this.x - offset, this.y, this.target, this.team, this.attackDamage)); 
                             gameObjects.push(new Projectile(this.x + offset, this.y, this.target, this.team, this.attackDamage)); 
                         } else {
-                            gameObjects.push(new Projectile(this.x, this.y, this.target, this.team, this.attackDamage)); 
+                            // Visuals for different towers
+                            if (this.def.special === 'rocket') {
+                                 // Rocket logic: Create projectile with Rocket emoji
+                                 const p = new Projectile(this.x, this.y, this.target, this.team, this.attackDamage);
+                                 p.radius = 8; // Bigger
+                                 p.speed = 3; // Slower
+                                 gameObjects.push(p);
+                                 // We don't have emoji support in Projectile class yet, relies on draw color. 
+                                 // Let's leave as standard projectile for stability but high dmg.
+                            } else {
+                                 gameObjects.push(new Projectile(this.x, this.y, this.target, this.team, this.attackDamage)); 
+                            }
                         }
                         this.cooldownTimer = this.attackCooldown; 
                     } 
                 }
-                update() { 
-                    if (this.health <= 0) return; 
-                    if (this.cooldownTimer > 0) { this.cooldownTimer -= deltaTime * 60; } /* Scale cooldown by delta time */ 
-                    
-                    let kingNeedsToActivate = false;
-                    if (this.isKing) { 
-                        const princessTowersDown = gameObjects.filter(t => t.team === this.team && !t.isKing && t.health > 0).length === 0; 
-                        if (princessTowersDown || this.health < this.maxHealth) { 
-                            if (!this.isActive) { 
-                                this.isActive = true; 
-                                this.activationAnimation = 30; 
-                            } 
-                            kingNeedsToActivate = true; 
-                        } 
-                        if (!kingNeedsToActivate) return; 
-                    } 
-                    
-                    // Only active towers attack
-                    if (this.isActive) {
-                        this.findTarget(); 
-                        if (this.target && this.cooldownTimer <= 0) { this.attack(); } 
-                    }
-                }
+
                 draw() { 
                     ctx.save(); 
                     
@@ -4759,11 +5049,11 @@ const firebaseConfig = {
                         }
 
                         // Emoji
-                        const emoji = this.isKing ? '👑' : '👸';
+                        const emoji = this.isKing ? '👑' : (this.def.emoji || '👸');
                         ctx.font = `${this.radius * 1.3}px Arial`;
                         ctx.textAlign = 'center'; 
                         ctx.textBaseline = 'middle';
-                        ctx.fillText(emoji, this.x, this.y - 2); // Slight offset up
+                        ctx.fillText(emoji, this.x, this.y - 2);
                     }
                     
                     // Draw activation animation
@@ -4773,7 +5063,29 @@ const firebaseConfig = {
                         ctx.beginPath(); 
                         ctx.arc(this.x, this.y, this.radius + 15, 0, Math.PI * 2); 
                         ctx.fill(); 
-                    } 
+                    }
+
+                    // Draw Machine Gun Bar
+                    if (!this.isKing && this.def.special === 'burst') {
+                        ctx.fillStyle = '#4b5563'; ctx.fillRect(this.x - 15, this.y - 40, 30, 4);
+                        if (this.mgState === 'ready') {
+                            // Bursting: Green bar draining
+                            const p = Math.max(0, this.mgTimer / 180);
+                            ctx.fillStyle = '#22c55e'; ctx.fillRect(this.x - 15, this.y - 40, 30 * p, 4);
+                        } else {
+                            // Recharging: Orange bar filling up
+                            const p = Math.max(0, (600 - this.mgTimer) / 600);
+                            ctx.fillStyle = '#f97316'; ctx.fillRect(this.x - 15, this.y - 40, 30 * p, 4);
+                        }
+                        // Border
+                        ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.strokeRect(this.x - 15, this.y - 40, 30, 4);
+                    }
+                    // Draw Waffle Bar
+                    if (this.isKing && this.def.special === 'waffle') {
+                        const p = Math.max(0, this.waffleTimer / (25 * 60));
+                        ctx.fillStyle = '#4b5563'; ctx.fillRect(this.x - 20, this.y - 50, 40, 6);
+                        ctx.fillStyle = '#f59e0b'; ctx.fillRect(this.x - 20, this.y - 50, 40 * (1-p), 6);
+                    }
                     
                     this.drawHealthBar(this.level);
                     ctx.restore(); 
@@ -4801,7 +5113,7 @@ const firebaseConfig = {
                     // --- BUILDING HEALTH DECAY FIX ---
                     // Calculate health decay per frame and subtract it
                     const decayPerFrame = this.maxHealth / this.maxLifetime;
-                    this.health -= decayPerFrame;
+                    this.health -= decayPerFrame * (deltaTime * 60);
                     // --- END FIX ---
                     
                     if (this.lifetime <= 0 || this.health <= 0) { // Check both
@@ -7484,10 +7796,9 @@ class StoneGiant extends Unit {
                 return 1;
             }
 
-            // --- FIX: All functions moved above the code that calls them ---
-            function getUnlockedCards(includeTower = false, aiLevel = 0) {
-                const unlocked = [];
-                // Use AI level if provided, otherwise use player's trophies
+            function ignoreDuplicates() {
+            // REMOVED DUPLICATE BLOCK
+            // (Duplicate functions removed to fix SyntaxError)
                 let arenaNum = 1;
                 if (aiLevel > 0) {
                     arenaNum = aiLevel;
@@ -7673,6 +7984,7 @@ class StoneGiant extends Unit {
             }
 
             function initGame() {
+                if (gameLoopId) cancelAnimationFrame(gameLoopId); // Prevent multiple loops
                 gameObjects = [];
                 playerElixir = 3;
                 aiElixir = 3;
@@ -7728,13 +8040,15 @@ class StoneGiant extends Unit {
                 const aiTowerLevel = isParty ? 15 : currentAiStatLevel;
                 
                 if (gameMode === '2v2') {
-                    // 2v2: Two princess towers per side, one combined double king tower per side (rectangular, same height as normal king)
-                    gameObjects.push(new Tower(LANE_LEFT_X, HEIGHT - 100, 'player', false, playerTowerLevel));
-                    gameObjects.push(new Tower(LANE_RIGHT_X, HEIGHT - 100, 'player', false, playerTowerLevel));
-                    gameObjects.push(new Tower(WIDTH / 2, HEIGHT - 50, 'player', true, playerTowerLevel, true)); // combined double king
-                    gameObjects.push(new Tower(LANE_LEFT_X, 100, 'ai', false, aiTowerLevel));
-                    gameObjects.push(new Tower(LANE_RIGHT_X, 100, 'ai', false, aiTowerLevel));
-                    gameObjects.push(new Tower(WIDTH / 2, 50, 'ai', true, aiTowerLevel, true)); // combined double king
+                    // 2v2: Two princess towers per side, one combined double king tower per side
+                    gameObjects.push(new Tower(LANE_LEFT_X, HEIGHT - 100, 'player', false, playerTowerLevel, false, selectedTower));
+                    gameObjects.push(new Tower(LANE_RIGHT_X, HEIGHT - 100, 'player', false, playerTowerLevel, false, selectedTower));
+                    gameObjects.push(new Tower(WIDTH / 2, HEIGHT - 50, 'player', true, playerTowerLevel, true, selectedTower));
+                    // AI Random Tower if high level
+                    const aiType = (aiArenaLevel >= 10 && Math.random() > 0.5) ? ['waffle','machineGun','rocketeer'][Math.floor(Math.random()*3)] : 'princess';
+                    gameObjects.push(new Tower(LANE_LEFT_X, 100, 'ai', false, aiTowerLevel, false, aiType));
+                    gameObjects.push(new Tower(LANE_RIGHT_X, 100, 'ai', false, aiTowerLevel, false, aiType));
+                    gameObjects.push(new Tower(WIDTH / 2, 50, 'ai', true, aiTowerLevel, true, aiType));
                 } else if (gameMode === 'snowman_challenge') {
                     // Snowman Challenge: No Towers, Just Snowman Kings!
                     // Spawn them slightly forward so they have room to run
@@ -7742,12 +8056,17 @@ class StoneGiant extends Unit {
                     gameObjects.push(new SnowmanKing(WIDTH / 2, 150, 'ai'));
                 } else {
                     // Normal: two princess towers, one king tower per side
-                    gameObjects.push(new Tower(LANE_LEFT_X, HEIGHT - 100, 'player', false, playerTowerLevel));
-                    gameObjects.push(new Tower(LANE_RIGHT_X, HEIGHT - 100, 'player', false, playerTowerLevel));
-                    gameObjects.push(new Tower(WIDTH / 2, HEIGHT - 50, 'player', true, playerTowerLevel));
-                    gameObjects.push(new Tower(LANE_LEFT_X, 100, 'ai', false, aiTowerLevel));
-                    gameObjects.push(new Tower(LANE_RIGHT_X, 100, 'ai', false, aiTowerLevel));
-                    gameObjects.push(new Tower(WIDTH / 2, 50, 'ai', true, aiTowerLevel));
+                    const aiType = (aiArenaLevel >= 10 && Math.random() > 0.5) ? ['waffle','machineGun','rocketeer'][Math.floor(Math.random()*3)] : 'princess';
+                    // Use collection level if available for player
+                    const pTowerData = towerCollection[selectedTower];
+                    const pLvl = (gameMode === 'party1v1') ? 15 : (pTowerData ? pTowerData.level : playerTowerLevel);
+                    
+                    gameObjects.push(new Tower(LANE_LEFT_X, HEIGHT - 100, 'player', false, pLvl, false, selectedTower));
+                    gameObjects.push(new Tower(LANE_RIGHT_X, HEIGHT - 100, 'player', false, pLvl, false, selectedTower));
+                    gameObjects.push(new Tower(WIDTH / 2, HEIGHT - 50, 'player', true, playerTowerLevel, false, selectedTower));
+                    gameObjects.push(new Tower(LANE_LEFT_X, 100, 'ai', false, aiTowerLevel, false, aiType));
+                    gameObjects.push(new Tower(LANE_RIGHT_X, 100, 'ai', false, aiTowerLevel, false, aiType));
+                    gameObjects.push(new Tower(WIDTH / 2, 50, 'ai', true, aiTowerLevel, false, aiType));
                 }
 
                 startGameDecks();
@@ -8555,6 +8874,7 @@ class StoneGiant extends Unit {
                     return;
                 }
                 deltaTime = (timestamp - lastTime) / 1000; /* Set global deltaTime */
+                if (deltaTime > 0.1) deltaTime = 0.016; // Clamp to prevent huge jumps
                 lastTime = timestamp;
                 gameTimer -= deltaTime * 60; /* Scale game timer by delta time */
                 updateTimerAndElixir();
@@ -8750,9 +9070,6 @@ class StoneGiant extends Unit {
                 
                 gameLoopId = requestAnimationFrame(demoGameLoop);
             }
-            // --- END MOVED FUNCTIONS ---
-
-
             // ==============================================
             // INITIALIZATION
             // ==============================================
