@@ -2105,6 +2105,11 @@ const firebaseConfig = {
             const debugArena3 = document.getElementById('debugArena3');
             const debugArena4 = document.getElementById('debugArena4'); // NEW
             const debugArena5 = document.getElementById('debugArena5'); // NEW
+            const debugArena6 = document.getElementById('debugArena6');
+            const debugArena7 = document.getElementById('debugArena7');
+            const debugArena8 = document.getElementById('debugArena8');
+            const debugArena9 = document.getElementById('debugArena9');
+            const debugArena10 = document.getElementById('debugArena10');
             const debugUnlockAll = document.getElementById('debugUnlockAll');
             const debugUpgradeAll = document.getElementById('debugUpgradeAll');
             const debugGetChest = document.getElementById('debugGetChest');
@@ -2133,8 +2138,13 @@ const firebaseConfig = {
 
 
             // --- Game Elements (from gameScreen) ---
-            const canvas = document.getElementById('gameCanvas');
-            let ctx = canvas.getContext('2d');
+    const canvas = document.getElementById('gameCanvas');
+    let ctx;
+    if (!canvas) {
+        console.error("Critical Error: Game canvas not found. Stopping game initialization.");
+        return;
+    }
+    ctx = canvas.getContext('2d');
             const elixirBar = document.getElementById('elixirBar');
             const elixirText = document.getElementById('elixirText');
             const messageOverlay = document.getElementById('messageOverlay');
@@ -2338,7 +2348,7 @@ const firebaseConfig = {
                 // If not logged in (e.g., guest mode), we simply don't save.
             }
             
-            googleLoginBtn.addEventListener('click', async () => {
+            if (googleLoginBtn) googleLoginBtn.addEventListener('click', async () => {
                 loginError.textContent = '';
                 try {
                     // This will trigger the onAuthStateChanged listener
@@ -2356,7 +2366,7 @@ const firebaseConfig = {
             });
             
             // "Play as Guest (No Save)" button
-            trueGuestLoginBtn.addEventListener('click', () => {
+            if (trueGuestLoginBtn) trueGuestLoginBtn.addEventListener('click', () => {
                 loginError.textContent = ''; // Clear errors
                 initGuestSession(); // Load default data, disable saving
                 showScreen('loading');
@@ -2365,11 +2375,11 @@ const firebaseConfig = {
             });
 
             // --- NEW: Save/Load Key Logic ---
-            saveDataBtn.addEventListener('click', () => {
-                saveKeyOutput.value = "Generating key...";
-                generateKeyBtn.disabled = true;
-                generateKeyBtn.textContent = 'Generate New Key (30s)';
-                saveDataOverlay.style.display = 'flex';
+            if (saveDataBtn) saveDataBtn.addEventListener('click', () => {
+                if (saveKeyOutput) saveKeyOutput.value = "Generating key...";
+                if (generateKeyBtn) generateKeyBtn.disabled = true;
+                if (generateKeyBtn) generateKeyBtn.textContent = 'Generate New Key (30s)';
+                if (saveDataOverlay) saveDataOverlay.style.display = 'flex';
 
                 // Generate key
                 const dataToSave = {
@@ -2394,20 +2404,22 @@ const firebaseConfig = {
                     }
                 }, 1000);
             });
-            saveDataCancel.addEventListener('click', () => {
-                saveDataOverlay.style.display = 'none';
+            if (saveDataCancel) saveDataCancel.addEventListener('click', () => {
+                if (saveDataOverlay) saveDataOverlay.style.display = 'none';
                 clearInterval(generateKeyTimeout);
-                generateKeyBtn.disabled = false;
-                generateKeyBtn.textContent = 'Generate New Key';
+                if (generateKeyBtn) generateKeyBtn.disabled = false;
+                if (generateKeyBtn) generateKeyBtn.textContent = 'Generate New Key';
             });
-            generateKeyBtn.addEventListener('click', () => {
+            if (generateKeyBtn) generateKeyBtn.addEventListener('click', () => {
                 // Re-generate key and start cooldown
-                saveDataBtn.click(); // Just re-click the main button
+                if (saveDataBtn) saveDataBtn.click(); // Just re-click the main button
             });
-            loadKeyBtn.addEventListener('click', () => {
-                loadKeyInput.value = '';
-                loadKeyInput.placeholder = 'Paste your key here';
-                loadDataOverlay.style.display = 'flex';
+            if (loadKeyBtn) loadKeyBtn.addEventListener('click', () => {
+                if (loadKeyInput) {
+                    loadKeyInput.value = '';
+                    loadKeyInput.placeholder = 'Paste your key here';
+                }
+                if (loadDataOverlay) loadDataOverlay.style.display = 'flex';
             });
             loadDataCancel.addEventListener('click', () => {
                 loadDataOverlay.style.display = 'none';
@@ -2437,9 +2449,9 @@ const firebaseConfig = {
                 updateAITeammateUI(); // NEW: Update AI Teammate UI visibility when mode changes
             }
 
-            modeTrophy.addEventListener('click', () => { gameMode = 'trophy'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
-            modeParty1v1.addEventListener('click', () => { gameMode = 'party1v1'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
-            mode2v2.addEventListener('click', () => { gameMode = '2v2'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
+            if (modeTrophy) modeTrophy.addEventListener('click', () => { gameMode = 'trophy'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
+            if (modeParty1v1) modeParty1v1.addEventListener('click', () => { gameMode = 'party1v1'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
+            if (mode2v2) mode2v2.addEventListener('click', () => { gameMode = '2v2'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
 
             // Initialize mode UI
             updateModeUI();
@@ -2454,7 +2466,7 @@ const firebaseConfig = {
                 teammateChoiceModal.style.display = 'none';
             }
 
-            aiTeammateBtn.addEventListener('click', () => {
+            if (aiTeammateBtn) aiTeammateBtn.addEventListener('click', () => {
                 hide2v2TeammateChoice();
                 is2v2AITeammate = true;
                 is2v2Friend = false;
@@ -2476,22 +2488,16 @@ const firebaseConfig = {
                 }, 1000);
             });
 
-            friendTeammateBtn.addEventListener('click', () => {
+                        if (friendTeammateBtn) friendTeammateBtn.addEventListener('click', () => {
                 hide2v2TeammateChoice();
                 is2v2Friend = true;
                 is2v2AITeammate = false;
                 showFriendCodeModal();
             });
 
-            cancelTeammateBtn.addEventListener('click', () => {
+            if (cancelTeammateBtn) cancelTeammateBtn.addEventListener('click', () => {
                 hide2v2TeammateChoice();
             });
-
-            // --- Friend Code Flow ---
-            function showFriendCodeModal() {
-                friendCodeModal.style.display = 'flex';
-            }
-
             function hideFriendCodeModal() {
                 friendCodeModal.style.display = 'none';
             }
@@ -2522,35 +2528,34 @@ const firebaseConfig = {
                 showFriendCodeModal();
             });
 
-            cancelFriendBtn.addEventListener('click', () => {
+            if (cancelFriendBtn) cancelFriendBtn.addEventListener('click', () => {
                 hideFriendCodeModal();
             });
 
-            createCodeBtn.addEventListener('click', () => {
+            if (createCodeBtn) createCodeBtn.addEventListener('click', () => {
                 hideFriendCodeModal();
                 showCreateCodeModal();
             });
 
             // cancelCreateBtn is now handled in the multiplayer script
 
-            joinCodeBtn.addEventListener('click', () => {
+            if (joinCodeBtn) joinCodeBtn.addEventListener('click', () => {
                 hideFriendCodeModal();
                 showJoinCodeModal();
             });
 
             
-            // cancelJoinBtn is now handled in the multiplayer script
-            loadKeySubmit.addEventListener('click', async () => {
+                        // cancelJoinBtn is now handled in the multiplayer script
+            if (loadKeySubmit) loadKeySubmit.addEventListener('click', async () => {
                 const saveKey = loadKeyInput.value;
                 if (!saveKey) return;
                 try {
-                    const jsonString = atob(saveKey); // Base64 decode
-                    const dataToLoad = JSON.parse(jsonString);
-                    
                     // We're loading a key, so treat as a "Guest" session (no Firebase save)
                     initGuestSession(); 
                     // Now, load the data from the key
-                    await loadUserData(dataToLoad); 
+                    const decodedString = atob(saveKey); // Decode Base64
+                    const parsedData = JSON.parse(decodedString); // Parse JSON
+                    await loadUserData(parsedData); 
 
                     loadDataOverlay.style.display = 'none';
                     showScreen('loading');
@@ -2637,18 +2642,20 @@ const firebaseConfig = {
                 debugPasswordOverlay.style.display = 'flex';
                 debugPasswordInput.focus();
             }
-            debugPasswordSubmit.addEventListener('click', () => {
+                        if (debugPasswordSubmit) debugPasswordSubmit.addEventListener('click', () => {
                 // isLocalFile check removed to enable debug for all environments
-                if (debugPasswordInput.value.toUpperCase() === 'GEOMETRIC') {
-                    debugPasswordOverlay.style.display = 'none';
-                    showScreen('debug');
-                } else {
+                if (debugPasswordInput && debugPasswordInput.value.toUpperCase() === 'GEOMETRIC') {
+                    // Correct password entered: hide overlay, enable debug, show debug screen
+                    if (debugPasswordOverlay) debugPasswordOverlay.style.display = 'none';
+                    document.documentElement.removeAttribute('data-no-debug');
+                    showScreen('debug'); // Show debug screen
+                } else if (debugPasswordInput) { // If input exists and password is wrong
                     debugPasswordInput.value = '';
                     debugPasswordInput.placeholder = 'Wrong! Try again.';
                 }
             });
-            debugPasswordCancel.addEventListener('click', () => {
-                debugPasswordOverlay.style.display = 'none';
+            if (debugPasswordCancel) debugPasswordCancel.addEventListener('click', () => {
+                if (debugPasswordOverlay) debugPasswordOverlay.style.display = 'none';
             });
 
             // NEW: Show update log function
@@ -2728,8 +2735,8 @@ const firebaseConfig = {
                 updateLogOverlay.style.display = 'flex';
             }
             
-            updateLogClose.addEventListener('click', () => {
-                updateLogOverlay.style.display = 'none';
+            if (updateLogClose) updateLogClose.addEventListener('click', () => {
+                if (updateLogOverlay) updateLogOverlay.style.display = 'none';
             });
 
 
@@ -2810,7 +2817,9 @@ const firebaseConfig = {
                     5: 1.8,
                     6: 2.0,
                     7: 2.3,
-                    8: 2.6
+                    8: 2.6,
+                    9: 2.9,
+                    10: 3.2
                 };
                 return multipliers[arenaLevel] || 1.0;
             }
@@ -2850,12 +2859,13 @@ const firebaseConfig = {
                 updateChestUI(1, 'Found a Basic Box!');
             }
             
-            document.getElementById('chestClickArea').addEventListener('click', () => {
+            const chestClickArea = document.getElementById('chestClickArea');
+            if (chestClickArea) chestClickArea.addEventListener('click', () => {
                 const chestEmoji = document.getElementById('chestEmoji');
                 
                 // Animate click (Shake)
-                chestEmoji.classList.remove('shake-anim');
-                void chestEmoji.offsetWidth; // Trigger reflow
+                if (chestEmoji) chestEmoji.classList.remove('shake-anim');
+                if (chestEmoji) void chestEmoji.offsetWidth; // Trigger reflow
                 chestEmoji.classList.add('shake-anim');
 
                 if (chestClicks < MAX_CHEST_CLICKS) {
@@ -2959,8 +2969,8 @@ const firebaseConfig = {
                 }
                 showNextReward();
             }
-            chestCloseButton.addEventListener('click', () => {
-                chestOpenOverlay.style.display = 'none';
+            if (chestCloseButton) chestCloseButton.addEventListener('click', () => {
+                if (chestOpenOverlay) chestOpenOverlay.style.display = 'none';
             });
 
             navButtons.forEach(btn => { 
@@ -3042,7 +3052,7 @@ const firebaseConfig = {
                 updateLogOverlay.style.display = 'none';
             });
             
-            battleButton.addEventListener('click', () => {
+            if (battleButton) battleButton.addEventListener('click', () => {
                 if (battleButton.disabled) return;
                 
                 if (gameMode === 'party1v1') {
@@ -3098,15 +3108,15 @@ const firebaseConfig = {
                 }
             });
             // NEW: Arena screen buttons
-            arenaButton.addEventListener('click', () => {
+            if (arenaButton) arenaButton.addEventListener('click', () => {
                 showScreen('arena');
             });
-            arenaBackButton.addEventListener('click', () => {
+            if (arenaBackButton) arenaBackButton.addEventListener('click', () => {
                 showScreen('menu');
             });
-            menuButton.addEventListener('click', () => { 
-                gameRunning = false; 
-                cancelAnimationFrame(gameLoopId); 
+            if (menuButton) menuButton.addEventListener('click', () => {
+                gameRunning = false;
+                cancelAnimationFrame(gameLoopId);
                 // Reset mode if leaving challenge to prevent theme leak
                 if (gameMode === 'snowman_challenge') {
                     gameMode = 'trophy';
@@ -3117,31 +3127,38 @@ const firebaseConfig = {
 
             // ==============================================
             
-                debugArena2.addEventListener('click', () => {
-                    trophies = 250;
-                    updateArena();
-                    saveUserData();
-                    showScreen('menu');
-                });
-                debugArena3.addEventListener('click', () => {
-                    trophies = 500;
-                    updateArena();
-                    saveUserData();
-                    showScreen('menu');
-                });
-                debugArena4.addEventListener('click', () => {
-                    trophies = 750;
-                    updateArena();
-                    saveUserData();
-                    showScreen('menu');
-                });
-                debugArena5.addEventListener('click', () => {
-                    trophies = 1000;
-                    updateArena();
-                    saveUserData();
-                    showScreen('menu');
-                });
-                const debugArena6 = document.getElementById('debugArena6');
+                if (debugArena2) {
+                    debugArena2.addEventListener('click', () => {
+                        trophies = 250;
+                        updateArena();
+                        saveUserData();
+                        showScreen('menu');
+                    });
+                }
+                if (debugArena3) {
+                    debugArena3.addEventListener('click', () => {
+                        trophies = 500;
+                        updateArena();
+                        saveUserData();
+                        showScreen('menu');
+                    });
+                }
+                if (debugArena4) {
+                    debugArena4.addEventListener('click', () => {
+                        trophies = 750;
+                        updateArena();
+                        saveUserData();
+                        showScreen('menu');
+                    });
+                }
+                if (debugArena5) {
+                    debugArena5.addEventListener('click', () => {
+                        trophies = 1000;
+                        updateArena();
+                        saveUserData();
+                        showScreen('menu');
+                    });
+                }
                 if (debugArena6) {
                     debugArena6.addEventListener('click', () => {
                         trophies = 1250;
@@ -3150,7 +3167,6 @@ const firebaseConfig = {
                         showScreen('menu');
                     });
                 }
-                const debugArena7 = document.getElementById('debugArena7');
                 if (debugArena7) {
                     debugArena7.addEventListener('click', () => {
                         trophies = 1500;
@@ -3159,7 +3175,6 @@ const firebaseConfig = {
                         showScreen('menu');
                     });
                 }
-                const debugArena8 = document.getElementById('debugArena8');
                 if (debugArena8) {
                     debugArena8.addEventListener('click', () => {
                         trophies = 1750;
@@ -3168,7 +3183,6 @@ const firebaseConfig = {
                         showScreen('menu');
                     });
                 }
-                const debugArena9 = document.getElementById('debugArena9');
                 if (debugArena9) {
                     debugArena9.addEventListener('click', () => {
                         trophies = 2000;
@@ -3177,7 +3191,6 @@ const firebaseConfig = {
                         showScreen('menu');
                     });
                 }
-                const debugArena10 = document.getElementById('debugArena10');
                 if (debugArena10) {
                     debugArena10.addEventListener('click', () => {
                         trophies = 2250;
@@ -3186,56 +3199,66 @@ const firebaseConfig = {
                         showScreen('menu');
                     });
                 }
-                debugUnlockAll.addEventListener('click', () => {
-                    for (const cardId in allCards) {
-                        if (cardId === 'tower' || cardId === 'miniStoneGiant') continue;
-                        if (!cardCollection[cardId]) {
-                            cardCollection[cardId] = { level: 1, count: 1, unlocked: true };
-                        } else {
-                            cardCollection[cardId].unlocked = true;
-                            if (cardCollection[cardId].count === 0) {
-                                cardCollection[cardId].count = 1;
+                if (debugUnlockAll) {
+                    debugUnlockAll.addEventListener('click', () => {
+                        for (const cardId in allCards) {
+                            if (cardId === 'tower' || cardId === 'miniStoneGiant') continue;
+                            if (!cardCollection[cardId]) {
+                                cardCollection[cardId] = { level: 1, count: 1, unlocked: true };
+                            } else {
+                                cardCollection[cardId].unlocked = true;
+                                if (cardCollection[cardId].count === 0) {
+                                    cardCollection[cardId].count = 1;
+                                }
                             }
                         }
-                    }
-                    saveUserData();
-                    console.log('All cards unlocked!');
-                });
-                debugUpgradeAll.addEventListener('click', () => {
-                    for (const cardId in cardCollection) {
-                        const cardData = cardCollection[cardId];
-                        if (cardData.unlocked && cardData.level < 15) {
-                            cardData.level++;
+                        saveUserData();
+                        console.log('All cards unlocked!');
+                    });
+                }
+                if (debugUpgradeAll) {
+                    debugUpgradeAll.addEventListener('click', () => {
+                        for (const cardId in cardCollection) {
+                            const cardData = cardCollection[cardId];
+                            if (cardData.unlocked && cardData.level < 15) {
+                                cardData.level++;
+                            }
                         }
-                    }
-                    if (towerLevel < 15) towerLevel++;
-                    saveUserData();
-                    console.log('All owned cards and tower upgraded +1 level!');
-                });
-                debugGetChest.addEventListener('click', () => {
-                    if (trophyChests.length < 4) {
-                        trophyChests.push({ id: 'wood', openTime: 0 });
-                        renderChests();
+                        if (towerLevel < 15) towerLevel++;
                         saveUserData();
-                        console.log('Got a chest!');
-                    } else {
-                        console.log('Chest slots are full!');
-                    }
-                });
-                debugAddGold.addEventListener('click', () => {
-                    gold += 1000;
-                    goldDisplay.textContent = `💰 ${gold}`;
-                    saveUserData();
-                    console.log('+1000 Gold!');
-                });
-                debugReset.addEventListener('click', () => {
-                    if (true) {
-                        initNewUser();
+                        console.log('All owned cards and tower upgraded +1 level!');
+                    });
+                }
+                if (debugGetChest) {
+                    debugGetChest.addEventListener('click', () => {
+                        if (trophyChests.length < 4) {
+                            trophyChests.push({ id: 'wood', openTime: 0 });
+                            renderChests();
+                            saveUserData();
+                            console.log('Got a chest!');
+                        } else {
+                            console.log('Chest slots are full!');
+                        }
+                    });
+                }
+                if (debugAddGold) {
+                    debugAddGold.addEventListener('click', () => {
+                        gold += 1000;
+                        goldDisplay.textContent = `💰 ${gold}`;
                         saveUserData();
-                        showScreen('menu');
-                        console.log('Account reset!');
-                    }
-                });
+                        console.log('+1000 Gold!');
+                    });
+                }
+                if (debugReset) {
+                    debugReset.addEventListener('click', () => {
+                        if (true) {
+                            initNewUser();
+                            saveUserData();
+                            showScreen('menu');
+                            console.log('Account reset!');
+                        }
+                    });
+                }
             }
 
 
@@ -3465,7 +3488,7 @@ const firebaseConfig = {
                     towerUpgradeButton.disabled = true;
                 }
             }
-            towerUpgradeButton.addEventListener('click', () => {
+            if (towerUpgradeButton) towerUpgradeButton.addEventListener('click', () => {
                 const costs = towerUpgradeCosts[towerLevel];
                 if (costs && towerCardCount >= costs.cards && gold >= costs.gold) {
                     towerCardCount -= costs.cards;
@@ -6164,8 +6187,8 @@ class ColdSpirit extends Unit {
             class FlameDragon extends Unit {
                 constructor(x, y, team, level = 1) {
                     const s = allCards['flameDragon'].stats[level];
-                    this.rampMultiplier = s.rampMultiplier;
                     super(x, y, 12, team, s.health, s.speed, 120, s.damage, s.hitSpeed, '🐲🔥', true, true, level, allCards['flameDragon'].aggroRange);
+                    this.rampMultiplier = s.rampMultiplier;
                     this.rampLevel = 0;
                     this.lastTarget = null;
                     this.maxDamage = s.maxDamage;
@@ -7292,8 +7315,8 @@ class StoneGiant extends Unit {
                     'spearGoblins': { name: 'Spear Goblins', cost: 2, emoji: '🎯', type: 'Swarm', unitClass: SpearGoblins, placementRadius: 10, isFlying: false, arena: 2, targets: 'Air & Ground', aggroRange: 100,
                                 stats: { 1: { count: 3, health: 60, damage: 25, hitSpeed: 1.2, speed: 1.0 } } },
                     // Arena 3
-                    'fireDragon': { name: 'Flame Dragon', cost: 4, emoji: '🐲🔥', type: 'Air', unitClass: FlameDragon, placementRadius: 12, isFlying: true, arena: 3, targets: 'Air & Ground', aggroRange: 120,
-                                stats: { 1: { health: 1000, damage: 20, hitSpeed: 1.0, speed: 0.8, rampMultiplier: 1.3, maxDamage: 250 } } },
+                    'fireDragon': { name: 'Fire Dragon', cost: 4, emoji: '🐲', type: 'Air', unitClass: FireDragon, placementRadius: 14, isFlying: true, arena: 3, targets: 'Air & Ground', aggroRange: 120,
+                                stats: { 1: { health: 800, damage: 100, hitSpeed: 1.0, speed: 0.8, splashRadius: 20 } } },
                     'barbarians': { name: 'Barbarians', cost: 5, emoji: '🧔', type: 'Swarm', unitClass: Barbarians, placementRadius: 10, isFlying: false, arena: 3, targets: 'Ground', aggroRange: 100,
                                 stats: { 1: { count: 5, health: 300, damage: 60, hitSpeed: 1.4, speed: 0.8 } } },
                     'battleRam': { name: 'Battle Ram', cost: 4, emoji: '🌲', type: 'WinCon', unitClass: BattleRam, placementRadius: 10, isFlying: false, arena: 3, targets: 'Buildings', aggroRange: 100,
@@ -7364,6 +7387,8 @@ class StoneGiant extends Unit {
                                 stats: { 1: { health: 1250, damage: 100, hitSpeed: 1.8, speed: 0.4, spawnSplashRadius: 70, jumpDamage: 150, jumpSplashRadius: 80, jumpRange: 100, jumpCooldown: 6, minJumpRange: 40, attackWidth: 60, attackHeight: 40 } } },
                     'zapGiant': { name: 'Zap Giant', cost: 7, emoji: '⚡💪', type: 'Tank', unitClass: ZapGiant, placementRadius: 18, isFlying: false, arena: 10, targets: 'Buildings', aggroRange: 100,
                                 stats: { 1: { health: 2200, damage: 80, hitSpeed: 1.5, speed: 0.3, spawnDamage: 200, spawnRadius: 60, zapDamage: 50, zapRadius: 90, zapInterval: 1.5 } } },
+                    'flameDragon': { name: 'Flame Dragon', cost: 4, emoji: '🐲🔥', type: 'Air', unitClass: FlameDragon, placementRadius: 14, isFlying: true, arena: 10, targets: 'Air & Ground', aggroRange: 120,
+                                stats: { 1: { health: 800, damage: 20, hitSpeed: 0.4, speed: 0.8, rampMultiplier: 1.2, maxDamage: 200 } } },
 
                     'flameTower': { name: 'Flame Tower', cost: 5, emoji: '🏯🔥', type: 'Building', unitClass: FlameTower, placementRadius: 20, isFlying: false, arena: 10, targets: 'Air & Ground',
                                 stats: { 1: { health: 1400, damage: 20, hitSpeed: 1.0, lifetime: '40s', spawn_speed: '0s', rampMultiplier: 1.3, maxDamage: 250 } } },
@@ -8326,21 +8351,30 @@ class StoneGiant extends Unit {
                 const F = AI_SPAWN_ZONE_LIMIT; // 150 (500 * 0.3)
                 const M = W / 2; // 200 (mid-line)
 
-                if (gameMode === 'snowman_challenge' || (!aiLeftTowerDestroyed && !aiRightTowerDestroyed)) {
-                    // Block full top half
-                    pathData = `M0 0 L${W} 0 L${W} ${R} L0 ${R} Z`;
-                } else if (aiLeftTowerDestroyed && !aiRightTowerDestroyed) {
-                    // Block top-right quarter AND far-left
-                    pathData = `M${M} 0 L${W} 0 L${W} ${R} L${M} ${R} Z M0 0 L${M} 0 L${M} ${F} L0 ${F} Z`;
-                } else if (!aiLeftTowerDestroyed && aiRightTowerDestroyed) {
-                    // Block top-left quarter AND far-right
-                    pathData = `M0 0 L${M} 0 L${M} ${R} L0 ${R} Z M${M} 0 L${W} 0 L${W} ${F} L${M} ${F} Z`;
-                } else {
-                    // Block only far-left AND far-right
-                    pathData = `M0 0 L${M} 0 L${M} ${F} L0 ${F} Z M${M} 0 L${W} 0 L${W} ${F} L${M} ${F} Z`;
-                }
+                // Define parts of the player's side that are blocked (red overlay)
+                let pathParts = [];
                 
-                placementOverlay.style.clipPath = `path("${pathData}")`;
+                // Always block the very far enemy zone (Y=0 to AI_SPAWN_ZONE_LIMIT)
+                pathParts.push(`M0 0 L${W} 0 L${W} ${F} L0 ${F} Z`);
+
+                // Conditionally block the middle zone (AI_SPAWN_ZONE_LIMIT to RIVER_Y) for each lane
+                if (!aiLeftTowerDestroyed) {
+                    pathParts.push(`M0 ${F} L${M} ${F} L${M} ${R} L0 ${R} Z`);
+                }
+                if (!aiRightTowerDestroyed) {
+                    pathParts.push(`M${M} ${F} L${W} ${F} L${W} ${R} L${M} ${R} Z`);
+                }
+
+                // If no enemy princess towers are destroyed, block the full top half up to RIVER_Y.
+                // This condition must be last to ensure it overwrites previous pushes if applicable.
+                if (!aiLeftTowerDestroyed && !aiRightTowerDestroyed) {
+                    pathParts = [`M0 0 L${W} 0 L${W} ${R} L0 ${R} Z`]; // Block entire enemy territory
+                } else if (gameMode === 'snowman_challenge') {
+                    // Special case for snowman challenge - always block up to river for player
+                    pathParts = [`M0 0 L${W} 0 L${W} ${R} L0 ${R} Z`];
+                }
+
+                placementOverlay.style.clipPath = `path("${pathParts.join(" ")}")`;
             }
 
 
@@ -8631,6 +8665,9 @@ class StoneGiant extends Unit {
                     return;
                 }
                 
+                deltaTime = (timestamp - lastTime) / 1000; /* Set global deltaTime */
+                lastTime = timestamp;
+
                 const demoFadeOverlay = document.getElementById('demoFadeOverlay');
 
                 // Handle Fading
@@ -8648,7 +8685,6 @@ class StoneGiant extends Unit {
                     }
                 } else if (demoFadeTimer > 0) {
                     // Fading IN
-                    deltaTime = (timestamp - lastTime) / 1000; /* Set global deltaTime */
                     demoFadeTimer -= deltaTime * 60; /* Scale fade timer by delta time */
                     let fadeProgress = demoFadeTimer / DEMO_FADE_TIME;
                     if (demoFadeOverlay) demoFadeOverlay.style.opacity = fadeProgress;
@@ -8661,8 +8697,8 @@ class StoneGiant extends Unit {
                     }
 
                     // Use existing gameTimer to run elixir etc.
-                gameTimer -= deltaTime * 60; /* Scale game timer by delta time */
-                updateTimerAndElixir();
+                    gameTimer -= deltaTime * 60; /* Scale game timer by delta time */
+                    updateTimerAndElixir();
                     aiThinkTimer -= deltaTime * 60; /* Scale AI think timer by delta time */
                     
                     if (aiThinkTimer <= 0) {
@@ -8957,7 +8993,7 @@ class StoneGiant extends Unit {
             //     }
             // });
 
-            cardInfoCloseBtn.addEventListener('click', closeModal);
+            if (cardInfoCloseBtn) cardInfoCloseBtn.addEventListener('click', closeModal);
             
             // --- Init App ---
             // initCardSystem(); // <-- MOVED
