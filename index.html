@@ -9652,10 +9652,17 @@ class StoneGiant extends Unit {
             observer.observe(document.body, { childList: true, subtree: true });
             // --- END: Intro Animation ---
             
-            // Ensure we transition to the login screen after initialization
-            setTimeout(() => {
-                showScreen('login');
-            }, 500);
+            // Wait for the DOM to be fully loaded before showing the login screen
+            document.addEventListener('DOMContentLoaded', () => {
+                // Wait a small amount of time to ensure all elements are ready
+                setTimeout(() => {
+                    // Check if we're already showing a screen
+                    const activeScreen = document.querySelector('.screen.active');
+                    if (!activeScreen || activeScreen.id === 'loadingScreen') {
+                        showScreen('login');
+                    }
+                }, 100);
+            });
         }; // Close MutationObserver callback
     }; // Close window.onload function
 </script>
