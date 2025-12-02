@@ -1,5 +1,3 @@
-
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -840,7 +838,7 @@
         
         <!-- Google Sign-in (hidden for now, but logic exists) -->
         <button id="googleLoginBtn" class="login-btn google hidden">
-            <svg class="w-6 h-6 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C42.018,36.341,44,30.606,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path></svg>
+            <svg class="w-6 h-6 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" />
             Sign in with Google
         </button>
     </div>
@@ -1137,7 +1135,7 @@
                 <div class="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20" style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 15px 15px;"></div>
                 <h2 class="text-xl font-bold mb-2" style="text-shadow: 0 0 8px white;">☃️ Snowman Challenge</h2>
                 <p class="text-sm text-gray-300 mb-4" style="text-shadow: 0 0 2px black;">Defeat the Snowman King's icy army!</p>
-                <div id="snowmanChallengeStatus" class="text-center mb-4 text-blue-300 font-bold text-lg" style="text-shadow: 0 0 15px #93c5fd, 0 0 25px #3b82f6;">Win 100 Gold & a Box! 💰📦</div>
+                <div id="snowmanChallengeStatus" class="text-center mb-4 text-blue-300 font-bold text-lg" style="text-shadow: 0 0 15px #93c5fd, 0 0 25px #3b82f6;">Win 100 Gold &amp; a Box! 💰📦</div>
                 <button id="btnSnowmanChallenge" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-white shadow-lg btn-shine border-b-4 border-blue-800 active:border-b-0 active:translate-y-1">
                     Play Challenge
                 </button>
@@ -1259,7 +1257,7 @@
     -->
     <div id="cardInfoModal">
         <div id="cardInfoModalContent">
-            <span id="cardInfoCloseBtn">&times;</span>
+            <span id="cardInfoCloseBtn">×</span>
             <div class="flex items-center space-x-4 mb-4">
                 <div id="cardInfoDisplay" class="flex-shrink-0"></div>
                 <div>
@@ -1757,10 +1755,10 @@ const firebaseConfig = {
             13: { cards: 3000, gold: 150000 }, 14: { cards: 5000, gold: 200000 },
         };
         const towerDefs = {
-            'princess': { name: 'Princess', emoji: '👸', desc: 'Standard tower.', healthMod: 1, dmgMod: 1, speedMod: 1, special: null },
-            'waffle': { name: 'Waffle Maker', emoji: '🧇', desc: 'King throws waffles that level up troops! Weaker stats.', healthMod: 0.8, dmgMod: 0.8, speedMod: 1.2, special: 'waffle' },
-            'machineGun': { name: 'Machine Gun', emoji: '🔫', desc: 'Bursts rapid fire for 3s then slows down.', healthMod: 0.7, dmgMod: 0.6, speedMod: 0.25, special: 'burst' },
-            'rocketeer': { name: 'Rocketeer', emoji: '🚀', desc: 'Slow but heavy damage. Low health.', healthMod: 0.5, dmgMod: 5.0, speedMod: 3.0, special: 'rocket' }
+            'princess': { name: 'Princess', emoji: '👸', desc: 'Standard tower.', healthMod: 1, dmgMod: 1, speedMod: 1, special: null, unlocked: true },
+            'waffle': { name: 'Waffle Maker', emoji: '🧇', desc: 'King throws waffles that level up troops! Weaker stats.', healthMod: 0.8, dmgMod: 0.8, speedMod: 1.2, special: 'waffle', unlocked: false },
+            'machineGun': { name: 'Machine Gun', emoji: '🔫', desc: 'Bursts rapid fire for 3s then slows down.', healthMod: 0.7, dmgMod: 0.6, speedMod: 0.25, special: 'burst', unlocked: false },
+            'rocketeer': { name: 'Rocketeer', emoji: '🚀', desc: 'Slow but heavy damage. Low health.', healthMod: 0.5, dmgMod: 5.0, speedMod: 3.0, special: 'rocket', unlocked: false }
         };
         const towerStats = {
             1: { kingHealth: 2000, princessHealth: 1000, damage: 50, hitSpeed: 1 },
@@ -1944,6 +1942,14 @@ const firebaseConfig = {
                 if (debugScreen) debugScreen.style.display = 'none';
             }
             // --- END: Domain Lock Security ---
+
+            // --- Chest Opening Variables ---
+            let currentChestIndex = -1;
+            let isChristmasOpening = false;
+            let isOpeningChest = false;
+            let currentChestStars = 1;
+            let chestClicks = 0;
+            const MAX_CHEST_CLICKS = 4;
 
 
             // --- Game Constants ---
@@ -2439,13 +2445,46 @@ const firebaseConfig = {
                 loadDataOverlay.style.display = 'none';
             });
 
+            // --- AI Teammate UI Update Function ---
+            function updateAITeammateUI() {
+                if (gameMode !== '2v2' || !is2v2AITeammate) {
+                    if (aiTeammateUI) aiTeammateUI.style.display = 'none';
+                    return;
+                }
+                if (aiTeammateUI) aiTeammateUI.style.display = 'flex';
+                // Render hand (exact same style as player hand)
+                if (aiTeammateHand) {
+                    aiTeammateHand.innerHTML = '';
+                    aiTeammateHandCards.forEach(cardId => {
+                        const cardEl = createCardDOM(cardId, false, true); // Same as player hand
+                        if (cardEl) {
+                            cardEl.style.opacity = '0.8'; // Slightly transparent to distinguish from player
+                            aiTeammateHand.appendChild(cardEl);
+                        }
+                    });
+                }
+                // Render next card (same style as player next)
+                if (aiTeammateNext) {
+                    aiTeammateNext.innerHTML = '';
+                    if (aiTeammateNextCard) {
+                        const cardEl = createCardDOM(aiTeammateNextCard, true, true); // Same as player next
+                        if (cardEl) {
+                            cardEl.style.opacity = '0.6'; // Slightly transparent to distinguish from player
+                            aiTeammateNext.appendChild(cardEl);
+                        }
+                    }
+                }
+            }
+
             // --- Mode Selector Logic ---
             function updateModeUI() {
                 // Reset all
                 [modeTrophy, modeParty1v1, mode2v2].forEach(btn => {
-                    btn.classList.remove('bg-red-600', 'text-white');
-                    btn.classList.add('bg-gray-700', 'text-gray-400');
-                    btn.classList.remove('active');
+                    if (btn) {
+                        btn.classList.remove('bg-red-600', 'text-white');
+                        btn.classList.add('bg-gray-700', 'text-gray-400');
+                        btn.classList.remove('active');
+                    }
                 });
                 
                 let activeBtn;
@@ -2460,7 +2499,7 @@ const firebaseConfig = {
                     activeBtn.classList.add('active');
                 }
                 if (modeDisplay) modeDisplay.textContent = modeText;
-                updateAITeammateUI(); // NEW: Update AI Teammate UI visibility when mode changes
+                updateAITeammateUI(); // Update AI Teammate UI visibility when mode changes
             }
 
             if (modeTrophy) modeTrophy.addEventListener('click', () => { gameMode = 'trophy'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
@@ -2839,11 +2878,6 @@ const firebaseConfig = {
                 return multipliers[arenaLevel] || 1.0;
             }
             
-            let currentChestIndex = -1;
-            let isChristmasOpening = false;
-            let currentChestStars = 1;
-            let chestClicks = 0;
-            const MAX_CHEST_CLICKS = 4;
 
             function updateChestUI(stars, statusMsg) {
                 const chestTitle = document.getElementById('chestTitle');
@@ -2855,71 +2889,69 @@ const firebaseConfig = {
                 chestStatusText.innerHTML = statusMsg;
             }
 
+            let isOpeningChest = false;
+
             function openChest(index) {
-                const chest = trophyChests[index];
-                if (!chest) return;
-                currentChestIndex = index;
-                currentChestStars = 1;
-                chestClicks = 0;
-                isChristmasOpening = false;
-                document.getElementById('chestEmoji').textContent = '📦';
+                if (isOpeningChest) return; // Prevent multiple openings
+                isOpeningChest = true;
                 
-                chestOpenOverlay.style.display = 'flex';
-                document.getElementById('chestRewardList').innerHTML = '';
-                document.getElementById('chestCloseButton').style.display = 'none';
-                document.getElementById('chestEmoji').style.display = 'block';
-                document.getElementById('chestClickArea').style.pointerEvents = 'auto';
-                document.getElementById('chestClickCounter').textContent = 'Tap to Upgrade (0/4)';
-                
-                updateChestUI(1, 'Found a Basic Box!');
+                try {
+                    const chest = trophyChests[index];
+                    if (!chest) {
+                        isOpeningChest = false;
+                        return;
+                    }
+                    
+                    currentChestIndex = index;
+                    currentChestStars = 1;
+                    chestClicks = 0;
+                    isChristmasOpening = false;
+                    
+                    const chestEmoji = document.getElementById('chestEmoji');
+                    const chestOpenOverlay = document.getElementById('chestOpenOverlay');
+                    
+                    // Initialize UI
+                    chestEmoji.textContent = '📦';
+                    chestEmoji.style.display = 'block';
+                    chestOpenOverlay.style.display = 'flex';
+                    document.getElementById('chestRewardList').innerHTML = '';
+                    document.getElementById('chestCloseButton').style.display = 'none';
+                    document.getElementById('chestClickArea').style.pointerEvents = 'auto';
+                    document.getElementById('chestClickCounter').textContent = 'Tap to Upgrade (0/4)';
+                    document.getElementById('chestTitle').textContent = 'Basic Box';
+                    
+                    updateChestUI(1, 'Tap to Upgrade!');
+                    
+                } catch (e) {
+                    console.error('Error opening chest:', e);
+                    isOpeningChest = false;
+                }
             }
             
-            const chestClickArea = document.getElementById('chestClickArea');
-            if (chestClickArea) chestClickArea.addEventListener('click', () => {
-                const chestEmoji = document.getElementById('chestEmoji');
-                
-                // Animate click (Shake)
-                if (chestEmoji) chestEmoji.classList.remove('shake-anim');
-                if (chestEmoji) void chestEmoji.offsetWidth; // Trigger reflow
-                chestEmoji.classList.add('shake-anim');
+            // Chest click handler will be set up after the Christmas button is initialized
 
-                if (chestClicks < MAX_CHEST_CLICKS) {
-                    chestClicks++;
-                    document.getElementById('chestClickCounter').textContent = `Tap to Upgrade (${chestClicks}/4)`;
-                    
-                    // Upgrade Logic
-                    let chances = {1: 0.5, 2: 0.3, 3: 0.15, 4: 0.05}; // Standard
-                    if (isChristmasOpening) {
-                        chances = {1: 0.70, 2: 0.60, 3: 0.30, 4: 0.15}; // 70%, 60%, 30%, 15%
-                    }
-                    const roll = Math.random();
-                    const required = chances[currentChestStars] || 0;
-
-                    if (currentChestStars < 5 && roll < required) {
-                        currentChestStars++;
-                        chestEmoji.classList.add('animate-pulse');
-                        setTimeout(() => chestEmoji.classList.remove('animate-pulse'), 500);
-                        updateChestUI(currentChestStars, 'Upgrade Successful! ✨');
-                    } else {
-                        // Failed upgrade, but we keep going until 5th click
-                        updateChestUI(currentChestStars, 'No Upgrade...');
-                    }
-                } else {
-                    // 5th Click: Open
-                    document.getElementById('chestClickArea').style.pointerEvents = 'none';
-                    document.getElementById('chestClickCounter').textContent = '';
-                    finalizeChest(currentChestIndex, currentChestStars);
-                }
-            });
+            function getUnlockedTowers() {
+                return Object.keys(towerDefs).filter(towerId => towerDefs[towerId].unlocked);
+            }
 
             function finalizeChest(index, stars) {
-                if (!isChristmasOpening) {
+                // Only remove from trophyChests if it's not a Christmas gift
+                if (!isChristmasOpening && index >= 0 && index < trophyChests.length) {
                     trophyChests.splice(index, 1);
-                } else {
+                } else if (isChristmasOpening) {
+                    // For Christmas gift, just update the last claim date
                     lastClaimDate = new Date().toDateString();
                 }
-                document.getElementById('chestEmoji').style.display = 'none';
-                document.getElementById('chestStatusText').textContent = 'Rewards';
+                
+                // Update UI
+                const chestEmoji = document.getElementById('chestEmoji');
+                if (chestEmoji) {
+                    chestEmoji.style.display = 'none';
+                }
+                const statusText = document.getElementById('chestStatusText');
+                if (statusText) {
+                    statusText.textContent = 'Rewards';
+                }
                 
                 const starMultipliers = {1: 1.0, 2: 1.5, 3: 2.5, 4: 4.0, 5: 10.0};
                 const starMult = starMultipliers[stars];
@@ -2929,21 +2961,65 @@ const firebaseConfig = {
                 const rewardGold = Math.floor((50 + Math.floor(Math.random() * 50)) * totalMult);
                 gold += rewardGold;
                 
-                const unlockedCards = getUnlockedCards(true);
+                const unlockedCards = getUnlockedCards(false);
+                const unlockedTowers = getUnlockedTowers();
                 const numCardStacks = Math.max(1, Math.floor((2 + Math.floor(Math.random() * 2)) * Math.sqrt(totalMult)));
                 
                 const rewards = [];
                 rewards.push({ type: 'gold', count: rewardGold, name: 'Gold' });
                 
+                // Allow tower unlocks in 3-star and above chests
+                if (stars >= 3) {
+                    // 15% chance to get a tower card if there are locked towers (reduced from 20%)
+                    const allTowersUnlocked = Object.values(towerDefs).every(tower => tower.unlocked);
+                    if (!allTowersUnlocked && Math.random() < 0.15) {
+                        const lockedTowers = Object.keys(towerDefs).filter(towerId => !towerDefs[towerId].unlocked);
+                        if (lockedTowers.length > 0) {
+                            const towerId = lockedTowers[Math.floor(Math.random() * lockedTowers.length)];
+                            towerDefs[towerId].unlocked = true;
+                            if (!towerCollection[towerId]) {
+                                towerCollection[towerId] = { level: 1, count: 0 };
+                            }
+                            const towerCount = 1; // Only give 1 tower card at a time
+                            towerCollection[towerId].count += towerCount;
+                            rewards.push({ 
+                                type: 'tower', 
+                                id: towerId, 
+                                count: towerCount,
+                                name: towerDefs[towerId].name,
+                                emoji: towerDefs[towerId].emoji
+                            });
+                        }
+                    }
+                }
+                
+                // Add regular card rewards
                 for(let i = 0; i < numCardStacks; i++) {
-                    const cardId = unlockedCards[Math.floor(Math.random() * unlockedCards.length)];
-                    const baseCount = 3 + Math.floor(Math.random() * 5);
-                    const cardCount = Math.floor(baseCount * totalMult);
-                    rewards.push({ type: 'card', id: cardId, count: cardCount });
-                    
-                    if (cardId === 'tower') {
-                        towerCardCount += cardCount;
-                    } else {
+                    // Only allow tower cards in 3+ star chests (5% chance, reduced from 10%)
+                    if (stars >= 3 && unlockedTowers.length > 0 && Math.random() < 0.05) {
+                        const towerId = unlockedTowers[Math.floor(Math.random() * unlockedTowers.length)];
+                        const towerCount = 1; // Only give 1 tower card at a time
+                        towerCollection[towerId].count += towerCount;
+                        rewards.push({ 
+                            type: 'tower', 
+                            id: towerId, 
+                            count: towerCount,
+                            name: towerDefs[towerId].name,
+                            emoji: towerDefs[towerId].emoji
+                        });
+                    } else if (unlockedCards.length > 0) {
+                        // Regular card reward
+                        const cardId = unlockedCards[Math.floor(Math.random() * unlockedCards.length)];
+                        const baseCount = 3 + Math.floor(Math.random() * 5);
+                        const cardCount = Math.floor(baseCount * totalMult);
+                        rewards.push({ 
+                            type: 'card', 
+                            id: cardId, 
+                            count: cardCount,
+                            name: allCards[cardId]?.name || 'Card',
+                            emoji: allCards[cardId]?.emoji || '🃏'
+                        });
+                        
                         if (!cardCollection[cardId]) cardCollection[cardId] = { level: 1, count: 0, unlocked: false };
                         cardCollection[cardId].unlocked = true;
                         cardCollection[cardId].count += cardCount;
@@ -2965,6 +3041,7 @@ const firebaseConfig = {
                             isChristmasOpening = false;
                         }
                         saveUserData();
+                        isOpeningChest = false; // Reset the flag when all rewards are shown
                         return;
                     }
                     const r = rewards[i];
@@ -2974,9 +3051,12 @@ const firebaseConfig = {
                     
                     if (r.type === 'gold') {
                         div.innerHTML = `<span class="text-3xl">💰</span> <div class="flex flex-col"><span class="text-yellow-400 font-bold text-xl">+${r.count}</span><span class="text-xs text-gray-400">Gold</span></div>`;
+                    } else if (r.type === 'tower') {
+                        const tower = towerDefs[r.id];
+                        div.innerHTML = `<span class="text-3xl">${r.emoji || tower?.emoji || '🏰'}</span> <div class="flex flex-col"><span class="font-bold text-xl text-white">+${r.count}</span><span class="text-xs text-gray-400">${r.name || tower?.name || 'Tower'}</span></div>`;
                     } else {
                         const card = allCards[r.id];
-                        div.innerHTML = `<span class="text-3xl">${card.emoji}</span> <div class="flex flex-col"><span class="font-bold text-xl text-white">+${r.count}</span><span class="text-xs text-gray-400">${card.name}</span></div>`;
+                        div.innerHTML = `<span class="text-3xl">${card?.emoji || '🃏'}</span> <div class="flex flex-col"><span class="font-bold text-xl text-white">+${r.count}</span><span class="text-xs text-gray-400">${card?.name || 'Card'}</span></div>`;
                     }
                     list.appendChild(div);
                     i++;
@@ -2988,16 +3068,52 @@ const firebaseConfig = {
                 if (chestOpenOverlay) chestOpenOverlay.style.display = 'none';
             });
 
+            // Only allow debug menu when running as a local file
+            function isDebugAllowed() {
+                return window.location.protocol === 'file:';
+            }
+
+            // Add keyboard shortcut to toggle debug menu
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+                    if (!isDebugAllowed()) return;
+                    
+                    const debugMenu = document.getElementById('debugMenu');
+                    if (debugMenu) {
+                        debugMenu.style.display = debugMenu.style.display === 'none' ? 'block' : 'none';
+                    }
+                }
+            });
+
+            // Update the debug menu click handler
             navButtons.forEach(btn => { 
                 btn.addEventListener('click', () => { 
                     if (btn.dataset.screen === currentScreen) return;
                     if (btn.dataset.screen === 'debug') {
-                        // isLocalFile check removed to enable debug for all environments
+                        if (!isDebugAllowed()) {
+                            alert('Debug menu is only available on the official site or localhost');
+                            return;
+                        }
                         showDebugPassword();
                     } else {
                         showScreen(btn.dataset.screen); 
                     }
                 }); 
+            });
+
+            // Hide debug button and menu by default, only show for local files
+            document.addEventListener('DOMContentLoaded', () => {
+                const debugMenu = document.getElementById('debugMenu');
+                const debugButton = document.querySelector('[data-screen="debug"]');
+                
+                if (debugMenu) {
+                    debugMenu.style.display = 'none';
+                }
+                
+                // Hide the debug button if not running as a local file
+                if (debugButton && !isDebugAllowed()) {
+                    debugButton.style.display = 'none';
+                }
             });
             // NEW: Show update log function
             function showUpdateLog() {
@@ -3292,15 +3408,18 @@ const firebaseConfig = {
             const claimChristmasBtn = document.getElementById('claimChristmasBtn');
             const christmasGiftStatus = document.getElementById('christmasGiftStatus');
             
-            function updateChristmasUI() {
-                if (!claimChristmasBtn) return;
-                const today = new Date().toDateString();
-                if (lastClaimDate === today) {
-                    claimChristmasBtn.disabled = true;
-                    claimChristmasBtn.textContent = 'Come Back Tomorrow!';
-                    claimChristmasBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    christmasGiftStatus.textContent = '🎁 Gift Claimed!';
-                } else {
+            function updateChestUI(stars, title) {
+                if (!chestOpenOverlay) return;
+                
+                const titleEl = chestOpenOverlay.querySelector('h2');
+                if (titleEl) titleEl.textContent = title || 'Chest Rewards';
+                
+                // Update stars
+                const starContainer = chestOpenOverlay.querySelector('.stars');
+                if (starContainer) {
+                    starContainer.innerHTML = '';
+                    for (let i = 0; i < 4; i++) {
+                        const star = document.createElement('span');
                     claimChristmasBtn.disabled = false;
                     claimChristmasBtn.textContent = 'Open Santa\'s Gift 🎁';
                     claimChristmasBtn.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -3331,28 +3450,126 @@ const firebaseConfig = {
                 });
             }
 
+            // Initialize Christmas gift button
             if (claimChristmasBtn) {
-                claimChristmasBtn.addEventListener('click', () => {
+                // Remove any existing click listeners to prevent duplicates
+                const newBtn = claimChristmasBtn.cloneNode(true);
+                claimChristmasBtn.parentNode.replaceChild(newBtn, claimChristmasBtn);
+                
+                newBtn.addEventListener('click', () => {
+                    console.log('Christmas gift button clicked');
                     const today = new Date().toDateString();
                     if (lastClaimDate !== today) {
-                        // Start Christmas Opening
+                        console.log('Preparing to open Christmas gift');
+                        // Reset all chest opening states
+                        isOpeningChest = true;
                         isChristmasOpening = true;
                         currentChestStars = 1;
                         chestClicks = 0;
                         currentChestIndex = -1;
 
+                        // Get UI elements
+                        const chestOpenOverlay = document.getElementById('chestOpenOverlay');
+                        const chestEmoji = document.getElementById('chestEmoji');
+                        const chestClickArea = document.getElementById('chestClickArea');
+                        const chestRewardList = document.getElementById('chestRewardList');
+                        const chestCloseButton = document.getElementById('chestCloseButton');
+                        const chestClickCounter = document.getElementById('chestClickCounter');
+                        const chestTitle = document.getElementById('chestTitle');
+                        const chestStatusText = document.getElementById('chestStatusText');
+
+                        if (!chestOpenOverlay || !chestEmoji || !chestClickArea || 
+                            !chestRewardList || !chestCloseButton || !chestClickCounter || 
+                            !chestTitle || !chestStatusText) {
+                            console.error('Missing required UI elements for Christmas gift');
+                            return;
+                        }
+
+                        // Reset UI
                         chestOpenOverlay.style.display = 'flex';
-                        document.getElementById('chestRewardList').innerHTML = '';
-                        document.getElementById('chestCloseButton').style.display = 'none';
-                        const emojiEl = document.getElementById('chestEmoji');
-                        emojiEl.textContent = '🎁';
-                        emojiEl.style.display = 'block';
-                        document.getElementById('chestClickArea').style.pointerEvents = 'auto';
-                        document.getElementById('chestClickCounter').textContent = 'Tap to Upgrade (0/4)';
+                        chestRewardList.innerHTML = '';
+                        chestCloseButton.style.display = 'none';
+                        chestClickArea.style.pointerEvents = 'auto';
                         
-                        updateChestUI(1, 'Santa\'s Gift! 🎅');
+                        // Set up gift UI
+                        chestEmoji.textContent = '🎁';
+                        chestEmoji.style.display = 'block';
+                        chestClickCounter.textContent = 'Tap to Upgrade (0/4)';
+                        chestTitle.textContent = 'Santa\'s Gift';
+                        chestStatusText.textContent = 'Tap to Upgrade!';
+                        
+                        // Force UI update
+                        updateChestUI(1, 'Tap to Upgrade!');
+                        
+                        console.log('Christmas gift UI ready, isOpeningChest:', isOpeningChest);
+                    } else {
+                        console.log('Gift already claimed today');
                     }
                 });
+
+                // Set up chest click handler after Christmas button is initialized
+                const chestClickArea = document.getElementById('chestClickArea');
+                if (chestClickArea) {
+                    // Remove any existing click listeners to prevent duplicates
+                    const newClickArea = chestClickArea.cloneNode(true);
+                    chestClickArea.parentNode.replaceChild(newClickArea, chestClickArea);
+                    
+                    newClickArea.addEventListener('click', () => {
+                        console.log('Chest clicked, isOpeningChest:', isOpeningChest);
+                        if (!isOpeningChest) {
+                            console.log('Not in opening state, ignoring click');
+                            return;
+                        }
+                        
+                        const chestEmoji = document.getElementById('chestEmoji');
+                        const clickCounter = document.getElementById('chestClickCounter');
+                        
+                        if (!chestEmoji || !clickCounter) {
+                            console.error('Missing required elements for chest click');
+                            return;
+                        }
+
+                        // Animate click (Shake)
+                        chestEmoji.classList.remove('shake-anim');
+                        void chestEmoji.offsetWidth; // Trigger reflow
+                        chestEmoji.classList.add('shake-anim');
+
+                        if (chestClicks < MAX_CHEST_CLICKS) {
+                            chestClicks++;
+                            const clicksRemaining = MAX_CHEST_CLICKS - chestClicks;
+                            clickCounter.textContent = clicksRemaining > 0 ? `Tap to Upgrade (${chestClicks}/4)` : 'Opening...';
+                            
+                            // Upgrade Logic - Christmas gifts have better chances
+                            let chances = isChristmasOpening ? 
+                                {1: 0.70, 2: 0.60, 3: 0.30, 4: 0.15} : // Christmas gift chances
+                                {1: 0.5, 2: 0.3, 3: 0.15, 4: 0.05};    // Regular chest chances
+                                
+                            const roll = Math.random();
+                            const required = chances[currentChestStars] || 0;
+
+                            if (currentChestStars < 5 && roll < required) {
+                                currentChestStars++;
+                                chestEmoji.classList.add('animate-pulse');
+                                setTimeout(() => chestEmoji.classList.remove('animate-pulse'), 500);
+                                updateChestUI(currentChestStars, 'Upgrade Successful! ✨');
+                                console.log('Chest upgraded to', currentChestStars, 'stars');
+                            } else {
+                                updateChestUI(currentChestStars, 'No Upgrade...');
+                                console.log('No upgrade, current stars:', currentChestStars);
+                            }
+                            
+                            // If this was the last click, prepare to open
+                            if (chestClicks >= MAX_CHEST_CLICKS) {
+                                newClickArea.style.pointerEvents = 'none';
+                                clickCounter.textContent = 'Opening...';
+                                console.log('Finalizing chest...');
+                                setTimeout(() => {
+                                    finalizeChest(currentChestIndex, currentChestStars);
+                                }, 500);
+                            }
+                        }
+                    });
+                }
             }
 
             // ==============================================
@@ -3484,53 +3701,82 @@ const firebaseConfig = {
                 
                 updateBattleButtonState();
             }
-            
+
             function renderTowerScreen() {
-                // --- NEW: Render Collection Grid ---
                 const screenDiv = document.querySelector('#towerScreen > div');
                 screenDiv.innerHTML = `
-                    <h1 class="text-3xl font-bold mb-4">Tower Collection</h1>
-                    <p class="text-sm text-gray-400 mb-6">Reach Arena 10 to unlock special towers!</p>
-                    <div id="towerGrid" class="grid grid-cols-2 gap-4 w-full"></div>
+                    <div class="grid grid-cols-2 gap-4 w-full" id="towerGrid">
+                        ${Object.entries(towerDefs).map(([id, tower]) => {
+                            const towerData = towerCollection[id] || { level: 1, count: 0, unlocked: false };
+                            const isUnlocked = towerData.unlocked || id === 'princess' || (trophies >= 2250 && id !== 'princess');
+                            const isSelected = selectedTower === id;
+                            
+                            // Unlock tower if conditions are met
+                            if (isUnlocked && !towerData.unlocked) {
+                                towerData.unlocked = true;
+                                towerCollection[id] = towerData;
+                            }
+                            
+                            // Progress Bar Calculation
+                            let progressHTML = '';
+                            const costs = towerUpgradeCosts[towerData.level];
+                            if (costs && isUnlocked) {
+                                const pct = Math.min(100, (towerData.count / costs.cards) * 100);
+                                const canUp = towerData.count >= costs.cards && gold >= costs.gold;
+                                progressHTML = `
+                                    <div class="w-full h-2 bg-gray-900 rounded-full mt-2 overflow-hidden border border-gray-700">
+                                        <div class="h-full ${canUp ? 'bg-yellow-400' : 'bg-blue-500'}" style="width: ${pct}%"></div>
+                                    </div>
+                                    <div class="text-xs text-gray-300 mt-1">${towerData.count || 0}/${costs.cards}</div>
+                                `;
+                            }
+                            
+                            return `
+                                <div class="relative bg-gray-800 border-4 rounded-xl p-4 flex flex-col items-center cursor-pointer transition transform hover:scale-105 
+                                    ${isSelected ? 'border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.5)]' : 'border-gray-600'} 
+                                    ${!isUnlocked ? 'grayscale' : ''}"
+                                    data-tower-id="${id}">
+                                    <div class="text-5xl mb-2">${tower.emoji}</div>
+                                    <h3 class="font-bold text-white">${tower.name}</h3>
+                                    <p class="text-xs text-gray-400 text-center mt-1">${tower.desc}</p>
+                                    ${isUnlocked ? 
+                                        `<div class="mt-2 text-yellow-300 font-bold">Lvl ${towerData.level}</div>
+                                         <div class="text-xs text-gray-300">Cards: ${towerData.count || 0}</div>
+                                         ${tower.special ? `<div class="mt-1 text-xs text-yellow-400">Special: ${getTowerSpecialDescription(tower.special)}</div>` : ''}
+                                        ` 
+                                        : '<div class="mt-2 text-red-400 font-bold text-xs">Arena 10+</div>'
+                                    }
+                                    ${progressHTML}
+                                    ${isSelected ? '<div class="absolute top-2 right-2 text-yellow-400">✅</div>' : ''}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    <p class="text-sm text-gray-400 mt-4">Reach Arena 10 to unlock special towers!</p>
                 `;
-                const grid = document.getElementById('towerGrid');
                 
-                Object.keys(towerDefs).forEach(type => {
-                    const def = towerDefs[type];
-                    const data = towerCollection[type] || { level: 1, count: 0, unlocked: false };
-                    // Unlock others at Arena 10 (2250 trophies)
-                    if (type !== 'princess' && trophies >= 2250 && !data.unlocked) {
-                        data.unlocked = true;
-                        towerCollection[type] = data;
-                    }
-                    
-                    const el = document.createElement('div');
-                    el.className = `relative bg-gray-800 border-4 rounded-xl p-4 flex flex-col items-center cursor-pointer transition transform hover:scale-105 ${selectedTower === type ? 'border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.5)]' : 'border-gray-600'}`;
-                    if (!data.unlocked) el.classList.add('grayscale');
-
-                    // Progress Bar Calculation
-                    const costs = towerUpgradeCosts[data.level];
-                    let progressHTML = '';
-                    if (costs && data.unlocked) {
-                        const pct = Math.min(100, (data.count / costs.cards) * 100);
-                        const canUp = data.count >= costs.cards && gold >= costs.gold;
-                        progressHTML = `<div class="w-full h-2 bg-gray-900 rounded-full mt-2 overflow-hidden border border-gray-700"><div class="h-full ${canUp ? 'bg-yellow-400' : 'bg-blue-500'}" style="width: ${pct}%"></div></div>`;
-                    }
-                    
-                    el.innerHTML = `
-                        <div class="text-5xl mb-2">${def.emoji}</div>
-                        <h3 class="font-bold text-white">${def.name}</h3>
-                        <p class="text-xs text-gray-400 text-center mt-1">${def.desc}</p>
-                        ${data.unlocked ? `<div class="mt-2 text-yellow-300 font-bold">Lvl ${data.level}</div>` : '<div class="mt-2 text-red-400 font-bold text-xs">Arena 10+</div>'}
-                        ${progressHTML}
-                        ${selectedTower === type ? '<div class="absolute top-2 right-2 text-yellow-400">✅</div>' : ''}
-                    `;
-                    el.onclick = () => openTowerModal(type);
-                    grid.appendChild(el);
+                // Add event listeners after the DOM is updated
+                document.querySelectorAll('[data-tower-id]').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        const towerId = e.currentTarget.getAttribute('data-tower-id');
+                        openTowerModal(towerId);
+                    });
                 });
             }
             
-            function openTowerModal(type) {
+            // Helper function to get tower special ability descriptions
+            function getTowerSpecialDescription(special) {
+                const descriptions = {
+                    'waffle': 'Heals and levels up friendly troops every 25 seconds',
+                    'burst': 'Rapidly fires for 3 seconds, then has a 5-second cooldown',
+                    'rocket': 'Deals massive area damage but has a slow attack speed',
+                    'default': 'Standard tower with balanced stats'
+                };
+                return descriptions[special] || descriptions['default'];
+            }
+
+            // Make sure openTowerModal is in the global scope
+            window.openTowerModal = function(type) {
                 const def = towerDefs[type];
                 const data = towerCollection[type] || { level: 1, count: 0, unlocked: false };
                 currentPreviewCardId = type; // Set for preview loop
@@ -7984,7 +8230,15 @@ class StoneGiant extends Unit {
             }
 
             function initGame() {
-                if (gameLoopId) cancelAnimationFrame(gameLoopId); // Prevent multiple loops
+                // Reset game state
+                gameRunning = false;
+                isOvertime = false;
+                isTieBreaker = false;
+                // Cancel any existing game loop
+                if (gameLoopId) {
+                    cancelAnimationFrame(gameLoopId);
+                    gameLoopId = null;
+                }
                 gameObjects = [];
                 playerElixir = 3;
                 aiElixir = 3;
@@ -8759,10 +9013,15 @@ class StoneGiant extends Unit {
 
             async function showWinScreen() {
                 if (!gameRunning) return;
+                // Set all game state flags to false first
                 gameRunning = false;
                 isOvertime = false;
                 isTieBreaker = false;
-                cancelAnimationFrame(gameLoopId);
+                // Cancel any pending animation frame
+                if (gameLoopId) {
+                    cancelAnimationFrame(gameLoopId);
+                    gameLoopId = null;
+                }
                 
                 // Trophies only for Trophy Road
                 if (gameMode === 'trophy') {
@@ -8819,9 +9078,15 @@ class StoneGiant extends Unit {
 
             async function showLoseScreen(message = 'You Lose!') {
                 if (!gameRunning) return;
+                // Set all game state flags to false first
                 gameRunning = false;
-                isOvertime = false; // NEW: Stop overtime check
+                isOvertime = false;
                 isTieBreaker = false;
+                // Cancel any pending animation frame
+                if (gameLoopId) {
+                    cancelAnimationFrame(gameLoopId);
+                    gameLoopId = null;
+                }
                 cancelAnimationFrame(gameLoopId);
                 
                 // Show Play Again button for multiplayer
@@ -8865,12 +9130,13 @@ class StoneGiant extends Unit {
             }
 
             function gameLoop(timestamp) {
-                if (isTieBreaker) {
-                    tieBreakerLoop();
-                    return;
-                }
                 if (!gameRunning) {
                     cancelAnimationFrame(gameLoopId);
+                    return;
+                }
+                if (isTieBreaker) {
+                    tieBreakerLoop();
+                    gameLoopId = requestAnimationFrame(gameLoop);
                     return;
                 }
                 deltaTime = (timestamp - lastTime) / 1000; /* Set global deltaTime */
@@ -9385,8 +9651,14 @@ class StoneGiant extends Unit {
             });
             observer.observe(document.body, { childList: true, subtree: true });
             // --- END: Intro Animation ---
-        } // Close window.onload function
-    </script>
+            
+            // Ensure we transition to the login screen after initialization
+            setTimeout(() => {
+                showScreen('login');
+            }, 500);
+        }; // Close MutationObserver callback
+    }; // Close window.onload function
+</script>
 
     <!-- 2v2 Teammate Choice Modal -->
     <div id="teammateChoiceModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
@@ -9448,8 +9720,5 @@ class StoneGiant extends Unit {
             </button>
         </div>
     </div>
-</div>
-
-
 </body>
 </html>
