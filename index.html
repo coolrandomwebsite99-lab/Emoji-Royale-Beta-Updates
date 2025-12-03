@@ -2596,13 +2596,6 @@ const firebaseConfig = {
                 }, 1000);
             });
 
-                        if (friendTeammateBtn) friendTeammateBtn.addEventListener('click', () => {
-                hide2v2TeammateChoice();
-                is2v2Friend = true;
-                is2v2AITeammate = false;
-                showFriendCodeModal();
-            });
-
             if (cancelTeammateBtn) cancelTeammateBtn.addEventListener('click', () => {
                 hide2v2TeammateChoice();
             });
@@ -2631,10 +2624,7 @@ const firebaseConfig = {
                 // This function is now handled by the multiplayer script at the bottom
             }
 
-            friendTeammateBtn.addEventListener('click', () => {
-                hide2v2TeammateChoice();
-                showFriendCodeModal();
-            });
+            // friendTeammateBtn event listener handled above
 
             if (cancelFriendBtn) cancelFriendBtn.addEventListener('click', () => {
                 hideFriendCodeModal();
@@ -3064,7 +3054,7 @@ const firebaseConfig = {
                 const rewardGold = Math.floor((50 + Math.floor(Math.random() * 50)) * totalMult);
                 gold += rewardGold;
                 
-                const unlockedCards = getUnlockedCards(true);
+                const unlockedCards = getUnlockedCards(false);
                 const numCardStacks = Math.max(1, Math.floor((2 + Math.floor(Math.random() * 2))));
                 
                 const rewards = [];
@@ -3074,15 +3064,23 @@ const firebaseConfig = {
                     const baseCount = 3 + Math.floor(Math.random() * 5);
                     const cardCount = Math.floor(baseCount * totalMult);
                     
-                    // Give tower cards from 2+ star chests with better chances
-                    const isTowerReward = stars >= 2 && Math.random() < (0.15 + (stars * 0.05)); // 20%, 25%, 30%, 35%, 40% chance
+                    // Give tower cards from 3+ star chests with reduced chances
+                    const isTowerReward = stars >= 3 && Math.random() < (0.08 + (stars * 0.03)); // 11%, 14%, 17% chance (reduced from 20-40%)
                     
                     if (isTowerReward) {
                         // Get available towers for chest rewards
                         const availableTowers = [];
                         
-                        // Princess is always available from chests
-                        availableTowers.push('princess');
+                        // Add princess tower with lower priority
+                        if (Math.random() < 0.3) { // 30% chance for princess
+                            availableTowers.push('princess');
+                        }
+                        
+                        // Add special towers if arena 10+
+                        const arenaLevel = getAILevel();
+                        if (arenaLevel >= 10) {
+                            availableTowers.push('waffle', 'machineGun', 'rocketeer');
+                        }
                         
                         // Add other towers that are unlocked (can be obtained from chests once unlocked)
                         Object.keys(towerCollection).forEach(towerId => {
@@ -3090,6 +3088,11 @@ const firebaseConfig = {
                                 availableTowers.push(towerId);
                             }
                         });
+                        
+                        // If no towers available, fallback to princess
+                        if (availableTowers.length === 0) {
+                            availableTowers.push('princess');
+                        }
                         
                         const towerId = availableTowers[Math.floor(Math.random() * availableTowers.length)];
                         rewards.push({ type: 'tower', id: towerId, count: cardCount, name: `${towerDefs[towerId].name} Cards` });
@@ -3239,9 +3242,7 @@ const firebaseConfig = {
                 updateLogOverlay.style.display = 'flex';
             }
             
-            updateLogClose.addEventListener('click', () => {
-                updateLogOverlay.style.display = 'none';
-            });
+            // updateLogClose event listener handled above
             
             if (battleButton) battleButton.addEventListener('click', () => {
                 if (battleButton.disabled) return;
