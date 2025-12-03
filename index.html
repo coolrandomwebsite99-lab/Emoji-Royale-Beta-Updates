@@ -2246,6 +2246,33 @@ const firebaseConfig = {
                     gold = dataToLoad.gold || 500;
                     towerLevel = dataToLoad.towerLevel || 1;
                     towerCardCount = dataToLoad.towerCardCount || 0;
+                    selectedTower = dataToLoad.selectedTower || 'princess';
+                    
+                    // Handle tower collection migration for manual loads
+                    if (dataToLoad.towerCollection) {
+                        towerCollection = dataToLoad.towerCollection;
+                    } else {
+                        // Migrate from old system
+                        towerCollection = { 
+                            'princess': { 
+                                level: dataToLoad.towerLevel || 1, 
+                                count: dataToLoad.towerCardCount || 0, 
+                                unlocked: true 
+                            } 
+                        };
+                    }
+                    
+                    // Ensure all tower types have proper structure
+                    Object.keys(towerDefs).forEach(towerId => {
+                        if (!towerCollection[towerId]) {
+                            towerCollection[towerId] = { 
+                                level: 1, 
+                                count: 0, 
+                                unlocked: towerId === 'princess' 
+                            };
+                        }
+                    });
+                    
                     trophyChests = dataToLoad.trophyChests || [];
                     cardCollection = dataToLoad.cardCollection || initNewUserCards(false);
                     playerDeck = dataToLoad.playerDeck || initNewUserCards(true);
@@ -2271,7 +2298,31 @@ const firebaseConfig = {
                         towerLevel = data.towerLevel || 1;
                         towerCardCount = data.towerCardCount || 0;
                         selectedTower = data.selectedTower || 'princess';
-                        towerCollection = data.towerCollection || { 'princess': { level: data.towerLevel || 1, count: data.towerCardCount || 0, unlocked: true } };
+                        
+                        // Migration logic for tower collection
+                        if (data.towerCollection) {
+                            towerCollection = data.towerCollection;
+                        } else {
+                            // Migrate from old system
+                            towerCollection = { 
+                                'princess': { 
+                                    level: data.towerLevel || 1, 
+                                    count: data.towerCardCount || 0, 
+                                    unlocked: true 
+                                } 
+                            };
+                        }
+                        
+                        // Ensure all tower types have proper structure
+                        Object.keys(towerDefs).forEach(towerId => {
+                            if (!towerCollection[towerId]) {
+                                towerCollection[towerId] = { 
+                                    level: 1, 
+                                    count: 0, 
+                                    unlocked: towerId === 'princess' 
+                                };
+                            }
+                        });
                         trophyChests = data.trophyChests || [];
                     cardCollection = data.cardCollection || initNewUserCards(false);
                     playerDeck = data.playerDeck || initNewUserCards(true);
@@ -2380,8 +2431,9 @@ const firebaseConfig = {
 
                 // Generate key
                 const dataToSave = {
-                    trophies, gold, towerLevel, towerCardCount, 
-                    trophyChests, cardCollection, playerDeck, playerDeck2v2, playerDeckParty, lastClaimDate
+                    trophies, gold, towerLevel, towerCardCount, selectedTower,
+                    towerCollection, trophyChests, cardCollection, 
+                    playerDeck, playerDeck2v2, playerDeckParty, lastClaimDate
                 };
                 const jsonString = JSON.stringify(dataToSave);
                 const saveKey = btoa(jsonString); // Base64 encode
@@ -2797,7 +2849,10 @@ const firebaseConfig = {
                         slot.innerHTML = `📦`;
                         slot.classList.remove('text-gray-500', 'bg-gray-700');
                         slot.classList.add('bg-yellow-700', 'cursor-pointer');
-                        slot.onclick = () => openChest(index);
+                        // Fix closure issue by creating a proper closure
+                        slot.onclick = ((chestIndex) => {
+                            return () => openChest(chestIndex);
+                        })(index);
                     } else {
                         slot.innerHTML = ``;
                         slot.classList.add('text-gray-500', 'bg-gray-700');
@@ -2842,19 +2897,24 @@ const firebaseConfig = {
                 const chest = trophyChests[index];
                 if (!chest) return;
                 currentChestIndex = index;
-                currentChestStars = 1;
-                chestClicks = 0;
                 isChristmasOpening = false;
                 document.getElementById('chestEmoji').textContent = '📦';
+                
+                // Initialize chest upgrade state (stored in chest object)
+                if (!chest.clicks) chest.clicks = 0;
+                if (!chest.stars) chest.stars = 1;
+                
+                chestClicks = chest.clicks;
+                currentChestStars = chest.stars;
                 
                 chestOpenOverlay.style.display = 'flex';
                 document.getElementById('chestRewardList').innerHTML = '';
                 document.getElementById('chestCloseButton').style.display = 'none';
                 document.getElementById('chestEmoji').style.display = 'block';
                 document.getElementById('chestClickArea').style.pointerEvents = 'auto';
-                document.getElementById('chestClickCounter').textContent = 'Tap to Upgrade (0/4)';
+                document.getElementById('chestClickCounter').textContent = `Tap to Upgrade (${chest.clicks}/4)`;
                 
-                updateChestUI(1, 'Found a Basic Box!');
+                updateChestUI(chest.stars, 'Found a Basic Box!');
             }
             
             const chestClickArea = document.getElementById('chestClickArea');
@@ -2870,6 +2930,13 @@ const firebaseConfig = {
                     chestClicks++;
                     document.getElementById('chestClickCounter').textContent = `Tap to Upgrade (${chestClicks}/4)`;
                     
+                    // Save upgrade state to chest object
+                    const chest = trophyChests[currentChestIndex];
+                    if (chest) {
+                        chest.clicks = chestClicks;
+                        chest.stars = currentChestStars;
+                    }
+                    
                     // Upgrade Logic
                     let chances = {1: 0.5, 2: 0.3, 3: 0.15, 4: 0.05}; // Standard
                     if (isChristmasOpening) {
@@ -2883,6 +2950,9 @@ const firebaseConfig = {
                         chestEmoji.classList.add('animate-pulse');
                         setTimeout(() => chestEmoji.classList.remove('animate-pulse'), 500);
                         updateChestUI(currentChestStars, 'Upgrade Successful! ✨');
+                        
+                        // Save upgraded stars to chest object
+                        if (chest) chest.stars = currentChestStars;
                     } else {
                         // Failed upgrade, but we keep going until 5th click
                         updateChestUI(currentChestStars, 'No Upgrade...');
@@ -2897,7 +2967,7 @@ const firebaseConfig = {
 
             function finalizeChest(index, stars) {
                 if (!isChristmasOpening) {
-                    trophyChests.splice(index, 1);
+                    trophyChests[index] = undefined; // Set to undefined instead of splicing
                 } else {
                     lastClaimDate = new Date().toDateString();
                 }
@@ -2919,14 +2989,40 @@ const firebaseConfig = {
                 rewards.push({ type: 'gold', count: rewardGold, name: 'Gold' });
                 
                 for(let i = 0; i < numCardStacks; i++) {
-                    const cardId = unlockedCards[Math.floor(Math.random() * unlockedCards.length)];
                     const baseCount = 3 + Math.floor(Math.random() * 5);
                     const cardCount = Math.floor(baseCount * totalMult);
-                    rewards.push({ type: 'card', id: cardId, count: cardCount });
                     
-                    if (cardId === 'tower') {
-                        towerCardCount += cardCount;
+                    // Only give tower cards from 3+ star chests, with much lower chance
+                    const isTowerReward = stars >= 3 && Math.random() < 0.1; // 10% chance for 3+ star chests only
+                    
+                    if (isTowerReward) {
+                        // Give specific tower cards
+                        const unlockedTowers = Object.keys(towerCollection).filter(towerId => 
+                            towerCollection[towerId] && towerCollection[towerId].unlocked
+                        );
+                        
+                        if (unlockedTowers.length > 0) {
+                            const towerId = unlockedTowers[Math.floor(Math.random() * unlockedTowers.length)];
+                            rewards.push({ type: 'tower', id: towerId, count: cardCount, name: `${towerDefs[towerId].name} Cards` });
+                            
+                            if (!towerCollection[towerId]) {
+                                towerCollection[towerId] = { level: 1, count: 0, unlocked: towerId === 'princess' };
+                            }
+                            towerCollection[towerId].count += cardCount;
+                        } else {
+                            // Fallback to regular cards if no towers unlocked
+                            const cardId = unlockedCards[Math.floor(Math.random() * unlockedCards.length)];
+                            rewards.push({ type: 'card', id: cardId, count: cardCount });
+                            
+                            if (!cardCollection[cardId]) cardCollection[cardId] = { level: 1, count: 0, unlocked: false };
+                            cardCollection[cardId].unlocked = true;
+                            cardCollection[cardId].count += cardCount;
+                        }
                     } else {
+                        // Give regular unit/spell cards
+                        const cardId = unlockedCards[Math.floor(Math.random() * unlockedCards.length)];
+                        rewards.push({ type: 'card', id: cardId, count: cardCount });
+                        
                         if (!cardCollection[cardId]) cardCollection[cardId] = { level: 1, count: 0, unlocked: false };
                         cardCollection[cardId].unlocked = true;
                         cardCollection[cardId].count += cardCount;
@@ -2941,7 +3037,6 @@ const firebaseConfig = {
                     if (i >= rewards.length) {
                         document.getElementById('chestCloseButton').style.display = 'block';
                         document.getElementById('chestCloseButton').classList.add('animate-bounce');
-                        renderChests();
                         updateArena();
                         if (isChristmasOpening) {
                             updateChristmasUI();
@@ -2957,6 +3052,9 @@ const firebaseConfig = {
                     
                     if (r.type === 'gold') {
                         div.innerHTML = `<span class="text-3xl">💰</span> <div class="flex flex-col"><span class="text-yellow-400 font-bold text-xl">+${r.count}</span><span class="text-xs text-gray-400">Gold</span></div>`;
+                    } else if (r.type === 'tower') {
+                        const tower = towerDefs[r.id];
+                        div.innerHTML = `<span class="text-3xl">${tower.emoji}</span> <div class="flex flex-col"><span class="font-bold text-xl text-white">+${r.count}</span><span class="text-xs text-gray-400">${tower.name}</span></div>`;
                     } else {
                         const card = allCards[r.id];
                         div.innerHTML = `<span class="text-3xl">${card.emoji}</span> <div class="flex flex-col"><span class="font-bold text-xl text-white">+${r.count}</span><span class="text-xs text-gray-400">${card.name}</span></div>`;
@@ -2969,6 +3067,7 @@ const firebaseConfig = {
             }
             if (chestCloseButton) chestCloseButton.addEventListener('click', () => {
                 if (chestOpenOverlay) chestOpenOverlay.style.display = 'none';
+                renderChests(); // Update chest display after closing overlay
             });
 
             navButtons.forEach(btn => { 
@@ -3232,30 +3331,32 @@ const firebaseConfig = {
                             if (cardData.unlocked && cardData.level < 15) {
                                 cardData.level++;
                             }
+                            saveUserData();
+                            showScreen('menu');
+                            console.log('Account reset!');
                         }
-                        if (towerLevel < 15) towerLevel++;
-                        saveUserData();
-                        console.log('All owned cards and tower upgraded +1 level!');
                     });
                 }
                 if (debugGetChest) {
                     debugGetChest.addEventListener('click', () => {
-                        if (trophyChests.length < 4) {
-                            trophyChests.push({ id: 'wood', openTime: 0 });
+                        // Count actual chests (not undefined)
+                        const actualChestCount = trophyChests.filter(chest => chest).length;
+                        
+                        if (actualChestCount >= 4) {
+                            console.log('Chest slots are full!');
+                            return;
+                        }
+                        
+                        // Find first empty slot
+                        const emptySlotIndex = trophyChests.findIndex((chest, index) => !chest);
+                        if (emptySlotIndex !== -1) {
+                            trophyChests[emptySlotIndex] = { id: 'wood', openTime: Date.now() };
                             renderChests();
                             saveUserData();
                             console.log('Got a chest!');
                         } else {
                             console.log('Chest slots are full!');
                         }
-                    });
-                }
-                if (debugAddGold) {
-                    debugAddGold.addEventListener('click', () => {
-                        gold += 1000;
-                        goldDisplay.textContent = `💰 ${gold}`;
-                        saveUserData();
-                        console.log('+1000 Gold!');
                     });
                 }
                 if (debugReset) {
@@ -8011,9 +8112,13 @@ class StoneGiant extends Unit {
                 
                 if (gameMode === '2v2') {
                     // 2v2: Two princess towers per side, one combined double king tower per side
-                    gameObjects.push(new Tower(LANE_LEFT_X, HEIGHT - 100, 'player', false, playerTowerLevel, false, selectedTower));
-                    gameObjects.push(new Tower(LANE_RIGHT_X, HEIGHT - 100, 'player', false, playerTowerLevel, false, selectedTower));
-                    gameObjects.push(new Tower(WIDTH / 2, HEIGHT - 50, 'player', true, playerTowerLevel, true, selectedTower));
+                    // Use collection level if available for player
+                    const pTowerData = towerCollection[selectedTower];
+                    const pLvl = (pTowerData ? pTowerData.level : 15); // 2v2 defaults to 15 if no collection data
+                    
+                    gameObjects.push(new Tower(LANE_LEFT_X, HEIGHT - 100, 'player', false, pLvl, false, selectedTower));
+                    gameObjects.push(new Tower(LANE_RIGHT_X, HEIGHT - 100, 'player', false, pLvl, false, selectedTower));
+                    gameObjects.push(new Tower(WIDTH / 2, HEIGHT - 50, 'player', true, pLvl, true, selectedTower));
                     // AI Random Tower if high level
                     const aiType = (aiArenaLevel >= 10 && Math.random() > 0.5) ? ['waffle','machineGun','rocketeer'][Math.floor(Math.random()*3)] : 'princess';
                     gameObjects.push(new Tower(LANE_LEFT_X, 100, 'ai', false, aiTowerLevel, false, aiType));
@@ -8033,7 +8138,7 @@ class StoneGiant extends Unit {
                     
                     gameObjects.push(new Tower(LANE_LEFT_X, HEIGHT - 100, 'player', false, pLvl, false, selectedTower));
                     gameObjects.push(new Tower(LANE_RIGHT_X, HEIGHT - 100, 'player', false, pLvl, false, selectedTower));
-                    gameObjects.push(new Tower(WIDTH / 2, HEIGHT - 50, 'player', true, playerTowerLevel, false, selectedTower));
+                    gameObjects.push(new Tower(WIDTH / 2, HEIGHT - 50, 'player', true, pLvl, false, selectedTower));
                     gameObjects.push(new Tower(LANE_LEFT_X, 100, 'ai', false, aiTowerLevel, false, aiType));
                     gameObjects.push(new Tower(LANE_RIGHT_X, 100, 'ai', false, aiTowerLevel, false, aiType));
                     gameObjects.push(new Tower(WIDTH / 2, 50, 'ai', true, aiTowerLevel, false, aiType));
@@ -8759,7 +8864,7 @@ class StoneGiant extends Unit {
                 gold += 50;
                 goldDisplay.textContent = `💰 ${gold}`;
                 if (trophyChests.length < 4) {
-                    trophyChests.push({ id: 'wood', openTime: 0 });
+                    trophyChests.push({ id: 'wood', openTime: Date.now() });
                     renderChests();
                 }
                 let msg = 'You Win!';
@@ -8781,7 +8886,7 @@ class StoneGiant extends Unit {
                 // Give rewards for ALL modes
                 gold += 50;
                 if (trophyChests.length < 4) {
-                    trophyChests.push({ id: 'wood', openTime: 0 });
+                    trophyChests.push({ id: 'wood', openTime: Date.now() + Math.random() * 1000 });
                     renderChests();
                 }
                 await saveUserData();
