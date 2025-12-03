@@ -15,8 +15,10 @@
             font-family: 'Inter', sans-serif;
             overflow: hidden;
             touch-action: none;
-            background-color: #111827;
+            background: linear-gradient(135deg, #1e1b2e 0%, #151932 50%, #0f172a 100%);
             color: white;
+            perspective: 1000px;
+            transform-style: preserve-3d;
         }
         #bgCanvas {
             position: fixed;
@@ -26,10 +28,10 @@
             height: 100%;
             z-index: -1;
             pointer-events: none;
+            filter: blur(1px);
         }
         h1, h2, h3 {
-            text-shadow: 2px 2px 0px #000, 0 0 10px rgba(0,0,0,0.5);
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
         /* Button Shine Effect */
         .btn-shine {
@@ -173,21 +175,75 @@
             animation: floatRotate 6s ease-in-out infinite;
         }
         .ui-text-effect {
-            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
             font-weight: 900;
             letter-spacing: 0.5px;
+        }
+        .your-boxes-text {
+            color: #ffffff;
+            font-weight: 900;
+            text-shadow: 
+                2px 2px 0 #000,
+                -1px -1px 0 #000,
+                1px -1px 0 #000,
+                -1px 1px 0 #000,
+                1px 1px 0 #000,
+                3px 3px 0 #000,
+                4px 4px 0 #000;
+        }
+        .battle-arena-name {
+            color: #ffffff;
+            font-weight: 900;
+            text-shadow: 
+                2px 2px 0 #000,
+                -1px -1px 0 #000,
+                1px -1px 0 #000,
+                -1px 1px 0 #000,
+                3px 3px 0 #000,
+                4px 4px 0 #000;
+        }
+        #loginScreen h1, #loadingScreen h1 {
+            color: #ffffff;
+            font-weight: 900;
+            text-shadow: 
+                2px 2px 0 #000,
+                -1px -1px 0 #000,
+                1px -1px 0 #000,
+                -1px 1px 0 #000,
+                1px 1px 0 #000,
+                3px 3px 0 #000,
+                4px 4px 0 #000;
+        }
+        #loadingScreen p {
+            color: #6b7280;
+            font-weight: 400;
+            text-shadow: none;
         }
         /* Enhanced Button Hovers */
         .login-btn, .arena-btn, .modal-btn, #battleButton, .debug-btn, #navBtnMenu, #navBtnDeck, #navBtnTower, #navBtnDebug, 
         #saveDataOverlay button, #loadDataOverlay button, #updateLogOverlay button, #chestOpenOverlay button {
             overflow: hidden;
             position: relative;
+            transform-style: preserve-3d;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -1px rgba(0, 0, 0, 0.06),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
         }
         .login-btn:hover, .arena-btn:hover, .modal-btn:hover, #battleButton:hover, #saveDataOverlay button:hover, 
         #loadDataOverlay button:hover, #updateLogOverlay button:hover, #chestOpenOverlay button:hover {
-            transform: scale(1.05);
-            filter: brightness(1.2);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px) scale(1.02) rotateX(5deg);
+            filter: brightness(1.3) saturate(1.2);
+            box-shadow: 
+                0 20px 25px -5px rgba(0, 0, 0, 0.2),
+                0 10px 10px -5px rgba(0, 0, 0, 0.04),
+                0 0 20px rgba(255, 255, 255, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+        }
+        .login-btn:active, .arena-btn:active, .modal-btn:active, #battleButton:active, #saveDataOverlay button:active, 
+        #loadDataOverlay button:active, #updateLogOverlay button:active, #chestOpenOverlay button:active {
+            transform: translateY(0) scale(0.98) rotateX(0deg);
+            transition: all 0.1s ease;
         }
         canvas {
             background-color: #f1f5f9; /* Snow White */
@@ -331,6 +387,9 @@
             width: 80%;
             max-width: 300px;
             position: relative;
+            box-shadow: 
+                0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         #messageOverlay button:active, #chestOpenOverlay button:active, .login-btn:active, .debug-btn:active, 
         #saveDataOverlay button:active, .arena-btn:active, .modal-btn:active, .mode-tab:active {
@@ -882,7 +941,7 @@
             </div>
             <div class="flex flex-col items-center my-8">
                 <span id="arenaEmoji" class="text-8xl">🏞️</span>
-                <h2 id="arenaName" class="text-2xl font-bold mt-2 ui-text-effect">Arena 1: Emoji Valley</h2>
+                <h2 id="arenaName" class="text-2xl font-bold mt-2 ui-text-effect battle-arena-name">Arena 1: Emoji Valley</h2>
             </div>
 
             <!-- Battle Button -->
@@ -897,7 +956,7 @@
             
             <!-- Chest Slots -->
             <div class="mt-8 w-full">
-                <h3 class="text-xl font-bold text-center mb-2">Your Boxes</h3>
+                <h3 class="text-xl font-bold text-center mb-2 your-boxes-text">Your Boxes</h3>
                 <div id="chestSlots" class="grid grid-cols-4 gap-2">
                     <div class="chest-slot bg-gray-700 h-24 rounded-lg flex items-center justify-center text-4xl text-gray-500"></div>
                     <div class="chest-slot bg-gray-700 h-24 rounded-lg flex items-center justify-center text-4xl text-gray-500"></div>
@@ -2896,29 +2955,35 @@ const firebaseConfig = {
             function openChest(index) {
                 const chest = trophyChests[index];
                 if (!chest) return;
+                
+                // Reset chest state for this specific chest
                 currentChestIndex = index;
+                currentChestStars = chest.stars || 1;
+                chestClicks = chest.clicks || 0;
                 isChristmasOpening = false;
-                document.getElementById('chestEmoji').textContent = '📦';
-                
-                // Initialize chest upgrade state (stored in chest object)
-                if (!chest.clicks) chest.clicks = 0;
-                if (!chest.stars) chest.stars = 1;
-                
-                chestClicks = chest.clicks;
-                currentChestStars = chest.stars;
                 
                 chestOpenOverlay.style.display = 'flex';
                 document.getElementById('chestRewardList').innerHTML = '';
                 document.getElementById('chestCloseButton').style.display = 'none';
-                document.getElementById('chestEmoji').style.display = 'block';
+                const emojiEl = document.getElementById('chestEmoji');
+                emojiEl.textContent = '📦';
+                emojiEl.style.display = 'block';
                 document.getElementById('chestClickArea').style.pointerEvents = 'auto';
-                document.getElementById('chestClickCounter').textContent = `Tap to Upgrade (${chest.clicks}/4)`;
+                document.getElementById('chestClickCounter').textContent = `Tap to Upgrade (${chestClicks}/4)`;
                 
-                updateChestUI(chest.stars, 'Found a Basic Box!');
+                updateChestUI(currentChestStars, 'Found a Basic Box!');
             }
             
             const chestClickArea = document.getElementById('chestClickArea');
-            if (chestClickArea) chestClickArea.addEventListener('click', () => {
+            if (chestClickArea) chestClickArea.addEventListener('click', (e) => {
+                console.log('Chest clicked! currentChestIndex:', currentChestIndex, 'chestClicks:', chestClicks, 'currentChestStars:', currentChestStars);
+                
+                // Prevent clicks if chest overlay is not visible or no valid chest is selected
+                if (chestOpenOverlay.style.display !== 'flex' || currentChestIndex === -1 || !trophyChests[currentChestIndex]) {
+                    console.log('No valid chest selected or overlay not visible!');
+                    return;
+                }
+                
                 const chestEmoji = document.getElementById('chestEmoji');
                 
                 // Animate click (Shake)
@@ -2926,15 +2991,22 @@ const firebaseConfig = {
                 if (chestEmoji) void chestEmoji.offsetWidth; // Trigger reflow
                 chestEmoji.classList.add('shake-anim');
 
+                // Make sure we have a valid chest index
+                if (currentChestIndex === -1 || !trophyChests[currentChestIndex]) {
+                    console.log('No valid chest selected!');
+                    return;
+                }
+
                 if (chestClicks < MAX_CHEST_CLICKS) {
                     chestClicks++;
                     document.getElementById('chestClickCounter').textContent = `Tap to Upgrade (${chestClicks}/4)`;
                     
-                    // Save upgrade state to chest object
+                    // Save upgrade state to chest object immediately
                     const chest = trophyChests[currentChestIndex];
                     if (chest) {
                         chest.clicks = chestClicks;
                         chest.stars = currentChestStars;
+                        saveUserData(); // Save immediately after each click
                     }
                     
                     // Upgrade Logic
@@ -2951,8 +3023,11 @@ const firebaseConfig = {
                         setTimeout(() => chestEmoji.classList.remove('animate-pulse'), 500);
                         updateChestUI(currentChestStars, 'Upgrade Successful! ✨');
                         
-                        // Save upgraded stars to chest object
-                        if (chest) chest.stars = currentChestStars;
+                        // Save upgraded stars to chest object immediately
+                        if (chest) {
+                            chest.stars = currentChestStars;
+                            saveUserData(); // Save immediately after upgrade
+                        }
                     } else {
                         // Failed upgrade, but we keep going until 5th click
                         updateChestUI(currentChestStars, 'No Upgrade...');
@@ -2966,9 +3041,16 @@ const firebaseConfig = {
             });
 
             function finalizeChest(index, stars) {
-                if (!isChristmasOpening) {
-                    trophyChests[index] = undefined; // Set to undefined instead of splicing
-                } else {
+                // Remove chest immediately to prevent re-opening
+                trophyChests[index] = undefined;
+                saveUserData(); // Save chest removal immediately
+                
+                // Reset chest state to prevent leakage to new chests
+                currentChestIndex = -1;
+                chestClicks = 0;
+                currentChestStars = 1;
+                
+                if (isChristmasOpening) {
                     lastClaimDate = new Date().toDateString();
                 }
                 document.getElementById('chestEmoji').style.display = 'none';
@@ -2983,7 +3065,7 @@ const firebaseConfig = {
                 gold += rewardGold;
                 
                 const unlockedCards = getUnlockedCards(true);
-                const numCardStacks = Math.max(1, Math.floor((2 + Math.floor(Math.random() * 2)) * Math.sqrt(totalMult)));
+                const numCardStacks = Math.max(1, Math.floor((2 + Math.floor(Math.random() * 2))));
                 
                 const rewards = [];
                 rewards.push({ type: 'gold', count: rewardGold, name: 'Gold' });
@@ -2992,32 +3074,34 @@ const firebaseConfig = {
                     const baseCount = 3 + Math.floor(Math.random() * 5);
                     const cardCount = Math.floor(baseCount * totalMult);
                     
-                    // Only give tower cards from 3+ star chests, with much lower chance
-                    const isTowerReward = stars >= 3 && Math.random() < 0.1; // 10% chance for 3+ star chests only
+                    // Give tower cards from 2+ star chests with better chances
+                    const isTowerReward = stars >= 2 && Math.random() < (0.15 + (stars * 0.05)); // 20%, 25%, 30%, 35%, 40% chance
                     
                     if (isTowerReward) {
-                        // Give specific tower cards
-                        const unlockedTowers = Object.keys(towerCollection).filter(towerId => 
-                            towerCollection[towerId] && towerCollection[towerId].unlocked
-                        );
+                        // Get available towers for chest rewards
+                        const availableTowers = [];
                         
-                        if (unlockedTowers.length > 0) {
-                            const towerId = unlockedTowers[Math.floor(Math.random() * unlockedTowers.length)];
-                            rewards.push({ type: 'tower', id: towerId, count: cardCount, name: `${towerDefs[towerId].name} Cards` });
-                            
-                            if (!towerCollection[towerId]) {
-                                towerCollection[towerId] = { level: 1, count: 0, unlocked: towerId === 'princess' };
+                        // Princess is always available from chests
+                        availableTowers.push('princess');
+                        
+                        // Add other towers that are unlocked (can be obtained from chests once unlocked)
+                        Object.keys(towerCollection).forEach(towerId => {
+                            if (towerId !== 'princess' && towerCollection[towerId] && towerCollection[towerId].unlocked) {
+                                availableTowers.push(towerId);
                             }
-                            towerCollection[towerId].count += cardCount;
-                        } else {
-                            // Fallback to regular cards if no towers unlocked
-                            const cardId = unlockedCards[Math.floor(Math.random() * unlockedCards.length)];
-                            rewards.push({ type: 'card', id: cardId, count: cardCount });
-                            
-                            if (!cardCollection[cardId]) cardCollection[cardId] = { level: 1, count: 0, unlocked: false };
-                            cardCollection[cardId].unlocked = true;
-                            cardCollection[cardId].count += cardCount;
+                        });
+                        
+                        const towerId = availableTowers[Math.floor(Math.random() * availableTowers.length)];
+                        rewards.push({ type: 'tower', id: towerId, count: cardCount, name: `${towerDefs[towerId].name} Cards` });
+                        
+                        // Initialize tower collection if needed
+                        if (!towerCollection[towerId]) {
+                            towerCollection[towerId] = { level: 1, count: 0, unlocked: false };
                         }
+                        
+                        // Unlock and give cards for the tower
+                        towerCollection[towerId].unlocked = true;
+                        towerCollection[towerId].count += cardCount;
                     } else {
                         // Give regular unit/spell cards
                         const cardId = unlockedCards[Math.floor(Math.random() * unlockedCards.length)];
@@ -3074,8 +3158,7 @@ const firebaseConfig = {
                 btn.addEventListener('click', () => { 
                     if (btn.dataset.screen === currentScreen) return;
                     if (btn.dataset.screen === 'debug') {
-                        // isLocalFile check removed to enable debug for all environments
-                        showDebugPassword();
+                        showScreen('debug'); // Show debug screen directly
                     } else {
                         showScreen(btn.dataset.screen); 
                     }
@@ -3325,39 +3408,56 @@ const firebaseConfig = {
                     });
                 }
                 if (debugUpgradeAll) {
-                    debugUpgradeAll.addEventListener('click', () => {
+                    let isProcessingUpgrade = false;
+                    debugUpgradeAll.onclick = () => {
+                        if (isProcessingUpgrade) return;
+                        isProcessingUpgrade = true;
+                        
                         for (const cardId in cardCollection) {
                             const cardData = cardCollection[cardId];
                             if (cardData.unlocked && cardData.level < 15) {
                                 cardData.level++;
                             }
-                            saveUserData();
-                            showScreen('menu');
-                            console.log('Account reset!');
                         }
-                    });
+                        saveUserData();
+                        console.log('All cards upgraded by 1 level!');
+                        
+                        isProcessingUpgrade = false;
+                    };
                 }
                 if (debugGetChest) {
-                    debugGetChest.addEventListener('click', () => {
-                        // Count actual chests (not undefined)
-                        const actualChestCount = trophyChests.filter(chest => chest).length;
+                    let isProcessingChest = false;
+                    debugGetChest.onclick = () => {
+                        if (isProcessingChest) return;
+                        isProcessingChest = true;
+                        
+                        // Ensure trophyChests has exactly 4 slots
+                        while (trophyChests.length < 4) {
+                            trophyChests.push(undefined);
+                        }
+                        
+                        // Count actual chests (not undefined) in first 4 slots
+                        const actualChestCount = trophyChests.slice(0, 4).filter(chest => chest).length;
                         
                         if (actualChestCount >= 4) {
                             console.log('Chest slots are full!');
+                            isProcessingChest = false;
                             return;
                         }
                         
-                        // Find first empty slot
-                        const emptySlotIndex = trophyChests.findIndex((chest, index) => !chest);
+                        // Find first empty slot in first 4 positions
+                        const emptySlotIndex = trophyChests.slice(0, 4).findIndex((chest, index) => !chest);
                         if (emptySlotIndex !== -1) {
-                            trophyChests[emptySlotIndex] = { id: 'wood', openTime: Date.now() };
+                            trophyChests[emptySlotIndex] = { id: 'wood', openTime: Date.now(), clicks: 0, stars: 1 };
                             renderChests();
                             saveUserData();
                             console.log('Got a chest!');
                         } else {
                             console.log('Chest slots are full!');
                         }
-                    });
+                        
+                        isProcessingChest = false;
+                    };
                 }
                 if (debugReset) {
                     debugReset.addEventListener('click', () => {
@@ -3561,7 +3661,7 @@ const firebaseConfig = {
                 const screenDiv = document.querySelector('#towerScreen > div');
                 screenDiv.innerHTML = `
                     <h1 class="text-3xl font-bold mb-4">Tower Collection</h1>
-                    <p class="text-sm text-gray-400 mb-6">Reach Arena 10 to unlock special towers!</p>
+                    <p class="text-sm text-gray-400 mb-6">Get tower cards from chests to unlock new towers!</p>
                     <div id="towerGrid" class="grid grid-cols-2 gap-4 w-full"></div>
                 `;
                 const grid = document.getElementById('towerGrid');
@@ -3569,11 +3669,6 @@ const firebaseConfig = {
                 Object.keys(towerDefs).forEach(type => {
                     const def = towerDefs[type];
                     const data = towerCollection[type] || { level: 1, count: 0, unlocked: false };
-                    // Unlock others at Arena 10 (2250 trophies)
-                    if (type !== 'princess' && trophies >= 2250 && !data.unlocked) {
-                        data.unlocked = true;
-                        towerCollection[type] = data;
-                    }
                     
                     const el = document.createElement('div');
                     el.className = `relative bg-gray-800 border-4 rounded-xl p-4 flex flex-col items-center cursor-pointer transition transform hover:scale-105 ${selectedTower === type ? 'border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.5)]' : 'border-gray-600'}`;
@@ -8863,8 +8958,10 @@ class StoneGiant extends Unit {
                 }
                 gold += 50;
                 goldDisplay.textContent = `💰 ${gold}`;
-                if (trophyChests.length < 4) {
-                    trophyChests.push({ id: 'wood', openTime: Date.now() });
+                // Always place chest in first available slot
+                const emptySlotIndex = trophyChests.findIndex((chest, index) => index < 4 && !chest);
+                if (emptySlotIndex !== -1) {
+                    trophyChests[emptySlotIndex] = { id: 'wood', openTime: Date.now(), clicks: 0, stars: 1 };
                     renderChests();
                 }
                 let msg = 'You Win!';
@@ -8885,9 +8982,12 @@ class StoneGiant extends Unit {
                 }
                 // Give rewards for ALL modes
                 gold += 50;
-                if (trophyChests.length < 4) {
-                    trophyChests.push({ id: 'wood', openTime: Date.now() + Math.random() * 1000 });
-                    renderChests();
+                if (emptySlotIndex === -1) {
+                    const newEmptySlotIndex = trophyChests.findIndex((chest, index) => index < 4 && !chest);
+                    if (newEmptySlotIndex !== -1) {
+                        trophyChests[newEmptySlotIndex] = { id: 'wood', openTime: Date.now() + Math.random() * 1000, clicks: 0, stars: 1 };
+                        renderChests();
+                    }
                 }
                 await saveUserData();
             }
