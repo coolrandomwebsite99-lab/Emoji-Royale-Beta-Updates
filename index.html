@@ -1,3 +1,4 @@
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1906,29 +1907,44 @@ const firebaseConfig = {
                 bgCtx.fill();
             }
         }
+
         // More particles, start pre-populated
         for(let i=0; i<80; i++) bgParticles.push(new BgParticle(true));
 
+        let bgAnimationId = null;
+
         function animateBg() {
+            if (!bgAnimationId) return; // Stop if animation was cancelled
+            
             bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
             // Draw Grid
             bgCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
             bgCtx.lineWidth = 1;
             const gridSize = 40;
-            bgCtx.beginPath();
+            
             for(let x=0; x<=bgCanvas.width; x+=gridSize) { bgCtx.moveTo(x,0); bgCtx.lineTo(x, bgCanvas.height); }
             for(let y=0; y<=bgCanvas.height; y+=gridSize) { bgCtx.moveTo(0,y); bgCtx.lineTo(bgCanvas.width, y); }
             bgCtx.stroke();
             
             bgParticles.forEach(p => { p.update(); p.draw(); });
-            requestAnimationFrame(animateBg);
+            bgAnimationId = requestAnimationFrame(animateBg);
         }
-        animateBg();
-        let demoLoopTimer = 15 * 60; // 15 seconds
-        const DEMO_LOOP_TIME = 15 * 60;
-        let demoFadingOut = false; // NEW
-        let demoFadeTimer = 0; // NEW
-        const DEMO_FADE_TIME = 30; // 0.5 seconds
+
+        function startBgAnimation() {
+            if (!bgAnimationId) {
+                bgAnimationId = requestAnimationFrame(animateBg);
+            }
+        }
+
+        function stopBgAnimation() {
+            if (bgAnimationId) {
+                cancelAnimationFrame(bgAnimationId);
+                bgAnimationId = null;
+            }
+        }
+
+        // Start background animation initially
+        startBgAnimation();
 
         // --- NEW: Game Mode State ---
         let gameMode = 'trophy'; // 'trophy', 'party1v1', '2v2'
@@ -2926,246 +2942,310 @@ const firebaseConfig = {
                 return multipliers[arenaLevel] || 1.0;
             }
             
-            let currentChestIndex = -1;
-            let isChristmasOpening = false;
-            let currentChestStars = 1;
-            let chestClicks = 0;
-            const MAX_CHEST_CLICKS = 4;
+// -----------------------------------------------------------------------------
+// Chest UI helper – updates title, stars, and status text in the chest overlay
+function updateChestUI(stars, statusMsg) {
+    const chestTitle = document.getElementById('chestTitle');
+    const chestStars = document.getElementById('chestStars');
+    const chestStatusText = document.getElementById('chestStatusText');
+    chestTitle.textContent = `${stars} Star Box`;
+    chestStars.innerHTML = '⭐'.repeat(stars);
+    chestStatusText.innerHTML = statusMsg;
+}
 
-            function updateChestUI(stars, statusMsg) {
-                const chestTitle = document.getElementById('chestTitle');
-                const chestStars = document.getElementById('chestStars');
-                const chestStatusText = document.getElementById('chestStatusText');
-                
-                chestTitle.textContent = `${stars} Star Box`;
-                chestStars.innerHTML = '⭐'.repeat(stars);
-                chestStatusText.innerHTML = statusMsg;
+// -----------------------------------------------------------------------------
+// Chest state variables.  These must be defined outside of any function so they
+// can be shared by all chest-related functions.
+let currentChestIndex   = -1;
+let isChristmasOpening  = false;
+let currentChestStars   = 1;
+let chestClicks         = 0;
+let isOpeningChest      = false;
+const MAX_CHEST_CLICKS  = 4;
+
+// -----------------------------------------------------------------------------
+// Opens a chest when the player taps on it from the menu.
+// Resets per-chest state, verifies necessary DOM elements, and shows the UI.
+function openChest(index) {
+    const chest = trophyChests[index];
+    if (!chest) return;
+
+    currentChestIndex  = index;
+    currentChestStars  = chest.stars || 1;
+    chestClicks        = chest.clicks || 0;
+    isChristmasOpening = false;
+    isOpeningChest     = true;
+
+    // Fetch all required UI elements
+    const overlay      = document.getElementById('chestOpenOverlay');
+    const rewardList   = document.getElementById('chestRewardList');
+    const closeButton  = document.getElementById('chestCloseButton');
+    const emoji        = document.getElementById('chestEmoji');
+    const clickArea    = document.getElementById('chestClickArea');
+    const clickCounter = document.getElementById('chestClickCounter');
+    if (!overlay || !rewardList || !closeButton || !emoji || !clickArea || !clickCounter) {
+        console.error('Missing required chest elements');
+        return;
+    }
+
+    // Initialize chest overlay UI
+    overlay.style.display       = 'flex';
+    rewardList.innerHTML        = '';
+    closeButton.style.display   = 'none';
+    emoji.textContent           = '📦';
+    emoji.style.display         = 'block';
+    clickArea.style.pointerEvents = 'auto';
+    clickCounter.textContent    = `Tap to Upgrade (${chestClicks}/4)`;
+    updateChestUI(currentChestStars, 'Found a Basic Box!');
+}
+
+// -----------------------------------------------------------------------------
+// Handles clicks inside the chest overlay (tap-to-upgrade and final open).
+const chestClickArea = document.getElementById('chestClickArea');
+if (chestClickArea) {
+    // Use an `onclick` assignment instead of addEventListener so that only one
+    // handler is ever attached to this element. When using addEventListener
+    // repeatedly (for example after re-entering the debug screen or reloading
+    // the module), multiple handlers would accumulate, causing the game to
+    // register multiple clicks for each tap and eventually freeze or slow down
+    // after opening several chests. Assigning to `.onclick` replaces any
+    // previous handler, preventing this buildup.
+    chestClickArea.onclick = () => {
+        const overlay = document.getElementById('chestOpenOverlay');
+        // Guard against clicks when no chest is selected or overlay is hidden
+        if (!overlay || overlay.style.display !== 'flex' ||
+            currentChestIndex === -1 || !trophyChests[currentChestIndex]) {
+            console.log('No valid chest selected or overlay not visible!');
+            return;
+        }
+
+        const chestEmoji = document.getElementById('chestEmoji');
+        if (chestEmoji) {
+            chestEmoji.classList.remove('shake-anim');
+            void chestEmoji.offsetWidth; // force reflow to restart animation
+            chestEmoji.classList.add('shake-anim');
+        }
+
+        // Upgrade logic for the first four taps
+        if (chestClicks < MAX_CHEST_CLICKS) {
+            chestClicks++;
+            document.getElementById('chestClickCounter').textContent =
+                `Tap to Upgrade (${chestClicks}/4)`;
+
+            // Persist upgrade state on the chest object
+            const chest = trophyChests[currentChestIndex];
+            if (chest) {
+                chest.clicks = chestClicks;
+                chest.stars  = currentChestStars;
             }
 
-            function openChest(index) {
-                const chest = trophyChests[index];
-                if (!chest) return;
-                
-                // Reset chest state for this specific chest
-                currentChestIndex = index;
-                currentChestStars = chest.stars || 1;
-                chestClicks = chest.clicks || 0;
+            // Determine upgrade chances (better odds during Christmas event)
+            let chances = { 1: 0.5,  2: 0.3,  3: 0.15, 4: 0.05 };
+            if (isChristmasOpening) {
+                chances = { 1: 0.70, 2: 0.60, 3: 0.30, 4: 0.15 };
+            }
+            const roll     = Math.random();
+            const required = chances[currentChestStars] || 0;
+
+            if (currentChestStars < 5 && roll < required) {
+                currentChestStars++;
+                chestEmoji.classList.add('animate-pulse');
+                setTimeout(() => chestEmoji.classList.remove('animate-pulse'), 500);
+                updateChestUI(currentChestStars, 'Upgrade Successful! ✨');
+                if (chest) chest.stars = currentChestStars;
+            } else {
+                updateChestUI(currentChestStars, 'No Upgrade…');
+            }
+        } else {
+            // Fifth tap: time to open the chest
+            document.getElementById('chestClickArea').style.pointerEvents = 'none';
+            document.getElementById('chestClickCounter').textContent = '';
+            finalizeChest(currentChestIndex, currentChestStars);
+        }
+    };
+}
+
+// -----------------------------------------------------------------------------
+// Finalizes a chest, awards rewards, and plays the sequential reward animation.
+function finalizeChest(index, stars) {
+    // Remove the chest immediately so it can’t be reopened
+    trophyChests[index] = undefined;
+
+    // Reset state variables for the next chest
+    currentChestIndex  = -1;
+    chestClicks        = 0;
+    currentChestStars  = 1;
+
+    // Mark Christmas chest claim
+    if (isChristmasOpening) {
+        lastClaimDate = new Date().toDateString();
+    }
+
+    // Prepare the reward UI
+    const chestEmoji  = document.getElementById('chestEmoji');
+    if (chestEmoji) chestEmoji.style.display = 'none';
+    document.getElementById('chestStatusText').textContent = 'Rewards';
+
+    // Determine reward multipliers
+    const starMultipliers = { 1: 1.0, 2: 1.5, 3: 2.5, 4: 4.0, 5: 10.0 };
+    const starMult  = starMultipliers[stars];
+    const arenaMult = getChestRewardMultiplier();
+    const totalMult = starMult * arenaMult;
+
+    // Gold reward
+    const rewardGold = Math.floor((50 + Math.floor(Math.random() * 50)) * totalMult);
+    gold += rewardGold;
+
+    // Determine how many card/tower stacks to award
+    const unlockedCards = getUnlockedCards(false);
+    const numCardStacks = Math.max(1, Math.floor(2 + Math.random() * 2));
+
+    // Build reward objects
+    const rewards = [];
+    rewards.push({ type: 'gold', count: rewardGold, name: 'Gold' });
+
+    for (let i = 0; i < numCardStacks; i++) {
+        const baseCount = 3 + Math.floor(Math.random() * 5);
+        const cardCount = Math.floor(baseCount * totalMult);
+
+        // Chance to award tower cards on 3-star chests and above
+        const isTowerReward = stars >= 3 && Math.random() < (0.08 + stars * 0.03);
+        if (isTowerReward) {
+            // Build a list of available towers
+            const availableTowers = [];
+            if (Math.random() < 0.3) availableTowers.push('princess');
+            const arenaLevel = getAILevel();
+            if (arenaLevel >= 10) availableTowers.push('waffle', 'machineGun', 'rocketeer');
+            Object.keys(towerCollection).forEach(tid => {
+                if (tid !== 'princess' && towerCollection[tid]?.unlocked) {
+                    availableTowers.push(tid);
+                }
+            });
+            if (availableTowers.length === 0) availableTowers.push('princess');
+
+            const towerId = availableTowers[Math.floor(Math.random() * availableTowers.length)];
+            rewards.push({
+                type: 'tower',
+                id: towerId,
+                count: cardCount,
+                name: `${towerDefs[towerId].name} Cards`
+            });
+
+            // Add tower cards to the player’s collection
+            if (!towerCollection[towerId]) {
+                towerCollection[towerId] = { level: 1, count: 0, unlocked: false };
+            }
+            towerCollection[towerId].unlocked = true;
+            towerCollection[towerId].count   += cardCount;
+        } else {
+            // Award normal unit/spell cards
+            const cardId = unlockedCards[Math.floor(Math.random() * unlockedCards.length)];
+            rewards.push({ type: 'card', id: cardId, count: cardCount });
+            if (!cardCollection[cardId]) {
+                cardCollection[cardId] = { level: 1, count: 0, unlocked: false };
+            }
+            cardCollection[cardId].unlocked = true;
+            cardCollection[cardId].count   += cardCount;
+        }
+    }
+
+    // Reward display animation
+    const rewardList = document.getElementById('chestRewardList');
+    rewardList.innerHTML = '';
+    let i = 0;
+    function showNextReward() {
+        if (i >= rewards.length) {
+            const closeBtn = document.getElementById('chestCloseButton');
+            // Show the Awesome! button and animate it
+            closeBtn.style.display = 'block';
+            closeBtn.classList.add('animate-bounce');
+            // If this was a Christmas chest, update the UI and clear the flag
+            if (isChristmasOpening) {
+                updateChristmasUI();
                 isChristmasOpening = false;
-                
-                chestOpenOverlay.style.display = 'flex';
-                document.getElementById('chestRewardList').innerHTML = '';
-                document.getElementById('chestCloseButton').style.display = 'none';
-                const emojiEl = document.getElementById('chestEmoji');
-                emojiEl.textContent = '📦';
-                emojiEl.style.display = 'block';
-                document.getElementById('chestClickArea').style.pointerEvents = 'auto';
-                document.getElementById('chestClickCounter').textContent = `Tap to Upgrade (${chestClicks}/4)`;
-                
-                updateChestUI(currentChestStars, 'Found a Basic Box!');
             }
-            
-            const chestClickArea = document.getElementById('chestClickArea');
-            if (chestClickArea) chestClickArea.addEventListener('click', (e) => {
-                console.log('Chest clicked! currentChestIndex:', currentChestIndex, 'chestClicks:', chestClicks, 'currentChestStars:', currentChestStars);
-                
-                // Prevent clicks if chest overlay is not visible or no valid chest is selected
-                if (chestOpenOverlay.style.display !== 'flex' || currentChestIndex === -1 || !trophyChests[currentChestIndex]) {
-                    console.log('No valid chest selected or overlay not visible!');
-                    return;
-                }
-                
-                const chestEmoji = document.getElementById('chestEmoji');
-                
-                // Animate click (Shake)
-                if (chestEmoji) chestEmoji.classList.remove('shake-anim');
-                if (chestEmoji) void chestEmoji.offsetWidth; // Trigger reflow
-                chestEmoji.classList.add('shake-anim');
+            // We are no longer in the opening state
+            isOpeningChest = false;
+            // Save progress once after all rewards have been tallied
+            saveUserData();
+            // Auto-close the chest after a short delay to prevent the overlay from getting stuck
+            setTimeout(() => {
+                const overlayEl = document.getElementById('chestOpenOverlay');
+                if (overlayEl) overlayEl.style.display = 'none';
+                // Remove animation class and clear rewards list
+                closeBtn.classList.remove('animate-bounce');
+                const rewardContainer = document.getElementById('chestRewardList');
+                if (rewardContainer) rewardContainer.innerHTML = '';
+                // Re-render the chest slots now that this chest is opened
+                renderChests();
+            }, 600);
+            return;
+        }
+        const r = rewards[i];
+        const div = document.createElement('div');
+        div.className = 'reward-item bg-gray-700 p-2 rounded flex items-center justify-center space-x-2';
+        if (r.type === 'gold') {
+            div.innerHTML =
+                `<span class="text-3xl">💰</span><div class="flex flex-col">` +
+                `<span class="text-yellow-400 font-bold text-xl">+${r.count}</span>` +
+                `<span class="text-xs text-gray-400">Gold</span></div>`;
+        } else if (r.type === 'tower') {
+            const tower = towerDefs[r.id];
+            div.innerHTML =
+                `<span class="text-3xl">${tower.emoji}</span><div class="flex flex-col">` +
+                `<span class="font-bold text-xl text-white">+${r.count}</span>` +
+                `<span class="text-xs text-gray-400">${tower.name}</span></div>`;
+        } else {
+            const card = allCards[r.id];
+            div.innerHTML =
+                `<span class="text-3xl">${card.emoji}</span><div class="flex flex-col">` +
+                `<span class="font-bold text-xl text-white">+${r.count}</span>` +
+                `<span class="text-xs text-gray-400">${card.name}</span></div>`;
+        }
+        rewardList.appendChild(div);
+        i++;
+        setTimeout(showNextReward, 300);
+    }
+    showNextReward();
+}
 
-                // Make sure we have a valid chest index
-                if (currentChestIndex === -1 || !trophyChests[currentChestIndex]) {
-                    console.log('No valid chest selected!');
-                    return;
-                }
+// -----------------------------------------------------------------------------
+// Clean up the chest overlay when the Close button is pressed.
+const chestCloseButton = document.getElementById('chestCloseButton');
+if (chestCloseButton) {
+    // Always assign the click handler via `onclick` so that only one handler
+    // exists at a time. Using addEventListener here caused the handler to be
+    // stacked multiple times as chests were opened, eventually making the
+    // button unresponsive after several chests. Assigning directly to
+    // `.onclick` replaces any previous handler and prevents this buildup.
+    chestCloseButton.onclick = () => {
+        const overlay = document.getElementById('chestOpenOverlay');
+        if (overlay) overlay.style.display = 'none';
+        // Reset chest opening state
+        isOpeningChest = false;
+        chestCloseButton.classList.remove('animate-bounce');
+        const rewardList = document.getElementById('chestRewardList');
+        if (rewardList) rewardList.innerHTML = '';
+        // Re-render chest slots now that one has been opened
+        renderChests();
+    };
+}
 
-                if (chestClicks < MAX_CHEST_CLICKS) {
-                    chestClicks++;
-                    document.getElementById('chestClickCounter').textContent = `Tap to Upgrade (${chestClicks}/4)`;
-                    
-                    // Save upgrade state to chest object immediately
-                    const chest = trophyChests[currentChestIndex];
-                    if (chest) {
-                        chest.clicks = chestClicks;
-                        chest.stars = currentChestStars;
-                        saveUserData(); // Save immediately after each click
-                    }
-                    
-                    // Upgrade Logic
-                    let chances = {1: 0.5, 2: 0.3, 3: 0.15, 4: 0.05}; // Standard
-                    if (isChristmasOpening) {
-                        chances = {1: 0.70, 2: 0.60, 3: 0.30, 4: 0.15}; // 70%, 60%, 30%, 15%
-                    }
-                    const roll = Math.random();
-                    const required = chances[currentChestStars] || 0;
 
-                    if (currentChestStars < 5 && roll < required) {
-                        currentChestStars++;
-                        chestEmoji.classList.add('animate-pulse');
-                        setTimeout(() => chestEmoji.classList.remove('animate-pulse'), 500);
-                        updateChestUI(currentChestStars, 'Upgrade Successful! ✨');
-                        
-                        // Save upgraded stars to chest object immediately
-                        if (chest) {
-                            chest.stars = currentChestStars;
-                            saveUserData(); // Save immediately after upgrade
-                        }
-                    } else {
-                        // Failed upgrade, but we keep going until 5th click
-                        updateChestUI(currentChestStars, 'No Upgrade...');
-                    }
-                } else {
-                    // 5th Click: Open
-                    document.getElementById('chestClickArea').style.pointerEvents = 'none';
-                    document.getElementById('chestClickCounter').textContent = '';
-                    finalizeChest(currentChestIndex, currentChestStars);
-                }
-            });
 
-            function finalizeChest(index, stars) {
-                // Remove chest immediately to prevent re-opening
-                trophyChests[index] = undefined;
-                saveUserData(); // Save chest removal immediately
-                
-                // Reset chest state to prevent leakage to new chests
-                currentChestIndex = -1;
-                chestClicks = 0;
-                currentChestStars = 1;
-                
-                if (isChristmasOpening) {
-                    lastClaimDate = new Date().toDateString();
-                }
-                document.getElementById('chestEmoji').style.display = 'none';
-                document.getElementById('chestStatusText').textContent = 'Rewards';
-                
-                const starMultipliers = {1: 1.0, 2: 1.5, 3: 2.5, 4: 4.0, 5: 10.0};
-                const starMult = starMultipliers[stars];
-                const arenaMult = getChestRewardMultiplier();
-                const totalMult = starMult * arenaMult;
-
-                const rewardGold = Math.floor((50 + Math.floor(Math.random() * 50)) * totalMult);
-                gold += rewardGold;
-                
-                const unlockedCards = getUnlockedCards(false);
-                const numCardStacks = Math.max(1, Math.floor((2 + Math.floor(Math.random() * 2))));
-                
-                const rewards = [];
-                rewards.push({ type: 'gold', count: rewardGold, name: 'Gold' });
-                
-                for(let i = 0; i < numCardStacks; i++) {
-                    const baseCount = 3 + Math.floor(Math.random() * 5);
-                    const cardCount = Math.floor(baseCount * totalMult);
-                    
-                    // Give tower cards from 3+ star chests with reduced chances
-                    const isTowerReward = stars >= 3 && Math.random() < (0.08 + (stars * 0.03)); // 11%, 14%, 17% chance (reduced from 20-40%)
-                    
-                    if (isTowerReward) {
-                        // Get available towers for chest rewards
-                        const availableTowers = [];
-                        
-                        // Add princess tower with lower priority
-                        if (Math.random() < 0.3) { // 30% chance for princess
-                            availableTowers.push('princess');
-                        }
-                        
-                        // Add special towers if arena 10+
-                        const arenaLevel = getAILevel();
-                        if (arenaLevel >= 10) {
-                            availableTowers.push('waffle', 'machineGun', 'rocketeer');
-                        }
-                        
-                        // Add other towers that are unlocked (can be obtained from chests once unlocked)
-                        Object.keys(towerCollection).forEach(towerId => {
-                            if (towerId !== 'princess' && towerCollection[towerId] && towerCollection[towerId].unlocked) {
-                                availableTowers.push(towerId);
-                            }
-                        });
-                        
-                        // If no towers available, fallback to princess
-                        if (availableTowers.length === 0) {
-                            availableTowers.push('princess');
-                        }
-                        
-                        const towerId = availableTowers[Math.floor(Math.random() * availableTowers.length)];
-                        rewards.push({ type: 'tower', id: towerId, count: cardCount, name: `${towerDefs[towerId].name} Cards` });
-                        
-                        // Initialize tower collection if needed
-                        if (!towerCollection[towerId]) {
-                            towerCollection[towerId] = { level: 1, count: 0, unlocked: false };
-                        }
-                        
-                        // Unlock and give cards for the tower
-                        towerCollection[towerId].unlocked = true;
-                        towerCollection[towerId].count += cardCount;
-                    } else {
-                        // Give regular unit/spell cards
-                        const cardId = unlockedCards[Math.floor(Math.random() * unlockedCards.length)];
-                        rewards.push({ type: 'card', id: cardId, count: cardCount });
-                        
-                        if (!cardCollection[cardId]) cardCollection[cardId] = { level: 1, count: 0, unlocked: false };
-                        cardCollection[cardId].unlocked = true;
-                        cardCollection[cardId].count += cardCount;
-                    }
-                }
-                
-                // Pop-up animation loop (Improved)
-                const list = document.getElementById('chestRewardList');
-                list.innerHTML = '';
-                let i = 0;
-                function showNextReward() {
-                    if (i >= rewards.length) {
-                        document.getElementById('chestCloseButton').style.display = 'block';
-                        document.getElementById('chestCloseButton').classList.add('animate-bounce');
-                        updateArena();
-                        if (isChristmasOpening) {
-                            updateChristmasUI();
-                            isChristmasOpening = false;
-                        }
-                        saveUserData();
-                        return;
-                    }
-                    const r = rewards[i];
-                    const div = document.createElement('div');
-                    // Use new animation class
-                    div.className = 'reward-item bg-gray-700 p-2 rounded flex items-center justify-center space-x-2';
-                    
-                    if (r.type === 'gold') {
-                        div.innerHTML = `<span class="text-3xl">💰</span> <div class="flex flex-col"><span class="text-yellow-400 font-bold text-xl">+${r.count}</span><span class="text-xs text-gray-400">Gold</span></div>`;
-                    } else if (r.type === 'tower') {
-                        const tower = towerDefs[r.id];
-                        div.innerHTML = `<span class="text-3xl">${tower.emoji}</span> <div class="flex flex-col"><span class="font-bold text-xl text-white">+${r.count}</span><span class="text-xs text-gray-400">${tower.name}</span></div>`;
-                    } else {
-                        const card = allCards[r.id];
-                        div.innerHTML = `<span class="text-3xl">${card.emoji}</span> <div class="flex flex-col"><span class="font-bold text-xl text-white">+${r.count}</span><span class="text-xs text-gray-400">${card.name}</span></div>`;
-                    }
-                    list.appendChild(div);
-                    i++;
-                    setTimeout(showNextReward, 300); // Faster cadence
-                }
-                showNextReward();
-            }
-            if (chestCloseButton) chestCloseButton.addEventListener('click', () => {
-                if (chestOpenOverlay) chestOpenOverlay.style.display = 'none';
-                renderChests(); // Update chest display after closing overlay
-            });
-
-            navButtons.forEach(btn => { 
-                btn.addEventListener('click', () => { 
+            // Assign nav button clicks via `.onclick` to avoid stacking handlers
+            navButtons.forEach(btn => {
+                // Remove any existing click handlers by assigning null first
+                btn.onclick = null;
+                btn.onclick = () => {
                     if (btn.dataset.screen === currentScreen) return;
                     if (btn.dataset.screen === 'debug') {
-                        showScreen('debug'); // Show debug screen directly
+                        // Show debug screen directly
+                        showScreen('debug');
                     } else {
-                        showScreen(btn.dataset.screen); 
+                        showScreen(btn.dataset.screen);
                     }
-                }); 
+                };
             });
             // NEW: Show update log function
             function showUpdateLog() {
@@ -3300,99 +3380,102 @@ const firebaseConfig = {
                 }
             });
             // NEW: Arena screen buttons
-            if (arenaButton) arenaButton.addEventListener('click', () => {
-                showScreen('arena');
-            });
-            if (arenaBackButton) arenaBackButton.addEventListener('click', () => {
-                showScreen('menu');
-            });
-            if (menuButton) menuButton.addEventListener('click', () => {
-                gameRunning = false;
-                cancelAnimationFrame(gameLoopId);
-                // Reset mode if leaving challenge to prevent theme leak
-                if (gameMode === 'snowman_challenge') {
-                    gameMode = 'trophy';
-                    updateModeUI();
-                }
-                showScreen('menu'); 
-            });
+            // Use `.onclick` for arenaButton to prevent multiple handlers
+            if (arenaButton) {
+                arenaButton.onclick = null;
+                arenaButton.onclick = () => {
+                    showScreen('menu');
+                    console.log('Account reset!');
+                };
+            }
 
             // ==============================================
-            
+
                 if (debugArena2) {
-                    debugArena2.addEventListener('click', () => {
+                    // Use `.onclick` to avoid stacking multiple handlers
+                    debugArena2.onclick = null;
+                    debugArena2.onclick = () => {
                         trophies = 250;
                         updateArena();
                         saveUserData();
                         showScreen('menu');
-                    });
+                    };
                 }
                 if (debugArena3) {
-                    debugArena3.addEventListener('click', () => {
+                    debugArena3.onclick = null;
+                    debugArena3.onclick = () => {
                         trophies = 500;
                         updateArena();
                         saveUserData();
                         showScreen('menu');
-                    });
+                    };
                 }
                 if (debugArena4) {
-                    debugArena4.addEventListener('click', () => {
+                    debugArena4.onclick = null;
+                    debugArena4.onclick = () => {
                         trophies = 750;
                         updateArena();
                         saveUserData();
                         showScreen('menu');
-                    });
+                    };
                 }
                 if (debugArena5) {
-                    debugArena5.addEventListener('click', () => {
+                    debugArena5.onclick = null;
+                    debugArena5.onclick = () => {
                         trophies = 1000;
                         updateArena();
                         saveUserData();
                         showScreen('menu');
-                    });
+                    };
                 }
                 if (debugArena6) {
-                    debugArena6.addEventListener('click', () => {
+                    debugArena6.onclick = null;
+                    debugArena6.onclick = () => {
                         trophies = 1250;
                         updateArena();
                         saveUserData();
                         showScreen('menu');
-                    });
+                    };
                 }
                 if (debugArena7) {
-                    debugArena7.addEventListener('click', () => {
+                    debugArena7.onclick = null;
+                    debugArena7.onclick = () => {
                         trophies = 1500;
                         updateArena();
                         saveUserData();
                         showScreen('menu');
-                    });
+                    };
                 }
                 if (debugArena8) {
-                    debugArena8.addEventListener('click', () => {
+                    debugArena8.onclick = null;
+                    debugArena8.onclick = () => {
                         trophies = 1750;
                         updateArena();
                         saveUserData();
                         showScreen('menu');
-                    });
+                    };
                 }
                 if (debugArena9) {
-                    debugArena9.addEventListener('click', () => {
+                    debugArena9.onclick = null;
+                    debugArena9.onclick = () => {
                         trophies = 2000;
                         updateArena();
                         saveUserData();
                         showScreen('menu');
-                    });
+                    };
                 }
                 if (debugArena10) {
-                    debugArena10.addEventListener('click', () => {
+                    debugArena10.onclick = null;
+                    debugArena10.onclick = () => {
                         trophies = 2250;
                         updateArena();
                         saveUserData();
                         showScreen('menu');
-                    });
+                    };
                 }
                 if (debugUnlockAll) {
-                    debugUnlockAll.addEventListener('click', () => {
+                    debugUnlockAll.onclick = null;
+                    debugUnlockAll.onclick = () => {
                         for (const cardId in allCards) {
                             if (cardId === 'tower' || cardId === 'miniStoneGiant') continue;
                             if (!cardCollection[cardId]) {
@@ -3406,7 +3489,7 @@ const firebaseConfig = {
                         }
                         saveUserData();
                         console.log('All cards unlocked!');
-                    });
+                    };
                 }
                 if (debugUpgradeAll) {
                     let isProcessingUpgrade = false;
@@ -3461,14 +3544,13 @@ const firebaseConfig = {
                     };
                 }
                 if (debugReset) {
-                    debugReset.addEventListener('click', () => {
-                        if (true) {
-                            initNewUser();
-                            saveUserData();
-                            showScreen('menu');
-                            console.log('Account reset!');
-                        }
-                    });
+                    debugReset.onclick = null;
+                    debugReset.onclick = () => {
+                        initNewUser();
+                        saveUserData();
+                        showScreen('menu');
+                        console.log('Account reset!');
+                    };
                 }
             }
 
@@ -3482,13 +3564,15 @@ const firebaseConfig = {
 
             const btnSnowmanChallenge = document.getElementById('btnSnowmanChallenge');
             if (btnSnowmanChallenge) {
-                btnSnowmanChallenge.addEventListener('click', () => {
-                     gameMode = 'snowman_challenge';
-                     updateArena(); // Force theme update
-                     // Start Game directly
-                     showScreen('loading');
-                     loadingScreen.querySelector('p').textContent = 'Entering the Frozen Arena...';
-                     setTimeout(() => {
+                // Prevent multiple handlers by assigning via `.onclick`
+                btnSnowmanChallenge.onclick = null;
+                btnSnowmanChallenge.onclick = () => {
+                    gameMode = 'snowman_challenge';
+                    updateArena(); // Force theme update
+                    // Start Game directly
+                    showScreen('loading');
+                    loadingScreen.querySelector('p').textContent = 'Entering the Frozen Arena...';
+                    setTimeout(() => {
                         showScreen('game');
                         messageText.textContent = 'Snowman Challenge!';
                         startButton.style.display = 'none';
@@ -3499,8 +3583,8 @@ const firebaseConfig = {
                             lastTime = performance.now();
                             gameLoopId = requestAnimationFrame(gameLoop);
                         }, 1500);
-                     }, 1000);
-                });
+                    }, 1000);
+                };
             }
 
             if (claimChristmasBtn) {
@@ -4337,22 +4421,6 @@ const firebaseConfig = {
                 }
 
                 function loop(timestamp) {
-                    if (!timestamp) timestamp = performance.now();
-                    deltaTime = (timestamp - lastPreviewTime) / 1000;
-                    lastPreviewTime = timestamp;
-                    if (deltaTime > 0.1) deltaTime = 0.016;
-
-                    // --- Auto-Restart Logic ---
-                    previewFrame++;
-                    const towerDied = previewSimulationObjects.some(o => o instanceof Tower && o.health <= 0);
-                    if (previewFrame > 600 || towerDied) { // Restart after 10s or if a tower dies
-                         startPreviewLoop();
-                         return;
-                    }
-                    // --- TEMPORARY CONTEXT SWAP ---
-                    const mainCtx = ctx;
-                    ctx = previewCtx;
-
                     ctx.clearRect(0, 0, 300, 200);
                     ctx.save();
                     ctx.translate(0, -previewCameraY);
@@ -8152,6 +8220,9 @@ class StoneGiant extends Unit {
 
             function initGame() {
                 if (gameLoopId) cancelAnimationFrame(gameLoopId); // Prevent multiple loops
+                stopBgAnimation(); // Stop background animation during gameplay
+                stopPreviewLoop(); // Stop preview loop during gameplay
+                isDemoMode = false; // Disable demo mode during real games
                 gameObjects = [];
                 playerElixir = 3;
                 aiElixir = 3;
@@ -8934,6 +9005,7 @@ class StoneGiant extends Unit {
                 isOvertime = false;
                 isTieBreaker = false;
                 cancelAnimationFrame(gameLoopId);
+                startBgAnimation(); // Restart background animation when game ends
                 
                 // Trophies only for Trophy Road
                 if (gameMode === 'trophy') {
@@ -8999,6 +9071,7 @@ class StoneGiant extends Unit {
                 isOvertime = false; // NEW: Stop overtime check
                 isTieBreaker = false;
                 cancelAnimationFrame(gameLoopId);
+                startBgAnimation(); // Restart background animation when game ends
                 
                 // Show Play Again button for multiplayer
                 if (is2v2Friend && !is2v2AITeammate) {
