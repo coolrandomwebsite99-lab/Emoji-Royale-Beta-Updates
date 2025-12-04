@@ -9,6 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script>
         window.isLocalFile = window.location.protocol === 'file:';
+        // Set data attribute for CSS targeting
+        if (window.isLocalFile) {
+            document.documentElement.setAttribute('data-local-file', 'true');
+        }
         // Debug menu enabled for this session as requested
     </script>
     <style>
@@ -468,6 +472,15 @@
             background-color: #4b5563;
             cursor: not-allowed;
             opacity: 0.7;
+        }
+
+        /* Hide debug elements when not on local file */
+        html:not([data-local-file="true"]) #navBtnDebug,
+        html:not([data-local-file="true"]) [data-screen="debug"],
+        html:not([data-local-file="true"]) #debugScreen {
+            display: none !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
         }
 
         html[data-no-debug] [data-screen="debug"],
@@ -2751,13 +2764,19 @@ const firebaseConfig = {
             }
 
             function showDebugPassword() {
-                // isLocalFile check removed to enable debug for all environments
+                // Only allow debug on local files
+                if (!window.isLocalFile) {
+                    return;
+                }
                 debugPasswordInput.value = '';
                 debugPasswordOverlay.style.display = 'flex';
                 debugPasswordInput.focus();
             }
                         if (debugPasswordSubmit) debugPasswordSubmit.addEventListener('click', () => {
-                // isLocalFile check removed to enable debug for all environments
+                // Only allow debug on local files
+                if (!window.isLocalFile) {
+                    return;
+                }
                 if (debugPasswordInput && debugPasswordInput.value.toUpperCase() === 'GEOMETRIC') {
                     // Correct password entered: hide overlay, enable debug, show debug screen
                     if (debugPasswordOverlay) debugPasswordOverlay.style.display = 'none';
@@ -3240,6 +3259,10 @@ if (chestCloseButton) {
                 btn.onclick = () => {
                     if (btn.dataset.screen === currentScreen) return;
                     if (btn.dataset.screen === 'debug') {
+                        // Only allow debug on local files
+                        if (!window.isLocalFile) {
+                            return;
+                        }
                         // Show debug screen directly
                         showScreen('debug');
                     } else {
