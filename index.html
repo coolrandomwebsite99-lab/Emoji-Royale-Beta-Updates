@@ -9,10 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script>
         window.isLocalFile = window.location.protocol === 'file:';
-        // Set data attribute for CSS targeting
-        if (window.isLocalFile) {
-            document.documentElement.setAttribute('data-local-file', 'true');
-        }
         // Debug menu enabled for this session as requested
     </script>
     <style>
@@ -474,10 +470,10 @@
             opacity: 0.7;
         }
 
-        /* Hide debug elements when not on local file */
-        html:not([data-local-file="true"]) #navBtnDebug,
-        html:not([data-local-file="true"]) [data-screen="debug"],
-        html:not([data-local-file="true"]) #debugScreen {
+        /* Hide debug elements when not on local file - handled by JavaScript */
+        #navBtnDebug.hidden-by-protocol,
+        [data-screen="debug"].hidden-by-protocol,
+        #debugScreen.hidden-by-protocol {
             display: none !important;
             visibility: hidden !important;
             pointer-events: none !important;
@@ -1970,6 +1966,17 @@ const firebaseConfig = {
 
         // --- Start Game ---
         window.onload = () => {
+
+            // --- Hide debug elements when not on local file ---
+            if (!window.isLocalFile) {
+                const debugBtn = document.getElementById('navBtnDebug');
+                const debugScreen = document.getElementById('debugScreen');
+                const debugScreenElements = document.querySelectorAll('[data-screen="debug"]');
+                
+                if (debugBtn) debugBtn.classList.add('hidden-by-protocol');
+                if (debugScreen) debugScreen.classList.add('hidden-by-protocol');
+                debugScreenElements.forEach(el => el.classList.add('hidden-by-protocol'));
+            }
 
             // --- Domain Lock Security ---
             const isLocalFile = window.location.protocol === 'file:';
