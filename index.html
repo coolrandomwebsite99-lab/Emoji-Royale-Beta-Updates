@@ -470,15 +470,6 @@
             opacity: 0.7;
         }
 
-        /* Hide debug elements when not on local file - handled by JavaScript */
-        #navBtnDebug.hidden-by-protocol,
-        [data-screen="debug"].hidden-by-protocol,
-        #debugScreen.hidden-by-protocol {
-            display: none !important;
-            visibility: hidden !important;
-            pointer-events: none !important;
-        }
-
         html[data-no-debug] [data-screen="debug"],
         html[data-no-debug] #debugScreen {
             display: none !important;
@@ -1967,17 +1958,6 @@ const firebaseConfig = {
         // --- Start Game ---
         window.onload = () => {
 
-            // --- Hide debug elements when not on local file ---
-            if (!window.isLocalFile) {
-                const debugBtn = document.getElementById('navBtnDebug');
-                const debugScreen = document.getElementById('debugScreen');
-                const debugScreenElements = document.querySelectorAll('[data-screen="debug"]');
-                
-                if (debugBtn) debugBtn.classList.add('hidden-by-protocol');
-                if (debugScreen) debugScreen.classList.add('hidden-by-protocol');
-                debugScreenElements.forEach(el => el.classList.add('hidden-by-protocol'));
-            }
-
             // --- Domain Lock Security ---
             const isLocalFile = window.location.protocol === 'file:';
             const allowedHosts = [
@@ -2165,6 +2145,40 @@ const firebaseConfig = {
             const placementIndicator = document.getElementById('placementIndicator');
             const placementOverlay = document.getElementById('placementOverlay'); // NEW
             const menuButton = document.getElementById('menuButton');
+            // Attach a click handler to the in‑game "Back to Menu" button once. When a match
+            // concludes (victory or defeat) the menu button is shown inside the messageOverlay.
+            // Without a handler, clicking "Back to Menu" would do nothing. Assigning it via
+            // `.onclick` ensures we never accumulate duplicate listeners across games. When
+            // clicked, hide the overlay, hide the menu/start buttons, restart the background
+            // animation (if it isn’t already running) and navigate back to the main menu.
+            if (menuButton) {
+                menuButton.onclick = null;
+                menuButton.onclick = () => {
+                    // Hide the message overlay and buttons if they exist
+                    if (typeof messageOverlay !== 'undefined') {
+                        messageOverlay.style.display = 'none';
+                    }
+                    if (typeof startButton !== 'undefined') {
+                        startButton.style.display = 'none';
+                    }
+                    menuButton.style.display = 'none';
+                    // Stop any running game loop
+                    if (typeof gameLoopId !== 'undefined') {
+                        cancelAnimationFrame(gameLoopId);
+                    }
+                    gameRunning = false;
+                    // Restart background animation when leaving gameplay
+                    if (typeof startBgAnimation === 'function') {
+                        startBgAnimation();
+                    }
+                    // Reset all screens' scroll positions
+                    document.querySelectorAll('.screen').forEach(s => s.scrollTop = 0);
+                    // Navigate back to the menu screen
+                    if (typeof showScreen === 'function') {
+                        showScreen('menu');
+                    }
+                };
+            }
             const towerLevelDisplay = document.getElementById('towerLevelDisplay');
             const towerInfoStats = document.getElementById('towerInfoStats');
             const towerInfoProgressContainer = document.getElementById('towerInfoProgressContainer');
@@ -2771,19 +2785,13 @@ const firebaseConfig = {
             }
 
             function showDebugPassword() {
-                // Only allow debug on local files
-                if (!window.isLocalFile) {
-                    return;
-                }
+                // isLocalFile check removed to enable debug for all environments
                 debugPasswordInput.value = '';
                 debugPasswordOverlay.style.display = 'flex';
                 debugPasswordInput.focus();
             }
                         if (debugPasswordSubmit) debugPasswordSubmit.addEventListener('click', () => {
-                // Only allow debug on local files
-                if (!window.isLocalFile) {
-                    return;
-                }
+                // isLocalFile check removed to enable debug for all environments
                 if (debugPasswordInput && debugPasswordInput.value.toUpperCase() === 'GEOMETRIC') {
                     // Correct password entered: hide overlay, enable debug, show debug screen
                     if (debugPasswordOverlay) debugPasswordOverlay.style.display = 'none';
@@ -3266,10 +3274,6 @@ if (chestCloseButton) {
                 btn.onclick = () => {
                     if (btn.dataset.screen === currentScreen) return;
                     if (btn.dataset.screen === 'debug') {
-                        // Only allow debug on local files
-                        if (!window.isLocalFile) {
-                            return;
-                        }
                         // Show debug screen directly
                         showScreen('debug');
                     } else {
