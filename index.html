@@ -2609,6 +2609,8 @@ const firebaseConfig = {
                 }
             }
 
+        const SAVE_KEY_VERSION = 'v2';
+
         function normalizeChestSlots() {
                 if (!Array.isArray(trophyChests)) trophyChests = [];
                 while (trophyChests.length < 4) trophyChests.push(undefined);
@@ -2645,6 +2647,10 @@ const firebaseConfig = {
             async function loadUserData(dataToLoad = null) {
                 // Load from a manual save key (guest-style)
                 if (dataToLoad) {
+                    if (!dataToLoad.saveKeyVersion || dataToLoad.saveKeyVersion !== SAVE_KEY_VERSION) {
+                        alert('This save key is outdated. Generate a new one from the menu.');
+                        return;
+                    }
                     trophies = dataToLoad.trophies || 0;
                     gold = dataToLoad.gold || 500;
                     towerLevel = dataToLoad.towerLevel || 1;
@@ -2789,27 +2795,28 @@ const firebaseConfig = {
                 if (userDocRef) {
                     isDataSaved = false; // Prevent multiple saves
                     try {
-                        const dataToSave = {
-                            trophies,
-                            gold,
-                            towerLevel,
-                            towerCardCount,
-                            selectedTower,
-                            towerCollection,
-                            trophyChests,
-                            cardCollection,
-                            playerDeck,
-                            playerDeck2v2,
-                            playerDeckParty,
-                            lastClaimDate,
-                            // Persist quarter star and evolution data so progress is saved
-                            quarterStars,
-                            lastQuarterMilestone,
-                            evolutionsUnlocked,
-                            evolutionShards,
-                            evoUnlockedCards,
-                            lastSaved: new Date().toISOString()
-                        };
+                    const dataToSave = {
+                        trophies,
+                        gold,
+                        towerLevel,
+                        towerCardCount,
+                        selectedTower,
+                        towerCollection,
+                        trophyChests,
+                        cardCollection,
+                        playerDeck,
+                        playerDeck2v2,
+                        playerDeckParty,
+                        lastClaimDate,
+                        // Persist quarter star and evolution data so progress is saved
+                        quarterStars,
+                        lastQuarterMilestone,
+                        evolutionsUnlocked,
+                        evolutionShards,
+                        evoUnlockedCards,
+                        saveKeyVersion: SAVE_KEY_VERSION,
+                        lastSaved: new Date().toISOString()
+                    };
                         await setDoc(userDocRef, dataToSave, { merge: true });
                     } catch (error) {
                         console.error("Error saving user data:", error);
@@ -2871,7 +2878,8 @@ const firebaseConfig = {
                     lastQuarterMilestone,
                     evolutionsUnlocked,
                         evolutionShards,
-                        evoUnlockedCards
+                        evoUnlockedCards,
+                        saveKeyVersion: SAVE_KEY_VERSION
                 };
                 const jsonString = JSON.stringify(dataToSave);
                 const saveKey = btoa(jsonString); // Base64 encode
@@ -3042,7 +3050,7 @@ const firebaseConfig = {
                 } catch (error) {
                     console.error("Failed to load save key:", error);
                     loadKeyInput.value = '';
-                    loadKeyInput.placeholder = 'Invalid key! Please try again.';
+                    loadKeyInput.placeholder = 'Key expired. Generate a new save key.';
                 }
             });
 
