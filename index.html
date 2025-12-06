@@ -9,7 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script>
         window.isLocalFile = window.location.protocol === 'file:';
-        // Debug menu enabled for this session as requested
+        if (!window.isLocalFile) {
+            document.documentElement.setAttribute('data-no-debug', '');
+        }
     </script>
     <style>
         body {
@@ -18,7 +20,8 @@
             touch-action: none;
             background: linear-gradient(135deg, #1e1b2e 0%, #151932 50%, #0f172a 100%);
             color: white;
-            perspective: 1000px;
+            /* Remove 3D perspective to keep the game board flat */
+            perspective: none;
             transform-style: preserve-3d;
         }
         #bgCanvas {
@@ -317,6 +320,27 @@
                 linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
         }
+        /* NEW ARENA 11 STYLE */
+        canvas.arena-11 {
+            /* Diddy's Prison: warm canyon tones */
+            background-color: #b45309; /* canyon orange */
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+        }
+
+        /*
+         * Slight 3D effect for the battlefield. Tilting the canvas and adding a box shadow
+         * gives the impression of depth without altering game logic. The transform is
+         * applied on the game container’s canvas element so that all drawings retain
+         * their relative positions while appearing in perspective.
+         */
+        #gameContainer canvas {
+            /* Flatten the battle board by removing the 3D perspective and tilt. */
+            transform: none !important;
+            transform-origin: center bottom;
+            box-shadow: none !important;
+        }
         /* CHRISTMAS THEME */
         canvas.christmas {
             background-color: #ffffff; /* Pure White Snow */
@@ -496,6 +520,63 @@
         .animate-pulse-king {
             animation: pulse-king 2s infinite;
         }
+
+        /* Battle animations for the intro and loading screens */
+        .loading-battle-container {
+            position: relative;
+            width: 100%;
+            height: min(85vh, 680px);
+            min-height: 420px;
+            margin: 0 auto 1rem;
+            overflow: hidden;
+            border-radius: 1rem;
+            background: transparent;
+        }
+        .loading-battle-unit {
+            position: absolute;
+            font-size: 3.2rem;
+            line-height: 1;
+            pointer-events: none;
+        }
+        .loading-battle-center {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4.2rem;
+            z-index: 3;
+            text-shadow: 0 0 25px rgba(255, 255, 255, 0.8);
+        }
+        .loading-battle-charger {
+            animation-name: charge-in;
+            animation-timing-function: cubic-bezier(0.05, 0.7, 0.2, 1);
+            animation-fill-mode: forwards;
+            left: 50%;
+            top: 50%;
+        }
+        @keyframes charge-in {
+            0% {
+                transform: translate(var(--enter-x, -240px), var(--enter-y, 0)) scale(1.35);
+                opacity: 0;
+            }
+            25% {
+                transform: translate(calc(var(--enter-x, -240px) * 0.5), calc(var(--enter-y, 0) * 0.5)) scale(1.18);
+                opacity: 1;
+            }
+            45% {
+                transform: translate(calc(var(--enter-x, -240px) * 0.25), calc(var(--enter-y, 0) * 0.25)) scale(1.12);
+            }
+            70% {
+                transform: translate(calc(var(--exit-x, -60px) * 0.7), calc(var(--exit-y, 0) * 0.7)) scale(1.05);
+            }
+            90% {
+                transform: translate(calc(var(--exit-x, -60px) * 0.9), calc(var(--exit-y, 0) * 0.9)) scale(1.02);
+            }
+            100% {
+                transform: translate(var(--exit-x, -60px), var(--exit-y, 0)) scale(1);
+                opacity: 0.92;
+            }
+        }
         /* Bottom Nav */
         #bottomNav {
             position: fixed;
@@ -633,6 +714,33 @@
             padding: 1px 4px;
             border-radius: 3px;
             z-index: 3;
+        }
+        .card-ui-evo-dots {
+            position: absolute;
+            top: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 3px;
+            pointer-events: none;
+            z-index: 4;
+        }
+        .card-ui-evo-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background-color: rgba(79, 70, 229, 0.25);
+            border: 1px solid rgba(255,255,255,0.7);
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .card-ui-evo-dot.filled {
+            background-color: #a855f7;
+            box-shadow: 0 0 6px rgba(168,85,247,0.75);
+            transform: scale(1.1);
+        }
+        .card-ui-evo-ready {
+            border-image: linear-gradient(135deg, #a855f7, #f472b6, #22d3ee) 1;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.8), inset 0 0 12px rgba(34, 211, 238, 0.45);
         }
         .card-ui-progress-bar {
             position: absolute;
@@ -872,7 +980,10 @@
     ========================================================
     -->
     <div id="introScreen" class="screen active flex-col justify-center items-center">
-        <div class="text-8xl animate-pulse-king">👑</div>
+        <!-- Animated battlefield: emojis charge toward the central knight -->
+        <div class="loading-battle-container mb-2" data-loading-battle>
+            <span class="loading-battle-center" aria-hidden="true">🛡️</span>
+        </div>
     </div>
 
     <!-- 
@@ -882,7 +993,8 @@
     -->
     <div id="loginScreen" class="screen flex-col justify-center items-center">
         <div class="text-6xl">👑</div>
-        <h1 class="text-4xl font-bold mt-4">Emoji Royale</h1>
+    <!-- Add ui-text-effect to make the title pop more prominently -->
+    <h1 class="text-4xl font-bold mt-4 ui-text-effect">Emoji Royale</h1>
         <p class="text-lg mt-2 text-gray-500">Choose your way to play!</p>
         <p id="loginError" class="text-lg mt-2 text-red-400 font-bold h-6"></p> 
         
@@ -909,8 +1021,12 @@
     ========================================================
     -->
     <div id="loadingScreen" class="screen flex-col justify-center items-center">
-        <div class="text-8xl animate-pulse-king">👑</div>
-        <h1 class="text-3xl font-bold mt-4">Emoji Royale</h1>
+        <!-- Animated battlefield for loading screen. Units charge toward the central knight, then freeze while loading completes. -->
+        <div class="loading-battle-container mb-2" data-loading-battle>
+            <span class="loading-battle-center" aria-hidden="true">🛡️</span>
+        </div>
+        <!-- Highlight the game title on loading screen -->
+        <h1 class="text-3xl font-bold mt-4 ui-text-effect">Emoji Royale</h1>
         <p class="text-lg mt-2 text-gray-500">Loading...</p>
     </div>
     
@@ -954,6 +1070,23 @@
             <button id="arenaButton" class="arena-btn bg-blue-600 hover:bg-blue-700 mt-4 w-3/4 py-3 text-xl font-bold btn-shine ui-text-effect">
                 Arenas
             </button>
+
+            <!-- NEW: Star Boxes Button -->
+            <!-- Star Boxes Button: now a square 3D-style button with a box icon -->
+            <button id="starBoxesButton" class="mt-4 rounded-xl transition transform hover:-translate-y-1 active:translate-y-0 ui-text-effect flex items-center justify-center" 
+                style="width: 90px; height: 90px; font-size: 2.5rem; background: #f59e0b; border: 4px solid #d97706; box-shadow: 0 8px 0 #b45309;">
+                📦
+            </button>
+
+            <!-- Quarter Star Status: shows how many quarter stars the player currently has. Updated dynamically -->
+            <div id="quarterStarStatus" class="mt-3 text-yellow-300 text-lg font-bold hidden">
+                ⭐ Quarter Stars: <span id="quarterStarCountMenu">0</span>
+            </div>
+
+            <!-- Evolution Shard Status: shows how many evolution shards the player has collected. Visible once evolutions are unlocked -->
+            <div id="evoShardStatus" class="mt-1 text-green-300 text-sm font-bold hidden">
+                Evolution Shards 🧬: <span id="evoShardCountMenu">0</span>
+            </div>
             
             <!-- Chest Slots -->
             <div class="mt-8 w-full">
@@ -1067,7 +1200,7 @@
     -->
     <div id="arenaScreen" class="screen flex-col items-center p-4">
         <div class="flex-grow flex flex-col items-center w-full max-w-md pt-8 pb-24">
-            <h1 class="text-3xl font-bold mb-8 ui-text-effect">Arenas</h1>
+            <h1 class="text-3xl font-bold mb-8 ui-text-effect battle-arena-name">Arenas</h1>
             
             <div class="space-y-4 w-full">
                 <!-- Arena 1 -->
@@ -1207,10 +1340,13 @@
                     <button id="debugArena8" class="debug-btn bg-purple-900 hover:bg-purple-800">Jump to Arena 8 (1750 🏆)</button>
                     <button id="debugArena9" class="debug-btn bg-slate-900 hover:bg-slate-800">Jump to Arena 9 (2000 🏆)</button>
                     <button id="debugArena10" class="debug-btn bg-red-900 hover:bg-red-800">Jump to Arena 10 (2250 🏆)</button>
+            <button id="debugArena11" class="debug-btn bg-orange-700 hover:bg-orange-800">Jump to Arena 11 (2500 🏆)</button>
             <button id="debugUnlockAll" class="debug-btn bg-blue-600 hover:bg-blue-700">Unlock All Cards</button>
             <button id="debugUpgradeAll" class="debug-btn bg-purple-600 hover:bg-purple-700">Upgrade All Cards +1 Lvl</button>
             <button id="debugGetChest" class="debug-btn bg-yellow-600 hover:bg-yellow-700">Get a Free Chest 📦</button>
             <button id="debugAddGold" class="debug-btn bg-yellow-400 text-gray-900 hover:bg-yellow-300">Get 1000 Gold 💰</button>
+            <!-- NEW: Add evolution shards via debug -->
+            <button id="debugAddShards" class="debug-btn bg-purple-500 hover:bg-purple-600">Get 6 Evo Shards 🧬</button>
             <button id="debugReset" class="debug-btn bg-gray-600 hover:bg-gray-700">Reset Account (New User)</button>
 
         </div>
@@ -1314,8 +1450,9 @@
             
             <!-- Tabs -->
             <div class="flex w-full bg-gray-700 rounded-lg p-1 mb-4">
-                <button id="cardTabStats" class="flex-1 py-2 rounded text-sm font-bold transition bg-gray-600 text-white shadow-md flex justify-center items-center">Stats</button>
-                <button id="cardTabPreview" class="flex-1 py-2 rounded text-sm font-bold transition text-gray-400 hover:bg-gray-600 hover:text-white flex justify-center items-center">Preview</button>
+                <!-- Add explicit onclick handlers to ensure tab switching works even if the JS event listener fails -->
+                <button id="cardTabStats" class="flex-1 py-2 rounded text-sm font-bold transition bg-gray-600 text-white shadow-md flex justify-center items-center" onclick="switchTab('stats')">Stats</button>
+                <button id="cardTabPreview" class="flex-1 py-2 rounded text-sm font-bold transition text-gray-400 hover:bg-gray-600 hover:text-white flex justify-center items-center" onclick="switchTab('preview')">Preview</button>
             </div>
 
             <!-- Stats Panel -->
@@ -1333,6 +1470,9 @@
             <!-- Preview Panel -->
             <div id="cardInfoPreviewPanel" class="hidden flex-col items-center w-full">
                 <canvas id="cardPreviewCanvas" width="300" height="200" class="bg-gray-800 rounded-lg mb-4 border-2 border-gray-600 shadow-inner"></canvas>
+                <button id="previewRefreshButton" class="w-full mb-3 px-3 py-2 text-xs uppercase tracking-wider font-bold text-blue-200 bg-blue-900 bg-opacity-50 border border-blue-400 rounded-lg hover:bg-blue-800 transition" type="button">
+                    Refresh Animation
+                </button>
                 <div class="w-full text-center space-y-3">
                     <div>
                         <h4 id="previewStrongHeader" class="text-green-300 font-bold text-sm uppercase tracking-wider mb-2 border-b border-gray-700 pb-1">Good Against</h4>
@@ -1423,6 +1563,12 @@
     ========================================================
     -->
     <div id="updateLogOverlay">
+        <!-- Animated header with battle scene and update icons -->
+        <div class="flex justify-center items-center space-x-2 text-3xl mb-2">
+            <span class="animate-spin">⭐</span>
+            <span class="animate-pulse">🧬</span>
+            <span class="animate-bounce">🎁</span>
+        </div>
         <h2 class="text-3xl font-bold mb-4">📋 Update Log</h2>
         <div id="updateLogContent" class="text-left text-sm max-h-96 overflow-y-auto w-full max-w-md px-4 space-y-3">
             <!-- Update log content will be injected by JS -->
@@ -1772,9 +1918,54 @@ const firebaseConfig = {
         let currentScreen = 'intro'; // Start on intro screen
         let trophies = 0;
         let gold = 500;
-        let trophyChests = [];
+        let trophyChests = Array(4).fill(undefined);
         let allCards = {};
         let cardCollection = {};
+
+        // --- Star and Evolution System ---
+        // Number of quarter stars the player has earned (awarded at trophy milestones)
+        let quarterStars = 0;
+        // Track the highest trophy milestone reached for quarter stars. Prevents awarding stars repeatedly
+        // when returning to the menu or reloading. A new star is awarded each time trophies cross
+        // (lastQuarterMilestone + 2500). This value is saved with user data.
+        let lastQuarterMilestone = 0;
+        // (Deprecated) Progress towards opening the first star box. This used to require multiple upgrades
+        // but the new design only requires a single quarter star to open the box. The variable remains
+        // for backward compatibility but is no longer used.
+        let box1StarProgress = 0;
+        // Whether the player has unlocked the Evolution feature via the first star box
+        let evolutionsUnlocked = false;
+        // Count of evolution shards collected from star boxes
+        let evolutionShards = 0;
+
+        // -------------------------------------------------------------------------
+        // Global flags for evolution propagation
+        // When a card with an evolution is spawned while these flags are true,
+        // all units spawned during that call (including those from group classes)
+        // will automatically have their `isEvolved` property set.  The
+        // `currentSpawnCardHasEvo` flag ensures we only mark units as evolved
+        // when the originating card actually has an evolution defined.  These
+        // values are toggled in the preview system and when playing evolved
+        // cards in game.  They reset immediately after spawning.
+        window.pendingEvoSpawn = false;
+        window.currentSpawnCardHasEvo = false;
+
+        // Track evolution cycle counts for each card for the player and AI.  
+        // When a card with an evolution is played from an evolution slot, the count increments.  
+        // Once the count reaches the required cycle for that card (e.g. 2 for Knight), the next placement of that card
+        // will spawn the evolved version and reset the counter.  These counters reset at the start of each match.
+        let playerEvoCycleCounts = {};
+        let aiEvoCycleCounts = {};
+
+        // --- Evolution Preview & Deck Control ---
+        // When viewing a card in the modal, the player can toggle to see the evolved version
+        // in the preview. This flag is reset whenever a new card modal is opened.
+        let previewUseEvo = false;
+
+        // Track which cards have their evolution unlocked. Keys are card IDs; values are true
+        // when the card's evolution has been unlocked. This is saved with the user's data.
+        let evoUnlockedCards = {};
+        let matchEvoSlots = { single: [], '2v2': [], party1v1: [] };
         let playerDeck = [];
         let playerDeck2v2 = [];
         let playerDeckParty = [];
@@ -1828,7 +2019,12 @@ const firebaseConfig = {
         let spellRadius = 0;
         let placementRadius = 0;
         let canPlace = false;
-        const arenaFloors = { 0: "Arena 1: Emoji Valley", 250: "Arena 2: Laughing Village", 500: "Arena 3: Lava Town", 750: "Arena 4: The Farm", 1000: "Arena 5: Skull Kingdom", 1250: "Arena 6: Warlock's Workshop", 1500: "Arena 7: Mages Graveyard", 1750: "Arena 8: Chaos Canyon", 2000: "Arena 9: Titan's Peak", 2250: "Arena 10: Chaos Realm" };
+        /*
+         * Arena floors define the trophy milestones at which new arenas are unlocked.
+         * Add Diddy's Prison as Arena 11 at 2500 trophies. New cards such as the
+         * Diddy Cage, Diddy Miner and Diddy Giant become available in this arena.
+         */
+        const arenaFloors = { 0: "Arena 1: Emoji Valley", 250: "Arena 2: Laughing Village", 500: "Arena 3: Lava Town", 750: "Arena 4: The Farm", 1000: "Arena 5: Skull Kingdom", 1250: "Arena 6: Warlock's Workshop", 1500: "Arena 7: Mages Graveyard", 1750: "Arena 8: Chaos Canyon", 2000: "Arena 9: Titan's Peak", 2250: "Arena 10: Chaos Realm", 2500: "Arena 11: Diddy's Prison" };
         let currentArenaFloor = 0;
         let currentArenaTheme = 'arena-1'; // For canvas styling
 
@@ -1994,12 +2190,8 @@ const firebaseConfig = {
                 lastTime = performance.now();
             }
 
-            // Debug menu enabled for all environments
-            if (false) {
-                const debugButtons = document.querySelectorAll('[data-screen="debug"]');
-                debugButtons.forEach(btn => btn.style.display = 'none');
-                const debugScreen = document.getElementById('debugScreen');
-                if (debugScreen) debugScreen.style.display = 'none';
+            if (!window.isLocalFile) {
+                document.documentElement.setAttribute('data-no-debug', '');
             }
             // --- END: Domain Lock Security ---
 
@@ -2057,7 +2249,7 @@ const firebaseConfig = {
 
             // --- Game State ---
             let gameObjects = [];
-            let playerElixir = 3;
+            let playerElixir = 7; // Start with 7 elixir instead of 3
             let gameRunning = false;
 
             // --- DOM Elements ---
@@ -2179,6 +2371,97 @@ const firebaseConfig = {
                     }
                 };
             }
+            const loadingBattleContainers = Array.from(document.querySelectorAll('[data-loading-battle]'));
+            const LOADING_CHARGERS_PER_WAVE = 5;
+            const LOADING_WAVE_INTERVAL = 620;
+            let loadingBattleInterval = null;
+
+            function getLoadingTroopEmojiPool() {
+                const pool = new Set();
+                Object.values(allCards).forEach(card => {
+                    if (!card || typeof card.emoji !== 'string') return;
+                    if (!card.emoji.trim()) return;
+                    if (card.type === 'Building' || card.type === 'Tower') return;
+                    pool.add(card.emoji);
+                });
+                if (!pool.size) return ['🤺','🏹','🧙‍♂️','🐉','⚔️','🛡️'];
+                return [...pool];
+            }
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            function spawnLoadingCharger(container) {
+                if (!container) return;
+                const rect = container.getBoundingClientRect();
+                if (!rect.width || !rect.height) return;
+                const angle = Math.random() * Math.PI * 2;
+            const outerRadius = Math.max(rect.width, rect.height) * 0.85 + 90 + Math.random() * 60;
+            const minDimension = Math.min(rect.width, rect.height);
+            const maxStopRadius = Math.max(60, minDimension / 2 - 35);
+            const safeRadius = Math.min(maxStopRadius - 15, Math.max(90, minDimension * 0.18));
+            const stopRange = Math.max(25, maxStopRadius - safeRadius);
+            let stopRadius = safeRadius + Math.random() * stopRange;
+            let exitX = Math.cos(angle) * stopRadius;
+            let exitY = Math.sin(angle) * stopRadius;
+            const existing = container.__loadingExitPoints || [];
+            let tries = 0;
+            while (tries < 10 && existing.some(p => Math.hypot(p.x - exitX, p.y - exitY) < 50)) {
+                stopRadius = safeRadius + Math.random() * stopRange;
+                exitX = Math.cos(angle) * stopRadius;
+                exitY = Math.sin(angle) * stopRadius;
+                tries++;
+            }
+            const startX = Math.cos(angle) * outerRadius;
+            const startY = Math.sin(angle) * outerRadius;
+
+                const charger = document.createElement('span');
+                charger.className = 'loading-battle-unit loading-battle-charger';
+                const emojiPool = getLoadingTroopEmojiPool();
+                charger.textContent = emojiPool[Math.floor(Math.random() * emojiPool.length)];
+                charger.style.setProperty('--enter-x', `${startX}px`);
+                charger.style.setProperty('--enter-y', `${startY}px`);
+                charger.style.setProperty('--exit-x', `${exitX}px`);
+                charger.style.setProperty('--exit-y', `${exitY}px`);
+                charger.style.animationDuration = `${randomInRange(2.4, 3.5)}s`;
+                charger.style.animationDelay = `${Math.random() * 0.45}s`;
+                charger.style.transform = `translate(${startX}px, ${startY}px)`;
+                charger.style.opacity = '0';
+                const exitId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+                existing.push({ id: exitId, x: exitX, y: exitY });
+                container.__loadingExitPoints = existing;
+                container.appendChild(charger);
+                charger.addEventListener('animationend', () => {
+                    container.__loadingExitPoints = (container.__loadingExitPoints || []).filter(p => p.id !== exitId);
+                    charger.remove();
+                });
+            }
+
+            function spawnLoadingWave() {
+                loadingBattleContainers.forEach(container => {
+                    for (let i = 0; i < LOADING_CHARGERS_PER_WAVE; i++) {
+                        spawnLoadingCharger(container);
+                    }
+                });
+            }
+
+            function startLoadingBattleAnimation() {
+                if (loadingBattleInterval) return;
+                spawnLoadingWave();
+                loadingBattleInterval = setInterval(spawnLoadingWave, LOADING_WAVE_INTERVAL);
+            }
+
+            function stopLoadingBattleAnimation() {
+                if (loadingBattleInterval) {
+                    clearInterval(loadingBattleInterval);
+                    loadingBattleInterval = null;
+                }
+                loadingBattleContainers.forEach(container => {
+                    container.querySelectorAll('.loading-battle-charger').forEach(el => el.remove());
+                });
+            }
+            startLoadingBattleAnimation();
             const towerLevelDisplay = document.getElementById('towerLevelDisplay');
             const towerInfoStats = document.getElementById('towerInfoStats');
             const towerInfoProgressContainer = document.getElementById('towerInfoProgressContainer');
@@ -2197,6 +2480,7 @@ const firebaseConfig = {
             const cardInfoProgressBar = document.getElementById('cardInfoProgressBar');
             const cardInfoProgressText = document.getElementById('cardInfoProgressText');
             const cardInfoButton = document.getElementById('cardInfoButton');
+            const previewRefreshButton = document.getElementById('previewRefreshButton');
             const chestOpenOverlay = document.getElementById('chestOpenOverlay');
             const chestRewardList = document.getElementById('chestRewardList');
             const chestCloseButton = document.getElementById('chestCloseButton');
@@ -2210,6 +2494,7 @@ const firebaseConfig = {
             const debugArena8 = document.getElementById('debugArena8');
             const debugArena9 = document.getElementById('debugArena9');
             const debugArena10 = document.getElementById('debugArena10');
+            const debugArena11 = document.getElementById('debugArena11');
             const debugUnlockAll = document.getElementById('debugUnlockAll');
             const debugUpgradeAll = document.getElementById('debugUpgradeAll');
             const debugGetChest = document.getElementById('debugGetChest');
@@ -2245,6 +2530,8 @@ const firebaseConfig = {
         return;
     }
     ctx = canvas.getContext('2d');
+    // Store the main game context for later restoration (used by previews)
+    let mainCtx = ctx;
             const elixirBar = document.getElementById('elixirBar');
             const elixirText = document.getElementById('elixirText');
             const messageOverlay = document.getElementById('messageOverlay');
@@ -2322,6 +2609,12 @@ const firebaseConfig = {
                 }
             }
 
+        function normalizeChestSlots() {
+                if (!Array.isArray(trophyChests)) trophyChests = [];
+                while (trophyChests.length < 4) trophyChests.push(undefined);
+                if (trophyChests.length > 4) trophyChests.length = 4;
+            }
+
             function initNewUser() {
                 trophies = 0;
                 gold = 500;
@@ -2330,6 +2623,7 @@ const firebaseConfig = {
                 selectedTower = 'princess';
                 towerCollection = { 'princess': { level: 1, count: 0, unlocked: true } };
                 trophyChests = [];
+                normalizeChestSlots();
                 cardCollection = initNewUserCards(false);
                 playerDeck = initNewUserCards(true);
                 playerDeck2v2 = []; 
@@ -2356,6 +2650,12 @@ const firebaseConfig = {
                     towerLevel = dataToLoad.towerLevel || 1;
                     towerCardCount = dataToLoad.towerCardCount || 0;
                     selectedTower = dataToLoad.selectedTower || 'princess';
+                    // Load quarter star and evolution data for manual save keys
+                    quarterStars = dataToLoad.quarterStars || 0;
+                    lastQuarterMilestone = dataToLoad.lastQuarterMilestone || (quarterStars * 2500);
+                    evolutionsUnlocked = dataToLoad.evolutionsUnlocked || false;
+                    evolutionShards = dataToLoad.evolutionShards || 0;
+                    evoUnlockedCards = dataToLoad.evoUnlockedCards || {};
                     
                     // Handle tower collection migration for manual loads
                     if (dataToLoad.towerCollection) {
@@ -2383,6 +2683,7 @@ const firebaseConfig = {
                     });
                     
                     trophyChests = dataToLoad.trophyChests || [];
+                    normalizeChestSlots();
                     cardCollection = dataToLoad.cardCollection || initNewUserCards(false);
                     playerDeck = dataToLoad.playerDeck || initNewUserCards(true);
                     playerDeck2v2 = dataToLoad.playerDeck2v2 || [];
@@ -2407,6 +2708,12 @@ const firebaseConfig = {
                         towerLevel = data.towerLevel || 1;
                         towerCardCount = data.towerCardCount || 0;
                         selectedTower = data.selectedTower || 'princess';
+                        // Load quarter star and evolution data from Firebase
+                        quarterStars = data.quarterStars || 0;
+                        lastQuarterMilestone = data.lastQuarterMilestone || (quarterStars * 2500);
+                        evolutionsUnlocked = data.evolutionsUnlocked || false;
+                        evolutionShards = data.evolutionShards || 0;
+                        evoUnlockedCards = data.evoUnlockedCards || {};
                         
                         // Migration logic for tower collection
                         if (data.towerCollection) {
@@ -2433,6 +2740,7 @@ const firebaseConfig = {
                             }
                         });
                         trophyChests = data.trophyChests || [];
+                        normalizeChestSlots();
                     cardCollection = data.cardCollection || initNewUserCards(false);
                     playerDeck = data.playerDeck || initNewUserCards(true);
                     playerDeck2v2 = data.playerDeck2v2 || [];
@@ -2494,6 +2802,12 @@ const firebaseConfig = {
                             playerDeck2v2,
                             playerDeckParty,
                             lastClaimDate,
+                            // Persist quarter star and evolution data so progress is saved
+                            quarterStars,
+                            lastQuarterMilestone,
+                            evolutionsUnlocked,
+                            evolutionShards,
+                            evoUnlockedCards,
                             lastSaved: new Date().toISOString()
                         };
                         await setDoc(userDocRef, dataToSave, { merge: true });
@@ -2539,10 +2853,25 @@ const firebaseConfig = {
                 if (saveDataOverlay) saveDataOverlay.style.display = 'flex';
 
                 // Generate key
-                const dataToSave = {
-                    trophies, gold, towerLevel, towerCardCount, selectedTower,
-                    towerCollection, trophyChests, cardCollection, 
-                    playerDeck, playerDeck2v2, playerDeckParty, lastClaimDate
+                    const dataToSave = {
+                    trophies,
+                    gold,
+                    towerLevel,
+                    towerCardCount,
+                    selectedTower,
+                    towerCollection,
+                    trophyChests,
+                    cardCollection,
+                    playerDeck,
+                    playerDeck2v2,
+                    playerDeckParty,
+                    lastClaimDate,
+                    // Include quarter star and evolution data in manual save keys
+                    quarterStars,
+                    lastQuarterMilestone,
+                    evolutionsUnlocked,
+                        evolutionShards,
+                        evoUnlockedCards
                 };
                 const jsonString = JSON.stringify(dataToSave);
                 const saveKey = btoa(jsonString); // Base64 encode
@@ -2729,6 +3058,11 @@ const firebaseConfig = {
                 const isNavTransition = prevScreenIndex !== -1 && nextScreenIndex !== -1;
 
                 currentScreen = screenId;
+                if (['intro', 'loading'].includes(screenId)) {
+                    startLoadingBattleAnimation();
+                } else {
+                    stopLoadingBattleAnimation();
+                }
 
                 screens.forEach(s => {
                     s.classList.remove('active', 'swipe-left', 'swipe-right', 'fade-in');
@@ -2785,13 +3119,13 @@ const firebaseConfig = {
             }
 
             function showDebugPassword() {
-                // isLocalFile check removed to enable debug for all environments
+                if (!window.isLocalFile) return;
                 debugPasswordInput.value = '';
                 debugPasswordOverlay.style.display = 'flex';
                 debugPasswordInput.focus();
             }
-                        if (debugPasswordSubmit) debugPasswordSubmit.addEventListener('click', () => {
-                // isLocalFile check removed to enable debug for all environments
+            if (debugPasswordSubmit) debugPasswordSubmit.addEventListener('click', () => {
+                if (!window.isLocalFile) return;
                 if (debugPasswordInput && debugPasswordInput.value.toUpperCase() === 'GEOMETRIC') {
                     // Correct password entered: hide overlay, enable debug, show debug screen
                     if (debugPasswordOverlay) debugPasswordOverlay.style.display = 'none';
@@ -2809,6 +3143,16 @@ const firebaseConfig = {
             // NEW: Show update log function
             function showUpdateLog() {
             const updates = [
+                { date: '12/05/2025', title: 'Stars & Evolutions Update', items: [
+                    '⭐ Introduced Quarter Stars: earn a star every 2500 trophies with a flashy animation.',
+                    '📦 Added Star Boxes: spend Quarter Stars to open Star Boxes instantly. Future boxes coming soon!',
+                    '🧬 Evolutions Unlocked: Collect Evolution Shards from Star Boxes and play evolved cards in special deck slots.',
+                    '⚔️ Battle & UI: New battle animation on intro/loading screens and dynamic troop icons in the update log.',
+                    '🌀 Collision Overhaul: Units, towers, and buildings now nudge each other so bridges stay clear and troops can walk around obstacles.',
+                    '✨ Chests Sparkle: Enhanced chest opening effects with sparkles.',
+                    '🛠️ Balance Fixes: Added dirt trail and tower targeting for Diddy Miner; Diddy Giant now targets towers only.',
+                    '🏞️ New Arena & Cards: Added Diddy’s Prison arena and new Diddy troops.'
+                ]},
                 { date: '11/28/2025', title: 'Tower Power & Arena Update', items: [
                     '🏰 New Towers! Waffle Maker 🧇, Machine Gun 🔫, Rocketeer 🚀',
                     '🪦 Added Arena 9: Titan\'s Peak (2000+ trophies)!',
@@ -2928,6 +3272,10 @@ const firebaseConfig = {
                 } else if (arenaDisplayName.includes("Chaos Realm")) {
                     emoji = "🔥";
                     currentArenaTheme = 'arena-10';
+                } else if (arenaDisplayName.includes("Diddy's Prison")) {
+                    // Diddy's Prison uses the new arena-11 theme
+                    emoji = '🐒';
+                    currentArenaTheme = 'arena-11';
                 }
                 arenaName.textContent = arenaDisplayName;
                 arenaEmoji.textContent = emoji;
@@ -2937,6 +3285,114 @@ const firebaseConfig = {
                 } else {
                     canvas.className = currentArenaTheme;
                 }
+
+                // After determining the current arena, check if the player has earned a new quarter star
+                if (typeof checkQuarterStar === 'function') {
+                    checkQuarterStar();
+                }
+                // Update star status displays whenever the arena updates
+                if (typeof updateStarBoxesUI === 'function') {
+                    updateStarBoxesUI();
+                }
+            }
+
+            // ==============================
+            // Star and Quarter Star Helpers
+            // ==============================
+            // Checks if the player has reached the next quarter star milestone based on trophies.
+            function checkQuarterStar() {
+                // Determine the next quarter star milestone based on the last milestone reached.
+                // Award quarter stars whenever the player crosses one or more 2500‑trophy thresholds.
+                // This loop handles cases where the trophy count jumps past a milestone (e.g. from 2490 to 2600)
+                let nextMilestone = lastQuarterMilestone + 2500;
+                let awarded = false;
+                while (trophies >= nextMilestone) {
+                    quarterStars++;
+                    lastQuarterMilestone = nextMilestone;
+                    nextMilestone = lastQuarterMilestone + 2500;
+                    awarded = true;
+                }
+                // If a star was awarded during this update, show the overlay and refresh the UI once
+                if (awarded) {
+                    if (typeof showQuarterStarAward === 'function') showQuarterStarAward();
+                    if (typeof updateStarBoxesUI === 'function') updateStarBoxesUI();
+                }
+            }
+
+            // Shows the overlay informing the player they earned a quarter star
+            function showQuarterStarAward() {
+                if (quarterStarOverlay) {
+                    quarterStarOverlay.style.display = 'flex';
+                    const awardCount = document.getElementById('quarterStarCountAward');
+                    if (awardCount) awardCount.textContent = quarterStars;
+                    // Also update the other star count displays
+                    const countEl = document.getElementById('quarterStarCount');
+                    if (countEl) countEl.textContent = quarterStars;
+                    const menuCount = document.getElementById('quarterStarCountMenu');
+                    if (menuCount) {
+                        menuCount.textContent = quarterStars;
+                        const statusDiv = document.getElementById('quarterStarStatus');
+                        if (statusDiv) statusDiv.style.display = quarterStars > 0 ? 'block' : 'none';
+                    }
+                }
+            }
+
+            // Updates the star boxes UI: star counts and progress indicators
+            function updateStarBoxesUI() {
+                const qCount = document.getElementById('quarterStarCount');
+                const awardCount = document.getElementById('quarterStarCountAward');
+                if (qCount) qCount.textContent = quarterStars;
+                if (awardCount) awardCount.textContent = quarterStars;
+                // Update quarter star status on the main menu (if present)
+                const menuCount = document.getElementById('quarterStarCountMenu');
+                const statusDiv = document.getElementById('quarterStarStatus');
+                if (menuCount) {
+                    menuCount.textContent = quarterStars;
+                    if (statusDiv) {
+                        statusDiv.style.display = quarterStars > 0 ? 'block' : 'none';
+                    }
+                }
+                // The new design removes upgrade progress. Simply enable the open button
+                const openBtn = document.getElementById('openBox1Button');
+                if (openBtn) {
+                    openBtn.disabled = (quarterStars <= 0);
+                }
+
+                // Update evolution shard status on the main menu
+                const evoStatus = document.getElementById('evoShardStatus');
+                const evoCountSpan = document.getElementById('evoShardCountMenu');
+                if (evoStatus && evoCountSpan) {
+                    if (evolutionsUnlocked) {
+                        evoStatus.style.display = 'block';
+                        evoCountSpan.textContent = evolutionShards;
+                    } else {
+                        evoStatus.style.display = 'none';
+                    }
+                }
+            }
+
+            // Handles opening the first star box and giving rewards
+            function openStarBox1() {
+                if (quarterStars <= 0) return;
+                // Consume one quarter star to open the box
+                quarterStars--;
+                evolutionsUnlocked = true;
+                // Award a random number of evolution shards between 1 and 6
+                const shards = Math.floor(Math.random() * 6) + 1;
+                evolutionShards += shards;
+                const overlay = document.getElementById('starBoxOpenOverlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                    const unlockList = document.getElementById('starBoxUnlocks');
+                    const rewardList = document.getElementById('starBoxRewards');
+                    if (unlockList) {
+                        unlockList.innerHTML = '<li>🧬 Evolutions Unlocked</li>';
+                    }
+                    if (rewardList) {
+                        rewardList.innerHTML = `<li>Evolution Shards 🧬: ${shards}</li>`;
+                    }
+                }
+                if (typeof updateStarBoxesUI === 'function') updateStarBoxesUI();
             }
 
             function renderChests() {
@@ -3183,6 +3639,30 @@ function finalizeChest(index, stars) {
         }
     }
 
+    // NEW: Award evolution shards for high‑star chests (4 stars and above)
+    // Chests with 4 or 5 stars will include a random number of shards between 1 and 6.
+    // Higher shard counts are progressively rarer. This reward is separate from card
+    // stacks and gold, and is added to the player’s evolution shard total.
+    if (stars >= 4) {
+        // Weighted probabilities: counts [1,2,3,4,5,6] with weights decreasing for larger values
+        const shardCounts = [1, 2, 3, 4, 5, 6];
+        const weights =    [40, 30, 20, 7, 2, 1];
+        const totalW = weights.reduce((a, b) => a + b, 0);
+        let rand = Math.random() * totalW;
+        let shardCount = 1;
+        for (let j = 0; j < shardCounts.length; j++) {
+            if (rand < weights[j]) { shardCount = shardCounts[j]; break; }
+            rand -= weights[j];
+        }
+        // Increase shard total
+        evolutionShards += shardCount;
+        if (typeof updateStarBoxesUI === 'function') updateStarBoxesUI();
+        // Add to rewards list for display
+        rewards.push({ type: 'shard', count: shardCount, name: 'Evolution Shards' });
+        // If evolutions are unlocked and this is the first evolution (Knight) and not yet unlocked
+        // do not automatically unlock here; only the first star box can auto‑unlock.
+    }
+
     // Reward display animation
     const rewardList = document.getElementById('chestRewardList');
     rewardList.innerHTML = '';
@@ -3229,6 +3709,12 @@ function finalizeChest(index, stars) {
                 `<span class="text-3xl">${tower.emoji}</span><div class="flex flex-col">` +
                 `<span class="font-bold text-xl text-white">+${r.count}</span>` +
                 `<span class="text-xs text-gray-400">${tower.name}</span></div>`;
+        } else if (r.type === 'shard') {
+            // Display evolution shard reward
+            div.innerHTML =
+                `<span class="text-3xl">🧬</span><div class="flex flex-col">` +
+                `<span class="font-bold text-xl text-white">+${r.count}</span>` +
+                `<span class="text-xs text-gray-400">Evolution Shards</span></div>`;
         } else {
             const card = allCards[r.id];
             div.innerHTML =
@@ -3284,6 +3770,16 @@ if (chestCloseButton) {
             // NEW: Show update log function
             function showUpdateLog() {
                 const updates = [
+                    { date: '12/05/2025', title: 'Stars & Evolutions Update', items: [
+                        '⭐ Introduced Quarter Stars: earn a star every 2500 trophies with a flashy animation.',
+                        '📦 Added Star Boxes: spend Quarter Stars to open Star Boxes instantly. Future boxes coming soon!',
+                        '🧬 Evolutions Unlocked: Collect Evolution Shards from Star Boxes and play evolved cards in special deck slots.',
+                        '⚔️ Battle & UI: New battle animation on intro/loading screens and dynamic troop icons in the update log.',
+                        '🌀 Collision Overhaul: Units, towers, and buildings now nudge each other so bridges stay clear and troops can walk around obstacles.',
+                        '✨ Chests Sparkle: Enhanced chest opening effects with sparkles.',
+                        '🛠️ Balance Fixes: Added dirt trail and tower targeting for Diddy Miner; Diddy Giant now targets towers only.',
+                        '🏞️ New Arena & Cards: Added Diddy’s Prison arena and new Diddy troops.'
+                    ]},
                     { date: '11/28/2025', title: 'Tower Power & Arena Update', items: [
                         '🏰 New Special Towers! (Unlock at Arena 10+)',
                         '🧇 Waffle Maker: Heals and Levels up friendly troops!',
@@ -3418,8 +3914,13 @@ if (chestCloseButton) {
             if (arenaButton) {
                 arenaButton.onclick = null;
                 arenaButton.onclick = () => {
+                    showScreen('arena');
+                };
+            }
+            if (arenaBackButton) {
+                arenaBackButton.onclick = null;
+                arenaBackButton.onclick = () => {
                     showScreen('menu');
-                    console.log('Account reset!');
                 };
             }
 
@@ -3507,6 +4008,15 @@ if (chestCloseButton) {
                         showScreen('menu');
                     };
                 }
+                if (debugArena11) {
+                    debugArena11.onclick = null;
+                    debugArena11.onclick = () => {
+                        trophies = 2500;
+                        updateArena();
+                        saveUserData();
+                        showScreen('menu');
+                    };
+                }
                 if (debugUnlockAll) {
                     debugUnlockAll.onclick = null;
                     debugUnlockAll.onclick = () => {
@@ -3584,6 +4094,19 @@ if (chestCloseButton) {
                         saveUserData();
                         showScreen('menu');
                         console.log('Account reset!');
+                    };
+                }
+
+                // NEW: Debug button to grant evolution shards for testing
+                const debugAddShards = document.getElementById('debugAddShards');
+                if (debugAddShards) {
+                    debugAddShards.onclick = null;
+                    debugAddShards.onclick = () => {
+                        evolutionShards += 6;
+                        if (!evolutionsUnlocked && evolutionShards >= 6) evolutionsUnlocked = true;
+                        saveUserData();
+                        if (typeof updateStarBoxesUI === 'function') updateStarBoxesUI();
+                        console.log('Added 6 evolution shards via debug');
                     };
                 }
             }
@@ -3700,8 +4223,64 @@ if (chestCloseButton) {
                     } else { progress = 100; } // Max level
                     progressBarHTML = `<div class="card-ui-progress-bar"><div class="card-ui-progress ${canUpgrade ? 'can-upgrade' : ''}" style="width: ${Math.min(100, progress)}%;"></div></div>`;
                 } else { levelTextHTML = ''; }
-                cardEl.innerHTML = `<div class="card-ui-cost">${card.cost}</div><span class="card-ui-name">${card.name}</span><span class="card-ui-emoji">${card.emoji}</span><span class="card-ui-type">${card.type}</span>${levelTextHTML}${progressBarHTML}`;
-                return cardEl;
+            cardEl.innerHTML = `<div class="card-ui-cost">${card.cost}</div><span class="card-ui-name">${card.name}</span><span class="card-ui-emoji">${card.emoji}</span><span class="card-ui-type">${card.type}</span>${levelTextHTML}${progressBarHTML}`;
+            return cardEl;
+        }
+
+            function isCardInEvoSlot(cardId) {
+                if (!cardId || !evolutionsUnlocked || !evoUnlockedCards || !evoUnlockedCards[cardId]) return false;
+                const modeKey = getMatchModeKey();
+                const slots = matchEvoSlots[modeKey] || [];
+                if (slots.includes(cardId)) return true;
+                let deckForMode = playerDeck;
+                if (modeKey === '2v2') deckForMode = playerDeck2v2;
+                else if (modeKey === 'party1v1') deckForMode = playerDeckParty;
+                if (!deckForMode || !deckForMode.length) return false;
+                const fallbackSlots = deckForMode.slice(0, 2);
+                return fallbackSlots.includes(cardId);
+            }
+
+            function applyCardEvoDots(cardEl, cardId) {
+                if (!cardEl || !cardId) return;
+                let dotsWrapper = cardEl.querySelector('.card-ui-evo-dots');
+                if (!isCardInEvoSlot(cardId)) {
+                    if (dotsWrapper) dotsWrapper.remove();
+                    cardEl.classList.remove('card-ui-evo-ready');
+                    return;
+                }
+                const cardDef = allCards[cardId];
+                if (!cardDef || !cardDef.evo) {
+                    if (dotsWrapper) dotsWrapper.remove();
+                    cardEl.classList.remove('card-ui-evo-ready');
+                    return;
+                }
+                const cycleCount = Math.max(1, cardDef.evo.cycle || 1);
+                const currentCount = playerEvoCycleCounts[cardId] || 0;
+                if (!dotsWrapper) {
+                    dotsWrapper = document.createElement('div');
+                    dotsWrapper.className = 'card-ui-evo-dots';
+                    cardEl.appendChild(dotsWrapper);
+                }
+                dotsWrapper.innerHTML = '';
+                const filledCount = Math.min(currentCount, cycleCount);
+                for (let i = 0; i < cycleCount; i++) {
+                    const dot = document.createElement('span');
+                    dot.className = 'card-ui-evo-dot';
+                    if (i < filledCount) dot.classList.add('filled');
+                    dotsWrapper.appendChild(dot);
+                }
+                const isReady = currentCount >= cycleCount && evoUnlockedCards && evoUnlockedCards[cardId];
+                cardEl.classList.toggle('card-ui-evo-ready', isReady);
+                if (!cardEl.style.position || cardEl.style.position === 'static') {
+                    cardEl.style.position = 'relative';
+                }
+            }
+
+            function refreshCardEvoIndicators() {
+                document.querySelectorAll('#cardHand .card-ui, #nextCardSlot .card-ui').forEach(el => {
+                    const cardId = el.dataset.unit;
+                    applyCardEvoDots(el, cardId);
+                });
             }
 
             function getUnlockedCards(includeTower = false, aiLevel = 0) {
@@ -3726,6 +4305,8 @@ if (chestCloseButton) {
                 collectionCardGrid.innerHTML = '';
                 lockedCardGrid.innerHTML = ''; 
                 
+                const deckModeKey = getMatchModeKey();
+                ensureMatchEvoSlotsForMode(deckModeKey);
                 let currentDeck;
                 if (gameMode === '2v2') currentDeck = playerDeck2v2;
                 else if (gameMode === 'party1v1') currentDeck = playerDeckParty;
@@ -3742,10 +4323,70 @@ if (chestCloseButton) {
                 if (avgElixirEl) avgElixirEl.textContent = avg;
 
                 // Render Deck (BIG CARDS, isSmall=false)
-                currentDeck.forEach(cardId => { 
+                currentDeck.forEach((cardId, idx) => { 
                     const cardEl = createCardDOM(cardId, false); 
-                    cardEl.addEventListener('click', () => openCardModal(cardId)); 
-                    deckCardGrid.appendChild(cardEl); 
+                    cardEl.addEventListener('click', () => openCardModal(cardId));
+                    // Highlight the first two slots when evolutions are unlocked
+                    if (evolutionsUnlocked) {
+                        if (idx < 2) {
+                            // This is an evolution slot
+                            if (evoUnlockedCards && evoUnlockedCards[cardId]) {
+                                // Card has an evolution unlocked; highlight with solid purple border
+                                cardEl.style.outline = '3px solid rgb(192,132,252)'; // purple-300
+                                cardEl.style.outlineOffset = '-2px';
+                            } else {
+                                // Empty evo slot or card without unlocked evo; dashed border
+                                cardEl.style.outline = '2px dashed rgba(192,132,252,0.5)';
+                                cardEl.style.outlineOffset = '-2px';
+                            }
+                        }
+                    }
+                    deckCardGrid.appendChild(cardEl);
+                });
+
+            refreshCardEvoIndicators();
+
+                // --- Enable Drag-and-Drop Reordering of Deck Cards ---
+                // After rendering deck cards, attach HTML5 drag and drop handlers to allow
+                // repositioning cards by dragging them within the deck grid. This enables
+                // moving cards into the first two slots (evolution slots) and reordering
+                // other cards. The updated deck order is saved and the UI is re-rendered.
+                const deckCards = Array.from(deckCardGrid.children);
+                let draggedIdx = null;
+                deckCards.forEach((el, index) => {
+                    el.setAttribute('draggable', 'true');
+                    el.dataset.deckIndex = index;
+                    el.addEventListener('dragstart', (ev) => {
+                        draggedIdx = parseInt(el.dataset.deckIndex);
+                        try {
+                            ev.dataTransfer.setData('text/plain', draggedIdx.toString());
+                            ev.dataTransfer.effectAllowed = 'move';
+                        } catch(e) {}
+                    });
+                    // Prevent default dragover to allow dropping
+                    el.addEventListener('dragover', (ev) => {
+                        ev.preventDefault();
+                        try { ev.dataTransfer.dropEffect = 'move'; } catch(e) {}
+                    });
+                    el.addEventListener('drop', (ev) => {
+                        ev.preventDefault();
+                        const fromIdx = draggedIdx !== null ? draggedIdx : parseInt(ev.dataTransfer.getData('text/plain'));
+                        const toIdx = parseInt(el.dataset.deckIndex);
+                        if (isNaN(fromIdx) || isNaN(toIdx) || fromIdx === toIdx) return;
+                        let deckRef;
+                        if (gameMode === '2v2') deckRef = playerDeck2v2;
+                        else if (gameMode === 'party1v1') deckRef = playerDeckParty;
+                        else deckRef = playerDeck;
+                        const temp = deckRef[toIdx];
+                        deckRef[toIdx] = deckRef[fromIdx];
+                        deckRef[fromIdx] = temp;
+                        if (gameMode === '2v2') playerDeck2v2 = [...deckRef];
+                        else if (gameMode === 'party1v1') playerDeckParty = [...deckRef];
+                        else playerDeck = [...deckRef];
+                        draggedIdx = null;
+                        if (typeof saveUserData === 'function') saveUserData();
+                        renderDeckScreen();
+                    });
                 });
                 
                 // Render Collection & Locked Cards (SMALL CARDS, isSmall=true)
@@ -3779,7 +4420,7 @@ if (chestCloseButton) {
                 // --- NEW: Render Collection Grid ---
                 const screenDiv = document.querySelector('#towerScreen > div');
                 screenDiv.innerHTML = `
-                    <h1 class="text-3xl font-bold mb-4">Tower Collection</h1>
+                    <h1 class="text-3xl font-bold mb-4 ui-text-effect battle-arena-name">Tower Collection</h1>
                     <p class="text-sm text-gray-400 mb-6">Get tower cards from chests to unlock new towers!</p>
                     <div id="towerGrid" class="grid grid-cols-2 gap-4 w-full"></div>
                 `;
@@ -3936,10 +4577,14 @@ if (chestCloseButton) {
 
                 const sortedCards = Object.keys(allCards)
                     .filter(id => id !== 'tower' && id !== 'miniStoneGiant')
+                    // When the evo filter is active, only include cards that have an evolution defined
+                    .filter(id => !previewListEvoOnly || (allCards[id] && allCards[id].evo))
                     .sort((a, b) => allCards[a].name.localeCompare(allCards[b].name));
 
                 sortedCards.forEach(cid => {
                     const el = createCardDOM(cid, true);
+                    // Mark whether this card has an evolution defined for filtering
+                    el.dataset.hasEvo = (allCards[cid] && allCards[cid].evo) ? 'true' : 'false';
                     el.onclick = (e) => {
                         e.stopPropagation();
                         currentPreviewOpponentId = cid;
@@ -3948,8 +4593,24 @@ if (chestCloseButton) {
                         startPreviewLoop();
                     };
                     el.dataset.searchName = allCards[cid].name.toLowerCase();
+                    // Apply initial display based on evo filter (previewListEvoOnly)
+                    const matchEvo = !previewListEvoOnly || el.dataset.hasEvo === 'true';
+                    el.style.display = matchEvo ? 'flex' : 'none';
                     allCardsList.appendChild(el);
                 });
+
+                // Attach search filter for tower preview list. Avoid duplicating listener on repeated openings.
+                if (!searchInput.dataset.hasListener) {
+                    searchInput.dataset.hasListener = 'true';
+                    searchInput.addEventListener('input', (e) => {
+                        const term = e.target.value.toLowerCase();
+                        Array.from(allCardsList.children).forEach(child => {
+                            const name = child.dataset.searchName || '';
+                            const matchEvo = !previewListEvoOnly || child.dataset.hasEvo === 'true';
+                            child.style.display = (name.includes(term) && matchEvo) ? 'flex' : 'none';
+                        });
+                    });
+                }
                 
                 cardInfoModal.style.display = 'flex';
             }
@@ -3981,6 +4642,13 @@ if (chestCloseButton) {
             let previewCameraY = 0;
             const previewCanvas = document.getElementById('cardPreviewCanvas');
             const previewCtx = previewCanvas.getContext('2d');
+
+            // Stores the original stats HTML for the card modal so that
+            // evolution toggling can restore it when necessary.
+            let originalStatsHTML = '';
+
+            // Controls whether the card list in preview mode filters to evolution-enabled cards
+            let previewListEvoOnly = false;
 
             // --- Helper: Get Counters ---
             function getCardRoles(cardId) {
@@ -4170,6 +4838,9 @@ if (chestCloseButton) {
                 const displayLevel = isParty ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
                 const stats = card.stats ? card.stats[displayLevel] : null;
 
+                // Reset preview evolution toggle whenever opening a new card modal
+                previewUseEvo = false;
+
                 // --- Header ---
                 cardInfoDisplay.innerHTML = '';
                 cardInfoDisplay.appendChild(createCardDOM(cardId, false));
@@ -4192,6 +4863,8 @@ if (chestCloseButton) {
                     if (card.type === 'Spell') { cardInfoStats.innerHTML += `<div>Radius: <span>${card.radius}</span></div>`; }
                     if (stats.damage && stats.hitSpeed) { const dps = (stats.damage / stats.hitSpeed).toFixed(1); cardInfoStats.innerHTML += `<div>DPS: <span>${dps}</span></div>`; }
                 }
+                // Save the generated normal stats HTML so it can be restored when toggling evolution off
+                originalStatsHTML = cardInfoStats.innerHTML;
                 // Extra stats logic (Mage, StoneGiant) ...
                 if (cardId === 'mage') {
                     const skelStats = allCards['skeletons'] && allCards['skeletons'].stats ? allCards['skeletons'].stats[1] : null;
@@ -4258,6 +4931,75 @@ if (chestCloseButton) {
                         cardInfoButton.textContent = 'Max Level (15)';
                         cardInfoButton.disabled = true;
                     }
+                    // If evolutions are unlocked and this card has an evolution defined then add an
+                    // unlock button (if not already unlocked) and the DNA toggle button to switch
+                    // between base and evolution stats/preview. The unlock button is only
+                    // interactive when the player has at least 6 evolution shards and the card's
+                    // evolution has not been unlocked yet.
+                    if (evolutionsUnlocked && allCards[cardId] && allCards[cardId].evo) {
+                        // If this evolution isn't unlocked, provide a button to unlock it
+                        if (!evoUnlockedCards[cardId]) {
+                            const unlockBtn = document.createElement('button');
+                            unlockBtn.className = 'modal-btn flex items-center justify-center';
+                            // Set text based on shard availability
+                            if (evolutionShards >= 6) {
+                                unlockBtn.textContent = 'Unlock Evolution (6🧬)';
+                                unlockBtn.disabled = false;
+                            } else {
+                                unlockBtn.textContent = 'Need 6🧬 to Unlock';
+                                unlockBtn.disabled = true;
+                            }
+                            unlockBtn.onclick = () => {
+                                // Double check shard count and locked status
+                                if (evolutionShards >= 6 && !evoUnlockedCards[cardId]) {
+                                    evolutionShards -= 6;
+                                    evoUnlockedCards[cardId] = true;
+                                    // Persist the unlock
+                                    if (typeof saveUserData === 'function') saveUserData();
+                                    // Update any UI that shows shard counts
+                                    if (typeof updateStarBoxesUI === 'function') updateStarBoxesUI();
+                                    // Re-render deck so evo slot highlights update
+                                    if (typeof renderDeckScreen === 'function') renderDeckScreen();
+                                    // Re-open the modal to refresh buttons and toggle state
+                                    openCardModal(cardId);
+                                    return;
+                                }
+                            };
+                            cardInfoButtons.appendChild(unlockBtn);
+                        }
+                        // Always provide the DNA toggle for evolutions after the unlock button
+                        // to allow previewing evolved stats and graphics. Toggling does not
+                        // depend on whether the evolution is unlocked: the user can preview
+                        // evolutions even before unlocking.
+                        // Store the original stats HTML so we can restore it when toggling off
+                        originalStatsHTML = cardInfoStats.innerHTML;
+                        const evoToggleBtn = document.createElement('button');
+                        evoToggleBtn.className = 'modal-btn flex items-center justify-center';
+                        evoToggleBtn.innerHTML = '🧬';
+                        // Helper to update the button appearance based on previewUseEvo state
+                        const updateToggleStyle = () => {
+                            if (previewUseEvo) {
+                                evoToggleBtn.classList.add('bg-blue-700', 'hover:bg-blue-800');
+                            } else {
+                                evoToggleBtn.classList.remove('bg-blue-700', 'hover:bg-blue-800');
+                            }
+                        };
+                        updateToggleStyle();
+                        evoToggleBtn.onclick = () => {
+                            // Toggle previewUseEvo state
+                            previewUseEvo = !previewUseEvo;
+                            updateToggleStyle();
+                            // When toggled on, show evolution stats; else restore original stats
+                            if (previewUseEvo) {
+                                showEvoStats(cardId);
+                            } else {
+                                cardInfoStats.innerHTML = originalStatsHTML;
+                            }
+                            // Restart preview loop to apply the evolved state in the preview
+                            startPreviewLoop();
+                        };
+                        cardInfoButtons.appendChild(evoToggleBtn);
+                    }
                 }
                 
                 // --- Populate Preview Tab ---
@@ -4287,6 +5029,45 @@ if (chestCloseButton) {
                 const searchInput = document.getElementById('previewSearchInput');
                 allCardsList.innerHTML = '';
                 searchInput.value = '';
+                // Insert a DNA toggle button next to the search bar to filter cards by evolution availability
+                // Create the button only once to avoid duplicate elements upon repeated modal openings
+                (function() {
+                    const parent = searchInput.parentNode;
+                    if (parent && !document.getElementById('previewListEvoToggle')) {
+                        const btn = document.createElement('button');
+                        btn.id = 'previewListEvoToggle';
+                        btn.className = 'ml-2 px-2 py-1 rounded text-xl transition';
+                        btn.innerHTML = '🧬';
+                        // Helper to update the button style based on previewListEvoOnly
+                        const updateBtnStyle = () => {
+                            if (previewListEvoOnly) {
+                                btn.classList.add('bg-blue-700', 'hover:bg-blue-800');
+                            } else {
+                                btn.classList.remove('bg-blue-700', 'hover:bg-blue-800');
+                            }
+                        };
+                        btn.onclick = () => {
+                            previewListEvoOnly = !previewListEvoOnly;
+                            updateBtnStyle();
+                            // Update visibility of cards in the list based on evo filter and search term
+                            const term = searchInput.value.toLowerCase();
+                            Array.from(allCardsList.children).forEach(child => {
+                                const matchEvo = !previewListEvoOnly || child.dataset.hasEvo === 'true';
+                                const matchSearch = (child.dataset.searchName || '').includes(term);
+                                child.style.display = (matchEvo && matchSearch) ? 'flex' : 'none';
+                            });
+                        };
+                        updateBtnStyle();
+                        parent.insertBefore(btn, searchInput.nextSibling);
+                    } else {
+                        // If button exists, update its style to reflect current state
+                        const btn = document.getElementById('previewListEvoToggle');
+                        if (btn) {
+                            if (previewListEvoOnly) btn.classList.add('bg-blue-700', 'hover:bg-blue-800');
+                            else btn.classList.remove('bg-blue-700', 'hover:bg-blue-800');
+                        }
+                    }
+                })();
 
                 // Helper to clear all highlights
                 const clearAllHighlights = () => {
@@ -4309,10 +5090,14 @@ if (chestCloseButton) {
                 // Populate All Cards
                 const sortedCards = Object.keys(allCards)
                     .filter(id => id !== 'tower' && id !== 'miniStoneGiant')
+                    // When the evo filter is active, only include cards that have an evolution defined
+                    .filter(id => !previewListEvoOnly || (allCards[id] && allCards[id].evo))
                     .sort((a, b) => allCards[a].name.localeCompare(allCards[b].name));
 
                 sortedCards.forEach(cid => {
                     const el = createCardDOM(cid, true);
+                    // Mark whether this card has an evolution defined for filtering
+                    el.dataset.hasEvo = (allCards[cid] && allCards[cid].evo) ? 'true' : 'false';
                     el.onclick = (e) => {
                         e.stopPropagation();
                         currentPreviewOpponentId = cid;
@@ -4321,6 +5106,9 @@ if (chestCloseButton) {
                         startPreviewLoop();
                     };
                     el.dataset.searchName = allCards[cid].name.toLowerCase();
+                    // Apply initial display based on evo filter (previewListEvoOnly) and empty search term
+                    const matchEvo = !previewListEvoOnly || el.dataset.hasEvo === 'true';
+                    el.style.display = matchEvo ? 'flex' : 'none';
                     allCardsList.appendChild(el);
                 });
 
@@ -4331,13 +5119,58 @@ if (chestCloseButton) {
                         const term = e.target.value.toLowerCase();
                         Array.from(allCardsList.children).forEach(child => {
                             const name = child.dataset.searchName || '';
-                            child.style.display = name.includes(term) ? 'flex' : 'none';
+                            const matchEvo = !previewListEvoOnly || child.dataset.hasEvo === 'true';
+                            child.style.display = (name.includes(term) && matchEvo) ? 'flex' : 'none';
                         });
                     });
                 }
 
                 cardInfoModal.style.display = 'flex';
             }
+
+        // Display evolution stats for a card. This helper is triggered when
+        // the user clicks the "Evo Stats" button in the card info modal.
+        // It replaces the contents of the stats panel with the evolution's
+        // statistics, including its cycle requirement and a description of the
+        // evolution's effect. If no evolution is defined for the card, this
+        // function does nothing. To return to the normal stats view, the user
+        // can close and reopen the card modal.
+        function showEvoStats(cardId) {
+            const card = allCards[cardId];
+            if (!card || !card.evo) return;
+            const evo = card.evo;
+            const evoStats = (evo && evo.stats) ? evo.stats : {};
+            // Build the evo stats view with detailed attributes
+            let html = `<div class="font-bold text-purple-300 mb-2">Evolution Stats (Cycle: ${evo.cycle})</div>`;
+            // Show known stats. Speed key refers to walk speed. Use more readable labels
+            const statOrder = ['health','damage','hitSpeed','speed','count','range'];
+            statOrder.forEach(key => {
+                if (evoStats[key] !== undefined) {
+                    let label;
+                    if (key === 'speed') label = 'Walk Speed';
+                    else if (key === 'hitSpeed') label = 'Hit Speed';
+                    else label = key.charAt(0).toUpperCase() + key.slice(1);
+                    let value = evoStats[key];
+                    // Format hitSpeed and walk speed with s if numeric
+                    if (key === 'hitSpeed' || key === 'speed') {
+                        value = value + (typeof value === 'number' ? 's' : '');
+                    }
+                    html += `<div>${label}: <span>${value}</span></div>`;
+                }
+            });
+            // DPS calculation if both damage and hitSpeed exist
+            if (evoStats.damage !== undefined && evoStats.hitSpeed !== undefined) {
+                const dps = (evoStats.damage / evoStats.hitSpeed).toFixed(1);
+                html += `<div>DPS: <span>${dps}</span></div>`;
+            }
+            // Append the evolution description
+            if (evo.desc) {
+                html += `<div class="mt-2 text-xs italic text-gray-400">${evo.desc}</div>`;
+            }
+            if (cardInfoStats) {
+                cardInfoStats.innerHTML = html;
+            }
+        }
 
             // --- Tab Switching Logic ---
             const tabStats = document.getElementById('cardTabStats');
@@ -4369,15 +5202,22 @@ if (chestCloseButton) {
                 }
             }
 
+            // Expose switchTab globally so inline onclick handlers can call it
+            window.switchTab = switchTab;
+
             function startPreviewLoop() {
                 if (previewAnimationId) cancelAnimationFrame(previewAnimationId);
                 previewSimulationObjects = [];
                 previewSpellTimer = 0;
                 let previewOpponentSpellTimer = 0;
                 let previewFrame = 0;
+                // NEW: timers for tower preview restart and opponent spawn
+                let previewResetCountdown = -1;
+                let previewOpponentSpawnCountdown = -1;
                 // Capture the global deltaTime before the preview loop overwrites it.
                 const originalGlobalDeltaTime = deltaTime;
-                let lastPreviewTime = performance.now();
+                // Use a dedicated timestamp for the preview loop to compute deltaTime independently of the main game
+                let previewLastTime = performance.now();
 
                 // Handle Tower Previews
                 let card = allCards[currentPreviewCardId];
@@ -4389,6 +5229,12 @@ if (chestCloseButton) {
                 }
 
                 const opponent = currentPreviewOpponentId ? allCards[currentPreviewOpponentId] : null;
+
+                // Switch drawing context to the preview canvas. This allows all preview drawing
+                // operations to render inside the small card preview instead of the main game canvas.
+                // The original game context is stored in `mainCtx` so it can be restored when the
+                // preview loop stops.
+                ctx = previewCtx;
                 
                 // --- Setup Simulation Board ---
                 // 1. Add Towers (Arena 1 Theme)
@@ -4416,36 +5262,88 @@ if (chestCloseButton) {
                 gameObjects = previewSimulationObjects;
 
                 try {
-                    // 2. Spawn Main Unit (Player Team) at Bottom
+                // 2. Spawn Main Unit (Player Team) at Bottom
                     if (card.type !== 'Spell' && card.type !== 'TowerPreview') {
                         const level = 10;
                         if (card.unitClass) {
-                             const unit = new card.unitClass(spawnX, blueSpawnY, 'player', level);
-                             // If it returned a Single Unit (GameObject), we push it manually.
-                             // If it was a Swarm, it already pushed itself to gameObjects (aliased to previewSimulationObjects).
-                             if (unit instanceof GameObject) previewSimulationObjects.push(unit);
+                            // Set global flags to propagate evolution to spawned units during this constructor call.  
+                            // For the player unit in preview, use previewUseEvo to decide whether to spawn the evolved version.
+                            try {
+                                window.pendingEvoSpawn = (previewUseEvo && evolutionsUnlocked && card.evo) ? true : false;
+                                window.currentSpawnCardHasEvo = window.pendingEvoSpawn;
+                            } catch(e) {}
+                            const unit = new card.unitClass(spawnX, blueSpawnY, 'player', level);
+                            // Reset flags immediately after spawning
+                            try {
+                                window.pendingEvoSpawn = false;
+                                window.currentSpawnCardHasEvo = false;
+                            } catch(e) {}
+                            // Apply special timers/effects for evolved units. Knight receives a
+                            // 5‑second shield upon spawn that prevents damage while active.
+                            if (previewUseEvo && evolutionsUnlocked && card.evo) {
+                                // Knight-specific shield timer
+                                if (currentPreviewCardId === 'knight') {
+                                    unit.shieldTimer = 5;
+                                }
+                            }
+                            // If it returned a Single Unit (GameObject), we push it manually.
+                            // If it was a Swarm, it already pushed itself to gameObjects (aliased to previewSimulationObjects).
+                            if (unit instanceof GameObject) previewSimulationObjects.push(unit);
                         }
+                    } else if (currentPreviewCardId === 'diddyMiner') {
+                        const previewTargetX = spawnX;
+                        const previewTargetY = blueSpawnY - 30;
+                        const miner = new DiddyMiner(previewTargetX, previewTargetY, 'player', 10);
+                        miner.spawnX = spawnX;
+                        miner.spawnY = blueSpawnY + 40;
+                        miner.x = miner.spawnX;
+                        miner.y = miner.spawnY;
+                        miner.destX = previewTargetX;
+                        miner.destY = previewTargetY;
+                        miner.hasSurfaced = false;
+                        miner.emergeTimer = 0;
+                        miner.particleTimer = miner.particleInterval;
+                        const previewDistance = getDistance({ x: miner.spawnX, y: miner.spawnY }, { x: previewTargetX, y: previewTargetY });
+                        const previewNormalized = Math.min(1, previewDistance / (WIDTH * 0.75));
+                        const previewBaseTravel = 180;
+                        const previewExtra = 120;
+                        miner.travelDuration = Math.round(Math.max(120, Math.min(320, previewBaseTravel + previewNormalized * previewExtra)));
+                        previewSimulationObjects.push(miner);
                     } else {
                         previewSpellTimer = 60;
                     }
 
                     // 3. Spawn Opponent (AI Team) at Top
                     if (opponent) {
-                         if (opponent.type !== 'Spell') {
-                             const level = 10;
-                             if (opponent.unitClass) {
-                                 const unit = new opponent.unitClass(spawnX, redSpawnY, 'ai', level);
-                                 if (unit instanceof GameObject) previewSimulationObjects.push(unit);
-                             }
-                         } else {
-                             previewOpponentSpellTimer = 90;
-                         }
-                    } else if (currentPreviewCardId === 'machineGun') {
-                         // Force spawn a tank for MG preview so user sees the slow down
-                         const tank = new Giant(spawnX, redSpawnY, 'ai', 10);
-                         tank.health = 5000; 
-                         tank.maxHealth = 5000;
-                         previewSimulationObjects.push(tank);
+                        // If the user selected a test opponent from the list
+                        if (opponent.type !== 'Spell') {
+                            const level = 10;
+                            if (opponent.unitClass) {
+                                // Propagate evolution to the opponent if the evo filter toggle is on (previewListEvoOnly) and the card has an evolution.  
+                                // This ensures the opponent uses the evolved version only when the user explicitly chooses to view evolutions for test cards.
+                                try {
+                                    window.pendingEvoSpawn = (previewListEvoOnly && evolutionsUnlocked && opponent.evo) ? true : false;
+                                    window.currentSpawnCardHasEvo = window.pendingEvoSpawn;
+                                } catch(e) {}
+                                const unit = new opponent.unitClass(spawnX, redSpawnY, 'ai', level);
+                                try {
+                                    window.pendingEvoSpawn = false;
+                                    window.currentSpawnCardHasEvo = false;
+                                } catch(e) {}
+                                if (unit instanceof GameObject) previewSimulationObjects.push(unit);
+                            }
+                        } else {
+                            previewOpponentSpellTimer = 90;
+                        }
+                    } else {
+                        // No explicit opponent selected; by default do not spawn a mirrored unit.
+                        // Only spawn a demonstration tank for Machine Gun previews so users can see the slowdown effect
+                        if (currentPreviewCardId === 'machineGun') {
+                            const tank = new Giant(spawnX, redSpawnY, 'ai', 10);
+                            tank.health = 5000;
+                            tank.maxHealth = 5000;
+                            previewSimulationObjects.push(tank);
+                        }
                     }
                 } catch(e) {
                     console.warn("Preview spawn error", e);
@@ -4454,7 +5352,39 @@ if (chestCloseButton) {
                     gameObjects = globalGameObjects;
                 }
 
+                // --- Additional Preview Setup ---
+                // If this is a tower preview, spawn a Knight behind the player's tower and schedule resets.
+                // Otherwise, for troop previews, schedule the preview to reset after 10 seconds as well.
+                if (card.type === 'TowerPreview') {
+                    // Reset after 10 seconds
+                    previewResetCountdown = 600;
+                    // For the waffle tower preview, we already spawn an ally Knight in the extras section, so skip spawning another
+                    if (currentPreviewCardId !== 'waffle') {
+                        try {
+                            const knight = new Knight(spawnX, blueSpawnY + 20, 'player', 10);
+                            if (knight instanceof GameObject) previewSimulationObjects.push(knight);
+                        } catch(e) {
+                            console.warn('Knight spawn error in tower preview', e);
+                        }
+                    }
+                    // If the player selected a test opponent card, schedule it to spawn after 10 seconds
+                    if (currentPreviewOpponentId) {
+                        previewOpponentSpawnCountdown = 600;
+                    }
+                } else {
+                    // For troop and spell previews, reset the preview after 10 seconds
+                    previewResetCountdown = 600;
+                }
+
                 function loop(timestamp) {
+                    // Compute preview-specific deltaTime based on elapsed real time
+                    const previewDt = (timestamp - previewLastTime) / 1000;
+                    previewLastTime = timestamp;
+                    // Temporarily override the global deltaTime so unit updates in the preview use the new dt
+                    // Override global deltaTime for the preview loop; restore occurs in the finally block
+                    deltaTime = previewDt;
+
+                    // Clear the preview canvas for fresh drawing each frame
                     ctx.clearRect(0, 0, 300, 200);
                     ctx.save();
                     ctx.translate(0, -previewCameraY);
@@ -4492,7 +5422,10 @@ if (chestCloseButton) {
                                  else if (currentPreviewCardId === 'voidTrap') gameObjects.push(new VoidTrapEffect(tx, ty, 'player', card.radius, s.damage));
                                  else if (currentPreviewCardId === 'chaosOrb') gameObjects.push(new ChaosOrbEffect(tx, ty, 'player', card.radius, s.damage));
                                  else if (currentPreviewCardId === 'skeletonYard') gameObjects.push(new SkeletonYard(tx, ty, 'player', s.duration, card.radius, 10));
-                                 else gameObjects.push(new Spell(tx, ty, 'player', s.damage, card.radius, card.emoji));
+                                 else {
+                                     const isEvoSpell = previewUseEvo && evolutionsUnlocked && card.evo;
+                                     gameObjects.push(new Spell(tx, ty, 'player', s.damage, card.radius, card.emoji, isEvoSpell));
+                                 }
                              }
                         }
                         
@@ -4512,7 +5445,10 @@ if (chestCloseButton) {
                                  else if (currentPreviewOpponentId === 'voidTrap') gameObjects.push(new VoidTrapEffect(tx, ty, 'ai', opponent.radius, s.damage));
                                  else if (currentPreviewOpponentId === 'chaosOrb') gameObjects.push(new ChaosOrbEffect(tx, ty, 'ai', opponent.radius, s.damage));
                                  else if (currentPreviewOpponentId === 'skeletonYard') gameObjects.push(new SkeletonYard(tx, ty, 'ai', s.duration, opponent.radius, 10));
-                                 else gameObjects.push(new Spell(tx, ty, 'ai', s.damage, opponent.radius, opponent.emoji));
+                                 else {
+                                     const isEvoSpell = previewListEvoOnly && evolutionsUnlocked && opponent.evo;
+                                     gameObjects.push(new Spell(tx, ty, 'ai', s.damage, opponent.radius, opponent.emoji, isEvoSpell));
+                                 }
                              }
                         }
 
@@ -4573,17 +5509,69 @@ if (chestCloseButton) {
                     }
 
                     ctx.restore(); // Restore Camera Transform
-                    // --- RESTORE MAIN CONTEXT ---
-                    ctx = mainCtx;
+
+                    // --- Tower Preview Timers ---
+                    // Handle scheduled opponent spawn in tower preview
+                    if (previewOpponentSpawnCountdown >= 0) {
+                        previewOpponentSpawnCountdown--;
+                        if (previewOpponentSpawnCountdown === 0 && currentPreviewOpponentId) {
+                            const oppCard = allCards[currentPreviewOpponentId];
+                            if (oppCard && oppCard.unitClass && oppCard.type !== 'Spell') {
+                                try {
+                                    const newUnit = new oppCard.unitClass(spawnX, redSpawnY, 'ai', 10);
+                                    if (newUnit instanceof GameObject) previewSimulationObjects.push(newUnit);
+                                } catch(e) {
+                                    console.warn('Opponent spawn error in tower preview', e);
+                                }
+                            }
+                        }
+                    }
+                    // Handle preview reset countdown for tower previews
+                    if (previewResetCountdown >= 0) {
+                        previewResetCountdown--;
+                        if (previewResetCountdown === 0) {
+                            // Restart the preview and exit this loop
+                            startPreviewLoop();
+                            return;
+                        }
+                    }
+                    // Restart preview if a tower dies
+                    for (const obj of previewSimulationObjects) {
+                        if (obj instanceof Tower && obj.health <= 0) {
+                            startPreviewLoop();
+                            return;
+                        }
+                    }
+
+                    // We deliberately do not restore the main context here. The preview loop draws
+                    // exclusively to the preview canvas until stopPreviewLoop() is called.
                     previewAnimationId = requestAnimationFrame(loop);
                 }
                 loop(performance.now()); // Call loop for the first time with current timestamp
             }
 
-            function stopPreviewLoop() {
+            function stopPreviewLoop(options = {}) {
                 if (previewAnimationId) cancelAnimationFrame(previewAnimationId);
+                previewAnimationId = null;
                 previewSimulationObjects = [];
-                currentPreviewOpponentId = null;
+                if (!options.preserveOpponent) {
+                    currentPreviewOpponentId = null;
+                }
+                // Restore the drawing context back to the main game canvas
+                if (typeof mainCtx !== 'undefined') {
+                    ctx = mainCtx;
+                }
+            }
+            
+            function refreshPreviewAnimation() {
+                stopPreviewLoop({ preserveOpponent: true });
+                startPreviewLoop();
+            }
+
+            if (previewRefreshButton) {
+                previewRefreshButton.addEventListener('click', () => {
+                    refreshPreviewAnimation();
+                });
             }
             
             function closeModal() {
@@ -4637,6 +5625,28 @@ if (chestCloseButton) {
             function shuffleDeck(deck) {
                 let shuffled = [...deck]; for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; } return shuffled;
             }
+
+            function getMatchModeKey(mode = gameMode) {
+                if (mode === '2v2') return '2v2';
+                if (mode === 'party1v1') return 'party1v1';
+                return 'single';
+            }
+
+function selectMatchEvoSlots(deck) {
+    if (!deck || !deck.length) return [];
+    const shuffled = shuffleDeck([...deck]);
+    return shuffled.slice(0, Math.min(2, shuffled.length));
+}
+
+function ensureMatchEvoSlotsForMode(modeKey) {
+    if (!modeKey) return;
+    if (matchEvoSlots[modeKey] && matchEvoSlots[modeKey].length > 0) return;
+    let deckToUse = playerDeck;
+    if (modeKey === '2v2') deckToUse = playerDeck2v2;
+    else if (modeKey === 'party1v1') deckToUse = playerDeckParty;
+    if (!deckToUse || deckToUse.length === 0) return;
+    matchEvoSlots[modeKey] = selectMatchEvoSlots(deckToUse);
+}
 
             function startGameDecks() {
                 // Player
@@ -4692,6 +5702,7 @@ if (chestCloseButton) {
                 hand.forEach((cardId, index) => {
                     const cardEl = createCardDOM(cardId, false, true);
                     cardEl.dataset.handIndex = index;
+                    applyCardEvoDots(cardEl, cardId);
                     // Handle touch/mouse down for card selection
                     cardEl.addEventListener('mousedown', (e) => selectCard(e, cardEl, cardId));
                     cardEl.addEventListener('touchstart', (e) => selectCard(e, cardEl, cardId), { passive: false });
@@ -4699,9 +5710,12 @@ if (chestCloseButton) {
                 });
                 nextCardSlotEl.innerHTML = '';
                 if (nextCard) {
-                    nextCardSlotEl.appendChild(createCardDOM(nextCard, true, true));
+                    const nextCardEl = createCardDOM(nextCard, true, true);
+                    applyCardEvoDots(nextCardEl, nextCard);
+                    nextCardSlotEl.appendChild(nextCardEl);
                 }
                 updateCardUI();
+                refreshCardEvoIndicators();
             }
 
             function selectCard(e, cardEl, cardId) {
@@ -4724,7 +5738,11 @@ if (chestCloseButton) {
 
                 document.querySelectorAll('#cardHand .card-ui.selected').forEach(c => c.classList.remove('selected'));
                 placementIndicator.style.display = 'block'; // FIX: Show immediately
-                placementOverlay.style.display = 'block'; // Show red overlay
+                if (card.type === 'Spell') {
+                    placementOverlay.style.display = 'none';
+                } else {
+                    placementOverlay.style.display = 'block'; // Show red overlay
+                }
                 placementIndicator.innerHTML = '';
                 
                 selectedSpawningUnit = {
@@ -5054,6 +6072,28 @@ if (chestCloseButton) {
 
             function applyDamage(target, amount) {
                 if (target && target.health > 0) {
+                    // If the target has shield hits remaining (e.g., evolved Barbarians), consume
+                    // one shield and ignore the damage for this hit.  We still show damage
+                    // numbers so the hit is visible.
+                    if (target.shieldHitsRemaining && target.shieldHitsRemaining > 0) {
+                        target.shieldHitsRemaining--;
+                        if (amount > 0) {
+                            gameObjects.push(new DamageText(target.x, target.y - (target.radius || 10), amount));
+                        }
+                        return;
+                    }
+                    // If the target has an active shield (e.g., evolved Knight) then
+                    // ignore the damage entirely. Do not subtract health while the
+                    // shield timer is above zero. This prevents the target from
+                    // losing health during the shield duration. We still show
+                    // damage text so the user sees the hit but it does no harm.
+                    if (target.shieldTimer && target.shieldTimer > 0) {
+                        // Show small reflected damage text at the target to indicate the hit was blocked
+                        if (amount > 0) {
+                            gameObjects.push(new DamageText(target.x, target.y - (target.radius || 10), amount));
+                        }
+                        return;
+                    }
                     target.health -= amount;
                     if (amount > 0) {
                         gameObjects.push(new DamageText(target.x, target.y - (target.radius || 10), amount));
@@ -5195,6 +6235,7 @@ if (chestCloseButton) {
                     let closestDist = this.attackRange; 
                     for (const obj of gameObjects) { 
                         if (obj.team !== this.team && (obj instanceof Unit)) {
+                            if (obj.isTargetable === false) continue;
                             if (obj instanceof PhantomKnight && obj.isInvisible) continue;
                             const dist = getDistance(this, obj); 
                             if (dist < closestDist) { 
@@ -5427,21 +6468,54 @@ if (chestCloseButton) {
             class GoblinHut extends Building { constructor(x, y, team, level = 1) { super(x, y, team, level, 'hut'); } }
             class BarbarianHut extends Building { constructor(x, y, team, level = 1) { super(x, y, team, level, 'barbarianHut'); } }
 
+            /* Diddy’s Brigade classes are relocated to after all unit definitions. */
+
 
             class Unit extends GameObject {
                 constructor(x, y, radius, team, health, speed, attackRange, attackDamage, attackCooldown, emoji, isFlying = false, targetsAir = false, level = 1, aggroRange = 100) {
                     super(x, y, radius, team, health);
                     this.level = level; // Store level
                     this.speed = speed;
-                    this.attackRange = attackRange;
+                    this.attackRangeBase = attackRange;
+                    this.isMeleeUnit = !isFlying && attackRange <= (radius + 20);
+                    const meleeAttackBuffer = 10;
+                    this.attackRange = this.attackRangeBase + (this.isMeleeUnit ? meleeAttackBuffer : 0);
                     this.attackDamage = attackDamage;
                     this.attackCooldown = attackCooldown * 60;
                     this.cooldownTimer = 0;
                     this.target = null;
+                    this.isTargetable = true;
                     this.emoji = emoji;
                     this.isFlying = isFlying;
                     this.targetsAir = targetsAir;
                     this.aggroRange = aggroRange; // NEW
+                    // NEW: Shield timer for evolved units (e.g., Knight). When greater than 0,
+                    // the unit will ignore incoming damage. Measured in seconds and decremented
+                    // each update cycle. Set elsewhere when spawning evolved units.
+                    this.shieldTimer = 0;
+
+                    // NEW: Shield hit counter for evolved Barbarians. When above 0, each
+                    // incoming hit will consume one shield before damaging health. This
+                    // property is set to 2 on evolved Barbarians when they first update.
+                    this.shieldHitsRemaining = 0;
+
+                    // NEW: Flag to mark whether this unit is evolved. Set to false by
+                    // default. The preview system or card placement logic may set
+                    // `window.pendingEvoSpawn` and `window.currentSpawnCardHasEvo` just
+                    // before instantiating this unit. If those flags are set and the
+                    // originating card actually has an evolution defined, mark this unit
+                    // as evolved automatically here.  This ensures that groups like
+                    // Skeletons, Goblins and Barbarians properly receive the evolved
+                    // state for all their members.
+                    this.isEvolved = false;
+                    try {
+                        if (window.pendingEvoSpawn && window.currentSpawnCardHasEvo) {
+                            this.isEvolved = true;
+                        }
+                    } catch (e) {
+                        // In some contexts `window` may not be defined (e.g. server-side),
+                        // so silently ignore the error.
+                    }
                 }
                 findTarget(forceFindTower = false) { // Add parameter
                     // --- NEW AGGRO AI (FIX) ---
@@ -5452,6 +6526,7 @@ if (chestCloseButton) {
                     for (const obj of gameObjects) {
                         // --- THIS IS THE FIX ---
                         if (obj.team !== this.team && (obj instanceof Unit || obj instanceof Building || obj instanceof Tower)) {
+                            if (obj.isTargetable === false) continue;
                             // Skip invisible Phantom Knights
                             if (obj instanceof PhantomKnight && obj.isInvisible) continue;
                             // --- END FIX ---
@@ -5526,32 +6601,88 @@ if (chestCloseButton) {
                             }
                         }
                     }
-                    const angle = Math.atan2(targetY - this.y, targetX - this.x);
+                    let angle = Math.atan2(targetY - this.y, targetX - this.x);
                     this.x += Math.cos(angle) * this.speed * (deltaTime * 60); /* Scale movement by delta time */
                     this.y += Math.sin(angle) * this.speed * (deltaTime * 60);
                 }
                 attack() { 
+                    // Only attack when cooldown is ready and a valid target exists
                     if (this.target && this.cooldownTimer <= 0) { 
+                        // Cannot hit invisible Phantom Knights
                         if (this.target instanceof PhantomKnight && this.target.isInvisible) {
                             return;
                         }
-                        if (this.attackRange <= this.radius + this.target.radius + 5) { // Melee
-                            applyDamage(this.target, this.attackDamage); 
-                        } else { // Ranged
-                            let projectileType = Projectile;
-                            let damage = this.attackDamage;
-                            let splash = 0;
-                            if (this.emoji === '🐲') {
-                                projectileType = FireballProjectile;
-                                splash = allCards['fireDragon'].stats[this.level].splashRadius;
+                        // Determine base damage and whether this is a melee or ranged attack
+                        let damage = this.attackDamage;
+                        let splash = 0;
+                        const isMelee = this.isMeleeUnit || (this.attackRange <= this.radius + this.target.radius + 5);
+                        // Apply evolution effects on damage or splash
+                        if (this.isEvolved) {
+                            // Goblin: increase damage by 25% per hit
+                            if (this instanceof Goblin) {
+                                if (!this.damageMultiplier) this.damageMultiplier = 1;
+                                damage = this.attackDamage * this.damageMultiplier;
+                                this.damageMultiplier *= 1.25;
                             }
-                            gameObjects.push(new projectileType(this.x, this.y, this.target, this.team, damage, splash)); 
+                            // Archer: arrows deal splash damage
+                            if (this instanceof Archer) {
+                                splash = 20; // small splash radius for evolved archer
+                            }
+                        }
+                        if (isMelee) {
+                            // If the target is an evolved Knight with an active shield, reflect
+                            // damage back to the attacker instead of damaging the Knight.
+                            if (this.target instanceof Knight && this.target.isEvolved && this.target.shieldTimer > 0) {
+                                applyDamage(this, damage);
+                            } else {
+                                applyDamage(this.target, damage);
+                            }
+                            // Skeleton evolution: clone on hit up to 10 skeletons total per team
+                            if (this.isEvolved && this instanceof Skeleton) {
+                                // Count skeletons on this team
+                                let count = 0;
+                                for (const obj of gameObjects) {
+                                    if (obj instanceof Skeleton && obj.team === this.team) count++;
+                                }
+                                if (count < 10) {
+                                    // Spawn a new skeleton near the attacker
+                                    try {
+                                        const newSkel = new Skeleton(this.x + (Math.random() * 10 - 5), this.y + (Math.random() * 10 - 5), this.team, this.level);
+                                        newSkel.isEvolved = true;
+                                        newSkel.shieldTimer = 0;
+                                        gameObjects.push(newSkel);
+                                    } catch(e) {
+                                        console.warn('Evolved skeleton clone error', e);
+                                    }
+                                }
+                            }
+                            // Barbarian evolution: shields absorb first two hits. Handle in applyDamage via shieldHitsRemaining property
+                        } else {
+                            // Ranged attack: if target has an evolved Knight shield, reflect damage to attacker instead
+                            if (this.target instanceof Knight && this.target.isEvolved && this.target.shieldTimer > 0) {
+                                applyDamage(this, damage);
+                            } else {
+                                // Normal ranged attack: use projectile
+                                let projectileType = Projectile;
+                                // Fire Dragon uses FireballProjectile and inherent splash
+                                if (this.emoji === '🐲') {
+                                    projectileType = FireballProjectile;
+                                    splash = allCards['fireDragon'].stats[this.level].splashRadius;
+                                }
+                                // Other units: splash radius set above if evolved Archer
+                                gameObjects.push(new projectileType(this.x, this.y, this.target, this.team, damage, splash)); 
+                            }
                         } 
                         this.cooldownTimer = this.attackCooldown; 
                     } 
                 } 
                 update() {
                     if (this.health <= 0) return;
+                    // Decrement shield timer if active
+                    if (this.shieldTimer && this.shieldTimer > 0) {
+                        this.shieldTimer -= deltaTime;
+                        if (this.shieldTimer < 0) this.shieldTimer = 0;
+                    }
                     if (this.cooldownTimer > 0) { this.cooldownTimer -= deltaTime * 60; } /* Scale cooldown by delta time */
                     // NEW: Don't update if frozen
                     if (this.frozen) return;
@@ -5582,10 +6713,13 @@ if (chestCloseButton) {
                     // --- END AI FIX ---
 
                     if (this.target && this.target.health > 0) {
-                        if (getDistance(this, this.target) <= this.attackRange) {
+                        const distToTarget = getDistance(this, this.target);
+                        if (distToTarget <= this.attackRange) {
+                            resolveUnitCollision(this);
                             this.attack();
                         } else {
                             this.move();
+                            resolveUnitCollision(this);
                         }
                     }
                 }
@@ -5601,6 +6735,69 @@ if (chestCloseButton) {
                         ctx.arc(this.x, this.y, this.radius + 3, 0, Math.PI * 2);
                         ctx.stroke();
                         ctx.restore();
+                    }
+                    // NEW: Draw rainbow outline for evolved units
+                    if (this.isEvolved) {
+                        ctx.save();
+                        const gradient = ctx.createLinearGradient(this.x - this.radius - 4, this.y - this.radius - 4, this.x + this.radius + 4, this.y + this.radius + 4);
+                        gradient.addColorStop(0, '#c084fc'); // purple
+                        gradient.addColorStop(0.25, '#ec4899'); // pink
+                        gradient.addColorStop(0.5, '#facc15'); // yellow
+                        gradient.addColorStop(0.75, '#4ade80'); // green
+                        gradient.addColorStop(1, '#38bdf8'); // blue
+                        ctx.strokeStyle = gradient;
+                        ctx.lineWidth = 4;
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.radius + 5, 0, Math.PI * 2);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                    // NEW: Draw shield aura for units with an active timed shield (e.g., evolved Knight)
+                    if (this.shieldTimer && this.shieldTimer > 0) {
+                        ctx.save();
+                        ctx.strokeStyle = 'rgba(125, 211, 252, 0.8)'; // light blue
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.radius + 8, 0, Math.PI * 2);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                    // NEW: Draw shield aura for units with shield hits remaining (e.g., evolved Barbarians)
+                    if (this.shieldHitsRemaining && this.shieldHitsRemaining > 0) {
+                        ctx.save();
+                        ctx.strokeStyle = 'rgba(251, 191, 36, 0.8)'; // gold-yellow
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.radius + 10, 0, Math.PI * 2);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                }
+            }
+
+            function resolveUnitCollision(unit) {
+                if (!unit || unit.isFlying) return;
+                const pushFactor = 0.6;
+                for (const other of gameObjects) {
+                    if (other === unit || !(other instanceof Unit)) continue;
+                    if (other.isFlying) continue;
+                    const dx = unit.x - other.x;
+                    const dy = unit.y - other.y;
+                    const dist = Math.hypot(dx, dy);
+                    const minDist = unit.radius + other.radius + 2;
+                    if (dist > 0 && dist < minDist) {
+                        const overlap = minDist - dist;
+                        const normX = dx / dist;
+                        const normY = dy / dist;
+                        const ratio = other.radius / (unit.radius + other.radius || 1);
+                        const push = overlap * pushFactor;
+                        unit.x += normX * push * (0.5 + ratio);
+                        unit.y += normY * push * (0.5 + ratio);
+                        if (other.radius > unit.radius) {
+                            const backPush = push * Math.max(0.1, 0.25 - Math.min(0.2, ratio));
+                            other.x -= normX * backPush;
+                            other.y -= normY * backPush;
+                        }
                     }
                 }
             }
@@ -5703,18 +6900,95 @@ if (chestCloseButton) {
                     }
                 }
             }
-            class Goblin extends Unit { constructor(x, y, team, level = 1) { const s = allCards['goblins'].stats[level]; super(x, y, 8, team, s.health, 1.2, 20, s.damage, s.hitSpeed, '👺', false, false, level, allCards['goblins'].aggroRange); } } // Speed 1.5 -> 1.2
+            class Goblin extends Unit { constructor(x, y, team, level = 1) { const s = allCards['goblins'].stats[level]; super(x, y, 8, team, s.health, 1.2, 20, s.damage, s.hitSpeed, '👺', false, false, level, allCards['goblins'].aggroRange); this.damageMultiplier = 1; } } // Speed 1.5 -> 1.2
             class Skeleton extends Unit { constructor(x, y, team, level = 1) { const s = allCards['skeletons'].stats[level]; super(x, y, 7, team, s.health, 1.4, 20, s.damage, s.hitSpeed, '💀', false, false, level, allCards['skeletons'].aggroRange); } } // Speed 1.6 -> 1.4
             class TinyBot extends Unit { constructor(x, y, team, level = 1) { const s = allCards['tinyBot'].stats[level]; super(x, y, 10, team, s.health, 1.0, 25, s.damage, s.hitSpeed, '🤖', false, false, level, allCards['tinyBot'].aggroRange); } } // Speed 1.2 -> 1.0
-            class Goblins { constructor(x, y, team, level = 1) { const s = allCards['goblins'].stats[level]; for (let i = 0; i < s.count; i++) { gameObjects.push(new Goblin(x + Math.random()*10-5, y + Math.random()*10-5, team, level)); } } }
-            class Skeletons { constructor(x, y, team, level = 1) { const s = allCards['skeletons'].stats[level]; for (let i = 0; i < s.count; i++) { gameObjects.push(new Skeleton(x + Math.random()*10-5, y + Math.random()*10-5, team, level)); } } }
+            class Goblins { constructor(x, y, team, level = 1) {
+                const s = allCards['goblins'].stats[level];
+                for (let i = 0; i < s.count; i++) {
+                    const g = new Goblin(x + Math.random()*10 - 5, y + Math.random()*10 - 5, team, level);
+                    // Propagate evolution state to each goblin if pendingEvoSpawn is set
+                    try {
+                        if (window.pendingEvoSpawn && window.currentSpawnCardHasEvo) {
+                            g.isEvolved = true;
+                        }
+                    } catch(e) {}
+                    gameObjects.push(g);
+                }
+            } }
+            class Skeletons { constructor(x, y, team, level = 1) {
+                const s = allCards['skeletons'].stats[level];
+                for (let i = 0; i < s.count; i++) {
+                    const sk = new Skeleton(x + Math.random()*10 - 5, y + Math.random()*10 - 5, team, level);
+                    try {
+                        if (window.pendingEvoSpawn && window.currentSpawnCardHasEvo) {
+                            sk.isEvolved = true;
+                            sk.shieldTimer = 0;
+                        }
+                    } catch(e) {}
+                    gameObjects.push(sk);
+                }
+            } }
             
             // --- NEW CARD CLASSES ---
             class SpearGoblin extends Unit { constructor(x, y, team, level = 1) { const s = allCards['goblinGang'].stats[level]; super(x, y, 8, team, s.spear_health, 1.2, 100, s.spear_damage, s.spear_hitSpeed, '🎯', false, true, level, allCards['goblinGang'].aggroRange); } } // Speed 1.5 -> 1.2
-            class GoblinGang { constructor(x, y, team, level = 1) { const s = allCards['goblinGang'].stats[level]; for (let i = 0; i < s.count; i++) { gameObjects.push(new Goblin(x + Math.random()*15-7, y + Math.random()*15-7, team, level)); } for (let i = 0; i < s.spear_count; i++) { gameObjects.push(new SpearGoblin(x + Math.random()*15-7, y + Math.random()*15-7, team, level)); } } }
-            class SkeletonArmy { constructor(x, y, team, level = 1) { const s = allCards['skeletonArmy'].stats[level]; for (let i = 0; i < s.count; i++) { gameObjects.push(new Skeleton(x + Math.random()*30-15, y + Math.random()*30-15, team, level)); } } }
+            class GoblinGang {
+                constructor(x, y, team, level = 1) {
+                    const s = allCards['goblinGang'].stats[level];
+                    // Dagger goblins
+                    for (let i = 0; i < s.count; i++) {
+                        const g = new Goblin(x + Math.random() * 15 - 7, y + Math.random() * 15 - 7, team, level);
+                        try {
+                            if (window.pendingEvoSpawn && window.currentSpawnCardHasEvo) {
+                                g.isEvolved = true;
+                            }
+                        } catch(e) {}
+                        gameObjects.push(g);
+                    }
+                    // Spear goblins
+                    for (let i = 0; i < s.spear_count; i++) {
+                        const sg = new SpearGoblin(x + Math.random() * 15 - 7, y + Math.random() * 15 - 7, team, level);
+                        try {
+                            if (window.pendingEvoSpawn && window.currentSpawnCardHasEvo) {
+                                sg.isEvolved = true;
+                            }
+                        } catch(e) {}
+                        gameObjects.push(sg);
+                    }
+                }
+            }
+            class SkeletonArmy {
+                constructor(x, y, team, level = 1) {
+                    const s = allCards['skeletonArmy'].stats[level];
+                    for (let i = 0; i < s.count; i++) {
+                        const sk = new Skeleton(x + Math.random() * 30 - 15, y + Math.random() * 30 - 15, team, level);
+                        try {
+                            if (window.pendingEvoSpawn && window.currentSpawnCardHasEvo) {
+                                sk.isEvolved = true;
+                                sk.shieldTimer = 0;
+                            }
+                        } catch(e) {}
+                        gameObjects.push(sk);
+                    }
+                }
+            }
             class Barbarian extends Unit { constructor(x, y, team, level = 1) { const s = allCards['barbarians'].stats[level]; super(x, y, 11, team, s.health, 0.9, 25, s.damage, s.hitSpeed, '🧔', false, false, level, allCards['barbarians'].aggroRange); } } // Speed 1.1 -> 0.9
-            class Barbarians { constructor(x, y, team, level = 1) { const s = allCards['barbarians'].stats[level]; for (let i = 0; i < s.count; i++) { gameObjects.push(new Barbarian(x + Math.random()*10-5, y + Math.random()*10-5, team, level)); } } }
+            class Barbarians {
+                constructor(x, y, team, level = 1) {
+                    const s = allCards['barbarians'].stats[level];
+                    for (let i = 0; i < s.count; i++) {
+                        const barb = new Barbarian(x + Math.random() * 10 - 5, y + Math.random() * 10 - 5, team, level);
+                        try {
+                            if (window.pendingEvoSpawn && window.currentSpawnCardHasEvo) {
+                                barb.isEvolved = true;
+                                // Barbarians get a shield that absorbs two hits
+                                barb.shieldHitsRemaining = 2;
+                            }
+                        } catch(e) {}
+                        gameObjects.push(barb);
+                    }
+                }
+            }
             class FireDragon extends Unit { constructor(x, y, team, level = 1) { const s = allCards['fireDragon'].stats[level]; super(x, y, 14, team, s.health, 1.0, 110, s.damage, s.hitSpeed, '🐲', true, true, level, allCards['fireDragon'].aggroRange); } } // Speed 1.2 -> 1.0
             class BattleRam extends Unit {
                 constructor(x, y, team, level = 1) {
@@ -7766,13 +9040,15 @@ class StoneGiant extends Unit {
             }
 
             class Spell extends GameObject {
-                constructor(x, y, team, damage, radius, emoji) {
+                constructor(x, y, team, damage, radius, emoji, isEvolved = false) {
                     super(x, y, radius, team, 1);
                     this.damage = damage;
                     this.animationTimer = 30;
                     this.maxAnimationTimer = 30;
                     this.hit = false;
                     this.emoji = emoji;
+                    this.isEvolved = isEvolved;
+                    this.flameSpawned = false;
                 }
                 update() {
                     if (!this.hit) {
@@ -7784,6 +9060,12 @@ class StoneGiant extends Unit {
                             }
                         }
                         this.hit = true;
+                        if (this.emoji === '🔥' && this.isEvolved && !this.flameSpawned) {
+                            this.flameSpawned = true;
+                            const waveRadius = this.radius * 2.5;
+                            const flameDamage = Math.round(this.damage * 0.75);
+                            gameObjects.push(new FlameWave(this.x, this.y, this.team, flameDamage, waveRadius));
+                        }
                     }
                     this.animationTimer--;
                     if (this.animationTimer <= 0) {
@@ -7820,6 +9102,51 @@ class StoneGiant extends Unit {
                         ctx.fillText(this.emoji, this.x, this.y);
                         ctx.globalAlpha = 1;
                     }
+                }
+            }
+
+            class FlameWave extends GameObject {
+                constructor(x, y, team, damage, maxRadius) {
+                    super(x, y, maxRadius, team, 1);
+                    this.damage = damage;
+                    this.duration = 60;
+                    this.life = this.duration;
+                    this.startRadius = maxRadius * 0.3;
+                    this.maxRadius = maxRadius;
+                    this.radius = this.startRadius;
+                    this.targetsDamaged = new Set();
+                }
+                update() {
+                    this.life -= deltaTime * 60;
+                    if (this.life <= 0) {
+                        this.health = 0;
+                        return;
+                    }
+                    const progress = 1 - (this.life / this.duration);
+                    this.radius = this.startRadius + (this.maxRadius - this.startRadius) * progress;
+                    for (const obj of gameObjects) {
+                        if (obj.team !== this.team && (obj instanceof Unit || obj instanceof Tower || obj instanceof Building)) {
+                            if (this.targetsDamaged.has(obj)) continue;
+                            if (getDistance(this, obj) < this.radius) {
+                                applyDamage(obj, this.damage);
+                                this.targetsDamaged.add(obj);
+                            }
+                        }
+                    }
+                }
+                draw() {
+                    const fade = Math.sin((this.life / this.duration) * Math.PI);
+                    ctx.save();
+                    ctx.globalAlpha = fade * 0.6;
+                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                    gradient.addColorStop(0, 'rgba(255, 200, 0, 0.9)');
+                    gradient.addColorStop(0.7, 'rgba(255, 112, 0, 0.5)');
+                    gradient.addColorStop(1, 'rgba(255, 69, 0, 0)');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
                 }
             }
             
@@ -7871,19 +9198,29 @@ class StoneGiant extends Unit {
                 allCards = {
                     // Arena 1
                     'knight': { name: 'Knight', cost: 3, emoji: '⚔️', type: 'Melee', unitClass: Knight, placementRadius: 12, isFlying: false, arena: 1, targets: 'Ground', aggroRange: 100,
-                                stats: { 1: { health: 500, damage: 65, hitSpeed: 1.2, speed: 0.9 } } },
+                                stats: { 1: { health: 500, damage: 65, hitSpeed: 1.2, speed: 0.9 } },
+                                // Evolution: Shielded Knight reflects damage for 5 seconds. Uses same base stats.
+                                evo: { cycle: 2, desc: 'Gains a shield for 5 seconds. Damage dealt to the knight is reflected back at the attacker while the shield lasts.', stats: { health: 500, damage: 65, hitSpeed: 1.2, speed: 0.9 } } },
                     'archer': { name: 'Archer', cost: 4, emoji: '🏹', type: 'Ranged', unitClass: Archer, placementRadius: 10, isFlying: false, arena: 1, targets: 'Air & Ground', aggroRange: 120,
-                                stats: { 1: { health: 250, damage: 40, hitSpeed: 1, speed: 0.9 } } },
+                                stats: { 1: { health: 250, damage: 40, hitSpeed: 1, speed: 0.9 } },
+                                // Evolution: Fires splash arrows that deal area damage.
+                                evo: { cycle: 2, desc: 'Shoots explosive arrows that deal splash damage around the target.', stats: { health: 250, damage: 50, hitSpeed: 1, speed: 0.9 } } },
                     'giant': { name: 'Giant', cost: 5, emoji: '💪', type: 'Tank', unitClass: Giant, placementRadius: 18, isFlying: false, arena: 1, targets: 'Buildings', aggroRange: 100,
                                 stats: { 1: { health: 1000, damage: 60, hitSpeed: 1.5, speed: 0.5 } } },
                     'goblins': { name: 'Goblins', cost: 2, emoji: '👺', type: 'Swarm', unitClass: Goblins, placementRadius: 10, isFlying: false, arena: 1, targets: 'Ground', aggroRange: 100,
-                                stats: { 1: { count: 3, health: 100, damage: 20, hitSpeed: 1, speed: 1.0 } } },
+                                stats: { 1: { count: 3, health: 100, damage: 20, hitSpeed: 1, speed: 1.0 } },
+                                // Evolution: Damage increases by 25% after each hit until they die.
+                                evo: { cycle: 2, desc: 'Damage increases by 25% after each hit until the goblin dies.', stats: { count: 3, health: 100, damage: 25, hitSpeed: 1, speed: 1.0 } } },
                     'skeletons': { name: 'Skeletons', cost: 1, emoji: '💀', type: 'Swarm', unitClass: Skeletons, placementRadius: 10, isFlying: false, arena: 1, targets: 'Ground', aggroRange: 100,
-                                stats: { 1: { count: 3, health: 10, damage: 5, hitSpeed: 1.2, speed: 1.2 } } },
+                                stats: { 1: { count: 3, health: 10, damage: 5, hitSpeed: 1.2, speed: 1.2 } },
+                                // Evolution: Each skeleton clones itself on each attack up to a max of 10 skeletons.
+                                evo: { cycle: 1, desc: 'On each attack, clones itself up to a maximum of 10 skeletons at a time.', stats: { count: 4, health: 10, damage: 5, hitSpeed: 1.2, speed: 1.2 } } },
                     'tinyBot': { name: 'Tiny Bot', cost: 4, emoji: '🤖', type: 'Melee', unitClass: TinyBot, placementRadius: 10, isFlying: false, arena: 1, targets: 'Ground', aggroRange: 100,
                                 stats: { 1: { health: 700, damage: 250, hitSpeed: 1.8, speed: 0.7 } } },
                     'fireball': { name: 'Fireball', cost: 4, emoji: '🔥', type: 'Spell', radius: 50, placementRadius: 50, arena: 1, targets: 'Air & Ground',
-                                stats: { 1: { damage: 250 } } },
+                                stats: { 1: { damage: 250 } },
+                                // Evolution: Leaves a lingering fire that deals additional damage in an area.
+                                evo: { cycle: 1, desc: 'After the initial explosion, leaves a ring of fire that deals additional damage over time.', stats: { damage: 300 } } },
                     'arrows': { name: 'Arrows', cost: 3, emoji: '🎯', type: 'Spell', radius: 80, placementRadius: 80, arena: 1, targets: 'Air & Ground',
                                 stats: { 1: { damage: 140 } } },
                     // Arena 2
@@ -7899,7 +9236,9 @@ class StoneGiant extends Unit {
                     'fireDragon': { name: 'Fire Dragon', cost: 4, emoji: '🐲', type: 'Air', unitClass: FireDragon, placementRadius: 14, isFlying: true, arena: 3, targets: 'Air & Ground', aggroRange: 120,
                                 stats: { 1: { health: 800, damage: 100, hitSpeed: 1.0, speed: 0.8, splashRadius: 20 } } },
                     'barbarians': { name: 'Barbarians', cost: 5, emoji: '🧔', type: 'Swarm', unitClass: Barbarians, placementRadius: 10, isFlying: false, arena: 3, targets: 'Ground', aggroRange: 100,
-                                stats: { 1: { count: 5, health: 300, damage: 60, hitSpeed: 1.4, speed: 0.8 } } },
+                                stats: { 1: { count: 5, health: 300, damage: 60, hitSpeed: 1.4, speed: 0.8 } },
+                                // Evolution: Each barbarian starts with a shield that blocks two hits.
+                                evo: { cycle: 2, desc: 'Each barbarian gains a shield that blocks two hits from any attack before breaking.', stats: { count: 5, health: 300, damage: 60, hitSpeed: 1.4, speed: 0.8 } } },
                     'battleRam': { name: 'Battle Ram', cost: 4, emoji: '🌲', type: 'WinCon', unitClass: BattleRam, placementRadius: 10, isFlying: false, arena: 3, targets: 'Buildings', aggroRange: 100,
                                 stats: { 1: { health: 700, damage: 200, chargeSpeed: 2.0, barbLevel: 1, speed: 0.8 } } },
                     'barbarianHut': { name: 'Barbarian House', cost: 7, emoji: '🏘️', type: 'Building', unitClass: BarbarianHut, placementRadius: 20, isFlying: false, arena: 3, targets: '-',
@@ -7975,6 +9314,17 @@ class StoneGiant extends Unit {
                                 stats: { 1: { health: 1400, damage: 20, hitSpeed: 1.0, lifetime: '40s', spawn_speed: '0s', rampMultiplier: 1.3, maxDamage: 250 } } },
                     'bot': { name: 'Bot', cost: 7, emoji: '🤖', type: 'Melee', unitClass: Bot, placementRadius: 15, isFlying: false, arena: 10, targets: 'Ground', aggroRange: 100,
                                 stats: { 1: { health: 1800, damage: 350, hitSpeed: 2.0, speed: 0.3 } } },
+
+                    // === Arena 11: Diddy's Prison ===
+                    // New building that spawns a Diddy Goblin when it expires or dies
+                    'diddyCage': { name: 'Diddy Cage', cost: 5, emoji: '🦍', type: 'Building', unitClass: DiddyCage, placementRadius: 20, isFlying: false, arena: 11, targets: '-',
+                        stats: { 1: { health: 900, spawn_speed: '0s', lifetime: '25s' } } },
+                    // Deployable miner that can be placed anywhere; treated as a spell to bypass placement restrictions
+                    'diddyMiner': { name: 'Diddy Miner', cost: 4, emoji: '⛏️', type: 'Spell', radius: 0, placementRadius: 0, unitClass: DiddyMiner, arena: 11, targets: 'Ground',
+                        stats: { 1: { health: 650, damage: 10, hitSpeed: 1.2, speed: 1.0 } } },
+                    // Massive ape-like giant with an anger aura
+                    'diddyGiant': { name: 'Diddy Giant', cost: 7, emoji: '🐵💪', type: 'Tank', unitClass: DiddyGiant, placementRadius: 18, isFlying: false, arena: 11, targets: 'Buildings', aggroRange: 100,
+                        stats: { 1: { health: 1800, damage: 70, hitSpeed: 1.5, speed: 0.5 } } },
                     'tower': { name: 'Tower Upgrade', emoji: '👑' }
                 };
                 
@@ -8006,6 +9356,217 @@ class StoneGiant extends Unit {
                             card.stats[level] = newStats;
                         }
                     }
+                }
+            }
+
+            /*
+             * --- Diddy’s Brigade ---
+             *
+             * These classes implement the new Diddy cards and units introduced for
+             * Arena 11. DiddyGoblin is a fast melee unit spawned by the Diddy Cage
+             * building. The Diddy Cage is a simple building that decays over time
+             * like other huts but, upon destruction or expiry, releases a single
+             * DiddyGoblin. The Diddy Miner behaves like a spell card: it can be
+             * deployed anywhere on the battlefield and surfaces at the target
+             * position. Finally, the Diddy Giant is a tank similar to the Giant
+             * but projects an aura that enrages friendly troops within its radius.
+             */
+
+            // A nimble monkey warrior spawned from the Diddy Cage. Not a card itself.
+            class DiddyGoblin extends Unit {
+                constructor(x, y, team, level = 1) {
+                    // Base stats for level 1; higher levels will be auto-calculated
+                    const baseHealth = 250;
+                    const baseDamage = 45;
+                    const baseHitSpeed = 1.1;
+                    const baseSpeed = 1.0;
+                    super(x, y, 12, team, baseHealth, baseSpeed, 25, baseDamage, baseHitSpeed, '🐵', false, false, level, 100);
+                }
+            }
+
+            // A cage that spawns a Diddy Goblin when it expires or is destroyed.
+            class DiddyCage extends Building {
+                constructor(x, y, team, level = 1) {
+                    super(x, y, team, level, 'diddyCage');
+                    this.hasSpawned = false;
+                }
+                update() {
+                    // Apply decay and lifetime as usual
+                    if (this.health <= 0 || this.lifetime <= 0) {
+                        // Only spawn once
+                        if (!this.hasSpawned) {
+                            this.hasSpawned = true;
+                            // Spawn a DiddyGoblin at the cage’s location
+                            gameObjects.push(new DiddyGoblin(this.x, this.y, this.team, this.level));
+                        }
+                        this.health = 0;
+                        return;
+                    }
+                    this.lifetime -= deltaTime * 60;
+                    const decayPerFrame = this.maxHealth / this.maxLifetime;
+                    this.health -= decayPerFrame * (deltaTime * 60);
+                }
+                draw() {
+                    // Reuse the Building draw method for visuals
+                    super.draw();
+                }
+            }
+
+            // A burrowing miner that travels from the king tower to a target point over a few seconds
+            class DiddyMiner extends Unit {
+                constructor(x, y, team, level = 1) {
+                    const s = allCards['diddyMiner'].stats[level];
+                    const spawnX = WIDTH / 2;
+                    const spawnY = team === 'player' ? HEIGHT - 50 : 50;
+                    super(x, y, 12, team, s.health, s.speed, 20, s.damage, s.hitSpeed, '⛏️', false, false, level, allCards['diddyMiner'].aggroRange || 100);
+                    this.destX = x;
+                    this.destY = y;
+                    this.spawnX = spawnX;
+                    this.spawnY = spawnY;
+                    this.x = spawnX;
+                    this.y = spawnY;
+                    this.hasSurfaced = false;
+                    this.emergeDelay = 60;
+                    const distance = getDistance({ x: spawnX, y: spawnY }, { x: x, y: y });
+                    const normalized = Math.min(1, distance / (WIDTH * 0.75));
+                    const baseTravel = 180;
+                    const extraTravel = 140;
+                    this.travelDuration = Math.round(Math.max(120, Math.min(340, baseTravel + normalized * extraTravel)));
+                    this.emergeTimer = 0;
+                    this.particleInterval = Math.max(3, Math.round(10 - normalized * 5));
+                    this.particleTimer = this.particleInterval;
+                    this.isTargetable = false;
+                }
+                update() {
+                    if (!this.hasSurfaced) {
+                        this.emergeTimer++;
+                        if (this.emergeTimer >= this.emergeDelay) {
+                            const travelProgress = Math.min(1, (this.emergeTimer - this.emergeDelay) / this.travelDuration);
+                            this.x = this.spawnX + (this.destX - this.spawnX) * travelProgress;
+                            this.y = this.spawnY + (this.destY - this.spawnY) * travelProgress;
+                            this.particleTimer--;
+                            if (this.particleTimer <= 0) {
+                                this.particleTimer = this.particleInterval;
+                                const angle = Math.atan2(this.destY - this.spawnY, this.destX - this.spawnX);
+                                const jitter = (Math.random() - 0.5) * 0.4;
+                                const particle = new DiddyDirtParticle(this.x, this.y, angle + jitter);
+                                gameObjects.push(particle);
+                            }
+                            if (travelProgress >= 1) {
+                                this.hasSurfaced = true;
+                                this.isTargetable = true;
+                                this.x = this.destX;
+                                this.y = this.destY;
+                            }
+                        }
+                        return;
+                    }
+                    super.update();
+                }
+                draw() {
+                    if (!this.hasSurfaced) return;
+                    super.draw();
+                }
+            }
+
+            class DiddyDirtParticle extends GameObject {
+                constructor(x, y, angle, speed = 3, life = 60) {
+                    super(x, y, 2, 'neutral', 1);
+                    this.vx = Math.cos(angle) * speed;
+                    this.vy = Math.sin(angle) * speed;
+                    this.life = life;
+                    this.maxLife = life;
+                }
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.life--;
+                    if (this.life <= 0) this.health = 0;
+                }
+                draw() {
+                    ctx.save();
+                    const alpha = Math.max(0, this.life / this.maxLife);
+                    ctx.globalAlpha = alpha;
+                    ctx.fillStyle = '#a16207';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 3 + (1 - alpha) * 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            // A giant with an anger aura. Buffs allied troops within its radius.
+            class DiddyGiant extends Unit {
+                constructor(x, y, team, level = 1) {
+                    const s = allCards['diddyGiant'].stats[level];
+                    super(x, y, 18, team, s.health, s.speed, 30, s.damage, s.hitSpeed, '🐵💪', false, false, level, allCards['diddyGiant'].aggroRange || 100);
+                    // Radius of the anger aura
+                    this.auraRadius = 80;
+                    // Track units buffed by this giant to revert them when necessary
+                    this.angeredUnits = new Set();
+                }
+                update() {
+                    // Call base update for movement/attacks
+                    super.update();
+                    // If the giant has died, remove its buffs
+                    if (this.health <= 0) {
+                        for (const obj of this.angeredUnits) {
+                            if (obj.angeredBy === this) {
+                                // Restore original stats
+                                if (obj.originalDamage !== undefined) obj.attackDamage = obj.originalDamage;
+                                if (obj.originalCooldown !== undefined) obj.attackCooldown = obj.originalCooldown;
+                                obj.isAngered = false;
+                                obj.angeredBy = null;
+                            }
+                        }
+                        this.angeredUnits.clear();
+                        return;
+                    }
+                    // Apply the aura to nearby friendly units/buildings/towers
+                    for (const obj of gameObjects) {
+                        if (obj === this) continue;
+                        if (obj.team === this.team && (obj instanceof Unit || obj instanceof Building || obj instanceof Tower)) {
+                            const dist = getDistance(this, obj);
+                            if (dist < this.auraRadius) {
+                                // Grant anger buff if not already angered by this giant
+                                if (obj.angeredBy !== this) {
+                                    obj.angeredBy = this;
+                                    obj.isAngered = true;
+                                    // Store original stats if not already stored
+                                    if (obj.originalDamage === undefined && obj.attackDamage !== undefined) {
+                                        obj.originalDamage = obj.attackDamage;
+                                    }
+                                    if (obj.originalCooldown === undefined && obj.attackCooldown !== undefined) {
+                                        obj.originalCooldown = obj.attackCooldown;
+                                    }
+                                    // Apply buff
+                                    if (obj.attackDamage !== undefined) obj.attackDamage = Math.floor(obj.attackDamage * 1.25);
+                                    if (obj.attackCooldown !== undefined) obj.attackCooldown = Math.floor(obj.attackCooldown / 1.5);
+                                    this.angeredUnits.add(obj);
+                                }
+                            } else {
+                                // Unit has left the aura; revert if it was buffed by this giant
+                                if (obj.angeredBy === this) {
+                                    if (obj.originalDamage !== undefined) obj.attackDamage = obj.originalDamage;
+                                    if (obj.originalCooldown !== undefined) obj.attackCooldown = obj.originalCooldown;
+                                    obj.isAngered = false;
+                                    obj.angeredBy = null;
+                                    this.angeredUnits.delete(obj);
+                                }
+                            }
+                        }
+                    }
+                }
+                draw() {
+                    // Draw the aura circle as a faint white ring
+                    ctx.save();
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.auraRadius, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+                    super.draw();
                 }
             }
             
@@ -8168,6 +9729,7 @@ class StoneGiant extends Unit {
                 hand.forEach((cardId, index) => {
                     const cardEl = createCardDOM(cardId, false, true);
                     cardEl.dataset.handIndex = index;
+                    applyCardEvoDots(cardEl, cardId);
                     // Handle touch/mouse down for card selection
                     cardEl.addEventListener('mousedown', (e) => selectCard(e, cardEl, cardId));
                     cardEl.addEventListener('touchstart', (e) => selectCard(e, cardEl, cardId), { passive: false });
@@ -8175,14 +9737,21 @@ class StoneGiant extends Unit {
                 });
                 nextCardSlotEl.innerHTML = '';
                 if (nextCard) {
-                    nextCardSlotEl.appendChild(createCardDOM(nextCard, true, true));
+                    const nextCardEl = createCardDOM(nextCard, true, true);
+                    applyCardEvoDots(nextCardEl, nextCard);
+                    nextCardSlotEl.appendChild(nextCardEl);
                 }
                 updateCardUI();
+                refreshCardEvoIndicators();
             }
             
             function startGameDecks() {
                 // Player
-                gameDeck = shuffleDeck(gameMode === '2v2' ? playerDeck2v2 : playerDeck);
+                const deckToUse = (gameMode === '2v2') ? playerDeck2v2 : (gameMode === 'party1v1' ? playerDeckParty : playerDeck);
+                const modeKey = getMatchModeKey();
+                ensureMatchEvoSlotsForMode(modeKey);
+                matchEvoSlots[modeKey] = selectMatchEvoSlots(deckToUse);
+                gameDeck = shuffleDeck(deckToUse);
                 hand = [];
                 discardPile = [];
                 for (let i = 0; i < 4; i++) { hand.push(gameDeck.pop()); }
@@ -8258,9 +9827,10 @@ class StoneGiant extends Unit {
                 stopPreviewLoop(); // Stop preview loop during gameplay
                 isDemoMode = false; // Disable demo mode during real games
                 gameObjects = [];
-                playerElixir = 3;
-                aiElixir = 3;
-                aiTeammateElixir = 3; // Reset AI teammate elixir to 3
+                // Initialize elixir to 7 for player, AI and teammate at the start of each match
+                playerElixir = 7;
+                aiElixir = 7;
+                aiTeammateElixir = 7; // Reset AI teammate elixir to start at 7
                 selectedSpawningUnit = null;
                 isSpawningSpell = false;
                 gameRunning = true;
@@ -8278,6 +9848,11 @@ class StoneGiant extends Unit {
                 aiLeftTowerDestroyed = false;
                 aiRightTowerDestroyed = false;
                 updatePlacementOverlay();
+
+                // Reset evolution cycle counters for both player and AI.  
+                // These counters track how many times each card has been played since the last evolved placement.
+                playerEvoCycleCounts = {};
+                aiEvoCycleCounts = {};
                 
                 messageOverlay.style.display = 'none';
                 startButton.style.display = 'none';
@@ -8357,6 +9932,24 @@ class StoneGiant extends Unit {
 
             function runAI() {
                 const playerUnits = gameObjects.filter(o => o.team === 'player' && o instanceof Unit && o.y < RIVER_Y + 50);
+                const aiTowers = gameObjects.filter(obj => obj.team === 'ai' && obj instanceof Tower && obj.health > 0);
+                const towerThreats = playerUnits.filter(u => {
+                    return aiTowers.some(t => getDistance(u, t) < 120);
+                });
+                if (towerThreats.length > 0) {
+                    const defenseOrder = ['poison', 'arrows', 'barbarians', 'archer', 'goblins'];
+                    let defenseCard = null;
+                    for (const candidate of defenseOrder) {
+                        if (aiHand.includes(candidate) && aiElixir >= allCards[candidate].cost) {
+                            defenseCard = candidate;
+                            break;
+                        }
+                    }
+                    if (defenseCard) {
+                        spawnAIUnit(defenseCard, currentAiStatLevel, true);
+                        return;
+                    }
+                }
                 if (playerUnits.length > 0) {
                     let bestCardId = null;
                     // --- NEW AI LOGIC ---
@@ -8417,6 +10010,20 @@ class StoneGiant extends Unit {
             function spawnAIUnit(cardId, level, isDefensive = false) {
                 const card = allCards[cardId];
                 if (!card || card.cost > aiElixir) return;
+
+                let aiEvoSpawn = false;
+                if (evolutionsUnlocked && evoUnlockedCards && evoUnlockedCards[cardId]) {
+                    try {
+                        const requiredCycles = (card && card.evo && card.evo.cycle) ? card.evo.cycle : 1;
+                        const currentCount = aiEvoCycleCounts[cardId] || 0;
+                        if (currentCount + 1 >= requiredCycles) {
+                            aiEvoSpawn = true;
+                            aiEvoCycleCounts[cardId] = 0;
+                        } else {
+                            aiEvoCycleCounts[cardId] = currentCount + 1;
+                        }
+                    } catch (err) {}
+                }
                 
                 // Get AI's level for this card (force 15 in 2v2 or Party 1v1)
                 const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
@@ -8456,7 +10063,7 @@ class StoneGiant extends Unit {
                             gameObjects.push(new ChaosOrbEffect(target.x, target.y, 'ai', card.radius, damage));
                         } else {
                             const damage = card.stats[cardLevel].damage;
-                            gameObjects.push(new Spell(target.x, target.y, 'ai', damage, card.radius, card.emoji));
+                            gameObjects.push(new Spell(target.x, target.y, 'ai', damage, card.radius, card.emoji, aiEvoSpawn));
                         }
                         aiPlayCard(cardId);
                     }
@@ -8519,12 +10126,27 @@ class StoneGiant extends Unit {
                 }
                 
                 if (canSpawn && card.unitClass && typeof card.unitClass === 'function') {
+                    if (aiEvoSpawn) {
+                        window.pendingEvoSpawn = true;
+                        window.currentSpawnCardHasEvo = true;
+                    }
                     const newUnit = new card.unitClass(spawnX, spawnY, 'ai', cardLevel);
                     // --- TYPEERROR FIX ---
                     // This is the bug. 'newUnit' is just the spawner (e.g. Pigs), not an actual Unit (e.g. Pig)
                     // We must check if the *class* is a single unit/building
                     if (newUnit instanceof GameObject) {
-                         gameObjects.push(newUnit);
+                        // If this is an evolved Knight, grant a 5 second shield
+                        if (aiEvoSpawn && cardId === 'knight') {
+                            newUnit.shieldTimer = 5;
+                        }
+                        gameObjects.push(newUnit);
+                    }
+                    // Reset global evo flags after spawning AI unit
+                    if (aiEvoSpawn) {
+                        try {
+                            window.pendingEvoSpawn = false;
+                            window.currentSpawnCardHasEvo = false;
+                        } catch(err) {}
                     }
                     aiPlayCard(cardId);
                 }
@@ -8690,9 +10312,29 @@ class StoneGiant extends Unit {
                                 const newBuilding = new card.unitClass(spawnX, spawnY, 'ai', level);
                                 if (newBuilding instanceof GameObject) gameObjects.push(newBuilding);
                             } else {
+                                // Determine if the AI should spawn an evolved unit for this card (ai2)
+                                let ai2EvoSpawn = false;
+                                if (evolutionsUnlocked && evoUnlockedCards && evoUnlockedCards[bestCardId]) {
+                                    try {
+                                        window.pendingEvoSpawn = true;
+                                        window.currentSpawnCardHasEvo = true;
+                                        ai2EvoSpawn = true;
+                                    } catch(err) {}
+                                }
                                 const newUnit = new card.unitClass(spawnX, spawnY, 'ai', level);
                                 if (newUnit instanceof GameObject) {
+                                    // Grant Knight's shield for evolved Knight
+                                    if (ai2EvoSpawn && bestCardId === 'knight') {
+                                        newUnit.shieldTimer = 5;
+                                    }
                                     gameObjects.push(newUnit);
+                                }
+                                // Reset global evo flags after spawning
+                                if (ai2EvoSpawn) {
+                                    try {
+                                        window.pendingEvoSpawn = false;
+                                        window.currentSpawnCardHasEvo = false;
+                                    } catch(err) {}
                                 }
                             }
                             
@@ -8937,6 +10579,11 @@ class StoneGiant extends Unit {
             
             // NEW: Update the clip-path of the red overlay
             function updatePlacementOverlay() {
+                if (!selectedSpawningUnit || isSpawningSpell || selectedSpawningUnit.type === 'Spell') {
+                    placementOverlay.style.display = 'none';
+                    placementOverlay.style.clipPath = 'none';
+                    return;
+                }
                 // Use M (move) and L (line) path commands
                 // `M x y L x y L x y Z` creates a closed shape
                 let pathData = "";
@@ -9066,6 +10713,7 @@ class StoneGiant extends Unit {
                 gold += 50;
                 goldDisplay.textContent = `💰 ${gold}`;
                 // Always place chest in first available slot
+                normalizeChestSlots();
                 const emptySlotIndex = trophyChests.findIndex((chest, index) => index < 4 && !chest);
                 if (emptySlotIndex !== -1) {
                     trophyChests[emptySlotIndex] = { id: 'wood', openTime: Date.now(), clicks: 0, stars: 1 };
@@ -9090,6 +10738,7 @@ class StoneGiant extends Unit {
                 // Give rewards for ALL modes
                 gold += 50;
                 if (emptySlotIndex === -1) {
+                    normalizeChestSlots();
                     const newEmptySlotIndex = trophyChests.findIndex((chest, index) => index < 4 && !chest);
                     if (newEmptySlotIndex !== -1) {
                         trophyChests[newEmptySlotIndex] = { id: 'wood', openTime: Date.now() + Math.random() * 1000, clicks: 0, stars: 1 };
@@ -9464,10 +11113,14 @@ class StoneGiant extends Unit {
                 
                 if (isSpawningSpell) {
                     canPlace = true; // Spells can be placed anywhere
+                    placementIndicator.classList.remove('cant-place');
+                    if (selectedSpawningUnit.id === 'diddyMiner') {
+                        // Diddy miner has no placement restriction beyond spells
+                    }
                 } else {
                     canPlace = checkPlacement(clampedX, clampedY, placementRadius, selectedSpawningUnit.type);
+                    placementIndicator.classList.toggle('cant-place', !canPlace);
                 }
-                placementIndicator.classList.toggle('cant-place', !canPlace);
             }
             
             // Re-bind mouse/touch move to window to allow dragging off canvas
@@ -9534,6 +11187,33 @@ class StoneGiant extends Unit {
                 const isPartyModeForLevel = (gameMode === '2v2' || gameMode === 'party1v1');
                 const level = isPartyModeForLevel ? 15 : (cardCollection[selectedSpawningUnit.id] ? cardCollection[selectedSpawningUnit.id].level : 1);
                 
+                // Determine if this spawn should be evolved based on deck slot, unlock status, and cycle progress.
+                let evoSpawnThisUnit = false;
+                const cardId = selectedSpawningUnit.id;
+                const cardDef = allCards[cardId];
+                if (
+                    cardDef &&
+                    cardDef.evo &&
+                    evolutionsUnlocked &&
+                    evoUnlockedCards &&
+                    evoUnlockedCards[cardId] &&
+                    isCardInEvoSlot(cardId)
+                ) {
+                    const requiredCycles = Math.max(1, cardDef.evo.cycle || 1);
+                    const currentCount = playerEvoCycleCounts[cardId] || 0;
+                    if (currentCount >= requiredCycles) {
+                        evoSpawnThisUnit = true;
+                        playerEvoCycleCounts[cardId] = 0;
+                    } else {
+                        playerEvoCycleCounts[cardId] = currentCount + 1;
+                    }
+                    if (evoSpawnThisUnit) {
+                        window.pendingEvoSpawn = true;
+                        window.currentSpawnCardHasEvo = true;
+                    }
+                }
+                refreshCardEvoIndicators();
+
                 if (card.type === 'Spell') {
                     if (selectedSpawningUnit.id === 'poison') { // NEW
                         const s = card.stats[level];
@@ -9552,16 +11232,19 @@ class StoneGiant extends Unit {
                         gameObjects.push(new SkeletonYard(clampedX, clampedY, 'player', duration, card.radius, level));
                     } else if (selectedSpawningUnit.id === 'meteor') {
                          // Meteor spawns a projectile that takes time to land (simulated by slow projectile or effect)
-                         // For simplicity, we use a slower projectile visual
                          const damage = card.stats[level].damage;
-                         gameObjects.push(new Projectile(clampedX, clampedY - 200, {x: clampedX, y: clampedY, health: 1}, 'player', damage, card.radius)); 
-                         // Hacky: create a dummy target? No, Projectile needs target object.
-                         // Let's use standard Spell for now but with different visual or use FireballProjectile logic manually
-                         // Actually, let's just use Spell immediate effect for stability as per request "spell"
-                         gameObjects.push(new Spell(clampedX, clampedY, 'player', damage, card.radius, card.emoji));
+                         gameObjects.push(new Projectile(clampedX, clampedY - 200, {x: clampedX, y: clampedY, health: 1}, 'player', damage, card.radius));
+                         gameObjects.push(new Spell(clampedX, clampedY, 'player', damage, card.radius, card.emoji, evoSpawnThisUnit));
+                    } else if (selectedSpawningUnit.id === 'diddyMiner') {
+                        // Spawn a DiddyMiner at the selected location. Because diddyMiner is treated
+                        // as a spell, we handle it explicitly here.
+                        const newMiner = new DiddyMiner(clampedX, clampedY, 'player', level);
+                        if (newMiner instanceof GameObject) {
+                            gameObjects.push(newMiner);
+                        }
                     } else {
                         const damage = card.stats[level].damage;
-                        gameObjects.push(new Spell(clampedX, clampedY, 'player', damage, card.radius, card.emoji));
+                        gameObjects.push(new Spell(clampedX, clampedY, 'player', damage, card.radius, card.emoji, evoSpawnThisUnit));
                     }
                 } else if (card.type === 'Spirit') { // NEW: Handle spirits
                     const newUnit = new card.unitClass(clampedX, clampedY, 'player', level);
@@ -9574,12 +11257,29 @@ class StoneGiant extends Unit {
                     // Check if the returned object is an actual game object (for single units/buildings)
                     // If it's a spawner, it's not a GameObject and shouldn't be pushed.
                     if (newUnit instanceof GameObject) {
+                        // If this is an evolved Knight, grant a 5 second shield timer
+                        if (evoSpawnThisUnit && selectedSpawningUnit.id === 'knight') {
+                            newUnit.shieldTimer = 5;
+                        }
                         gameObjects.push(newUnit);
                     }
+                }
+
+                // After spawning a unit or spell, reset evolution flags if they were set
+                if (evoSpawnThisUnit) {
+                    try {
+                        window.pendingEvoSpawn = false;
+                        window.currentSpawnCardHasEvo = false;
+                    } catch(err) {}
                 }
                 
                 playCard(selectedSpawningUnit.id, selectedSpawningUnit.handIndex);
                 cancelPlacement();
+
+                // After playing a card, re-render the deck screen to update evolution cycle indicators
+                try {
+                    if (typeof renderDeckScreen === 'function') renderDeckScreen();
+                } catch(err) {}
             }
 
             // Use mouseup/touchend on the *window* to catch drags released off-canvas
@@ -9668,6 +11368,59 @@ class StoneGiant extends Unit {
             });
             observer.observe(document.body, { childList: true, subtree: true });
             // --- END: Intro Animation ---
+
+            // =============================
+            // Star Boxes Event Handlers
+            // =============================
+            // Attach event listeners for the star boxes UI. These allow navigation to the star boxes
+            // screen, upgrading the star box using quarter stars, opening the box, and dismissing overlays.
+            const starBoxesBtn = document.getElementById('starBoxesButton');
+            const starBoxesBackBtn = document.getElementById('starBoxesBackButton');
+            // Upgrade button removed in new design
+            const openBox1Btn = document.getElementById('openBox1Button');
+            const quarterOverlay = document.getElementById('quarterStarOverlay');
+            const quarterOkBtn = document.getElementById('quarterStarOkButton');
+            const starBoxOpenOverlayEl = document.getElementById('starBoxOpenOverlay');
+            const starBoxOpenCloseBtn = document.getElementById('starBoxOpenCloseButton');
+            // Navigate to the Star Boxes screen from the menu
+            if (starBoxesBtn) {
+                starBoxesBtn.onclick = () => {
+                    if (typeof showScreen === 'function') showScreen('starBoxes');
+                    // Update UI whenever entering star boxes
+                    if (typeof updateStarBoxesUI === 'function') updateStarBoxesUI();
+                };
+            }
+            // Return to menu screen from star boxes
+            if (starBoxesBackBtn) {
+                starBoxesBackBtn.onclick = () => {
+                    if (typeof showScreen === 'function') showScreen('menu');
+                };
+            }
+            // Open the first star box (requires one quarter star and shows rewards)
+            if (openBox1Btn) {
+                openBox1Btn.onclick = () => {
+                    // Only open if the player has at least one quarter star
+                    if (quarterStars > 0) {
+                        if (typeof openStarBox1 === 'function') openStarBox1();
+                    }
+                };
+            }
+            // Dismiss quarter star award overlay
+            if (quarterOkBtn) {
+                quarterOkBtn.onclick = () => {
+                    if (quarterOverlay) quarterOverlay.style.display = 'none';
+                };
+            }
+            // Dismiss star box opened overlay and reset progress
+            if (starBoxOpenCloseBtn) {
+                starBoxOpenCloseBtn.onclick = () => {
+                    if (starBoxOpenOverlayEl) starBoxOpenOverlayEl.style.display = 'none';
+                    // No progress to reset in the new design; just update the UI
+                    if (typeof updateStarBoxesUI === 'function') updateStarBoxesUI();
+                };
+            }
+            // Initialize star boxes UI when the game loads
+            if (typeof updateStarBoxesUI === 'function') updateStarBoxesUI();
         } // Close window.onload function
     </script>
 
@@ -9718,6 +11471,82 @@ class StoneGiant extends Unit {
         </div>
     </div>
 
+    <!--
+    ========================================================
+    SCREEN: STAR BOXES
+    ========================================================
+    -->
+    <!-- This screen lets the player spend quarter stars to unlock Star Boxes. The design has been updated to a 3D grid layout with square boxes and an icon in the center. -->
+    <div id="starBoxesScreen" class="screen flex-col items-center p-4">
+        <div class="flex-grow flex flex-col items-center w-full max-w-md pt-8 pb-24">
+            <h1 class="text-3xl font-bold mb-4 ui-text-effect">Star Boxes</h1>
+            <p class="text-lg mb-4">Quarter Stars: <span id="quarterStarCount">0</span></p>
+            <!-- Star Boxes Grid -->
+            <div class="w-full flex justify-around mb-6">
+                <!-- Star Box I: available box with 3D square button -->
+                <div class="text-center flex flex-col items-center">
+                    <button id="openBox1Button" class="flex items-center justify-center w-24 h-24 text-5xl rounded-xl transition transform hover:-translate-y-1 active:translate-y-0 bg-blue-600 hover:bg-blue-700 text-white font-bold"
+                        style="border: 4px solid #3b82f6; box-shadow: 0 8px 0 #1e40af;">
+                        📦
+                    </button>
+                    <div class="mt-2 text-sm font-bold text-yellow-300 ui-text-effect">Star Box I</div>
+                    <div class="text-xs text-gray-400">1 Quarter Star</div>
+                </div>
+                <!-- Star Box II: placeholder -->
+                <div class="text-center flex flex-col items-center opacity-50">
+                    <div class="flex items-center justify-center w-24 h-24 text-5xl rounded-xl bg-gray-700 text-gray-500"
+                        style="border: 4px solid #4b5563; box-shadow: inset 0 4px 0 #374151;">
+                        📦
+                    </div>
+                    <div class="mt-2 text-sm font-bold text-gray-500">Star Box II</div>
+                    <div class="text-xs text-gray-500">Coming Soon</div>
+                </div>
+                <!-- Star Box III: placeholder -->
+                <div class="text-center flex flex-col items-center opacity-50">
+                    <div class="flex items-center justify-center w-24 h-24 text-5xl rounded-xl bg-gray-700 text-gray-500"
+                        style="border: 4px solid #4b5563; box-shadow: inset 0 4px 0 #374151;">
+                        📦
+                    </div>
+                    <div class="mt-2 text-sm font-bold text-gray-500">Star Box III</div>
+                    <div class="text-xs text-gray-500">Coming Soon</div>
+                </div>
+            </div>
+            <button id="starBoxesBackButton" class="bg-gray-600 hover:bg-gray-700 mt-8 px-4 py-2 rounded w-full text-center font-bold">Back</button>
+        </div>
+    </div>
+
+    <!--
+    ========================================================
+    OVERLAY: QUARTER STAR AWARD
+    ========================================================
+    -->
+    <!-- Displays when the player earns a quarter star -->
+    <div id="quarterStarOverlay" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50 flex-col">
+        <div class="bg-gray-800 rounded-lg p-6 w-80 flex flex-col items-center">
+            <div class="text-6xl mb-4">⭐</div>
+            <h2 class="text-3xl font-bold mb-2 text-yellow-300">Quarter Star Earned!</h2>
+            <p class="text-lg mb-4 text-gray-200">You now have <span id="quarterStarCountAward">0</span> star(s).</p>
+            <button id="quarterStarOkButton" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded font-bold w-full">Awesome!</button>
+        </div>
+    </div>
+
+    <!--
+    ========================================================
+    OVERLAY: STAR BOX OPEN
+    ========================================================
+    -->
+    <!-- Displays the rewards when a star box is opened -->
+    <div id="starBoxOpenOverlay" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50 flex-col">
+        <div class="bg-gray-800 rounded-lg p-6 w-80 flex flex-col items-center">
+            <h2 class="text-2xl font-bold mb-3 text-yellow-300">Star Box Opened!</h2>
+            <h3 class="text-xl font-bold mb-2 text-blue-300">Unlocks</h3>
+            <ul id="starBoxUnlocks" class="list-disc list-inside text-gray-200 mb-4"></ul>
+            <h3 class="text-xl font-bold mb-2 text-green-300">Rewards</h3>
+            <ul id="starBoxRewards" class="list-disc list-inside text-gray-200 mb-4"></ul>
+            <button id="starBoxOpenCloseButton" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded font-bold w-full">Awesome!</button>
+        </div>
+    </div>
+
     <!-- 2v2 Join Code Modal -->
     <div id="joinCodeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-gray-800 rounded-lg p-6 w-80">
@@ -9736,3 +11565,5 @@ class StoneGiant extends Unit {
 
 </body>
 </html>
+
+
