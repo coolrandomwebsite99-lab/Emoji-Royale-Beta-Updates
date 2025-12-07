@@ -1524,7 +1524,7 @@
                         <span class="arena-emoji">🐉</span>
                         <div>
                             <h2 class="text-xl font-bold">Arena 12: Mythic Arena</h2>
-                            <p class="text-yellow-300">2750+ Trophies ?</p>
+                            <p class="text-yellow-300">2750+ Trophies 🏆</p>
                         </div>
                     </div>
                 </div>
@@ -2389,6 +2389,12 @@ const firebaseConfig = {
 
         // --- NEW: Game Mode State ---
         let gameMode = 'trophy'; // 'trophy', 'party1v1', '2v2'
+        function isMaxLevelMatch(mode = gameMode) {
+            return mode === 'party1v1' || mode === '2v2';
+        }
+        function isRankedMode(mode = gameMode) {
+            return mode === 'trophy';
+        }
         let is2v2Friend = false;
         let is2v2AITeammate = false;
         let twoVtwoLobbyCode = null;
@@ -3411,6 +3417,7 @@ const firebaseConfig = {
                     'Horse Rider charges after a 3-second pause, smashes with charge damage, and jumps the river whenever the bridge is too far.',
                     'Zap Dragon fires a chaining beam that hits up to ten enemies in sequence and can activate King Towers just like Zap Spirit.',
                     'Pig Jockey leaps over the river and bulldozes straight toward buildings as a win condition that ignores bridges.',
+                    '🧪 Elixir Giant charges Buildings, splitting into smaller shards on death and nudging the opponent\'s elixir bar by 1 / 0.5 / 0.25 instead of showing weird totals.',
                     'AI levels and chest rewards now stretch into Mythic Arena so the new cards appear in decks and star boxes.'
                 ]},
                 { date: '12/05/2025', title: 'Stars & Evolutions Update', items: [
@@ -4487,7 +4494,8 @@ if (chestCloseButton) {
                     return cardEl;
                 }
 
-                const displayLevel = isParty ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
+                const useMaxLevel = isMaxLevelMatch();
+                const displayLevel = useMaxLevel ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
                 const displayCount = (cardData && cardData.count) ? cardData.count : 0;
                 
                 cardEl.dataset.cost = card.cost;
@@ -5119,7 +5127,8 @@ if (chestCloseButton) {
                 
                 const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
                 const isLocked = isParty ? false : (!cardData || !cardData.unlocked);
-                const displayLevel = isParty ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
+                const useMaxLevel = isMaxLevelMatch();
+                const displayLevel = useMaxLevel ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
                 const stats = card.stats ? card.stats[displayLevel] : null;
 
                 // Reset preview evolution toggle whenever opening a new card modal
@@ -5311,6 +5320,14 @@ if (chestCloseButton) {
                 const searchInput = document.getElementById('previewSearchInput');
                 allCardsList.innerHTML = '';
                 searchInput.value = '';
+                const applyPreviewListFilters = () => {
+                    const term = (searchInput.value || '').toLowerCase();
+                    Array.from(allCardsList.children).forEach(child => {
+                        const matchEvo = !previewListEvoOnly || child.dataset.hasEvo === 'true';
+                        const matchSearch = (child.dataset.searchName || '').includes(term);
+                        child.style.display = (matchEvo && matchSearch) ? 'flex' : 'none';
+                    });
+                };
                 // Insert a DNA toggle button next to the search bar to filter cards by evolution availability
                 // Create the button only once to avoid duplicate elements upon repeated modal openings
                 (function() {
@@ -5338,13 +5355,7 @@ if (chestCloseButton) {
                         btn.onclick = () => {
                             previewListEvoOnly = !previewListEvoOnly;
                             updateBtnStyle();
-                            // Update visibility of cards in the list based on evo filter and search term
-                            const term = searchInput.value.toLowerCase();
-                            Array.from(allCardsList.children).forEach(child => {
-                                const matchEvo = !previewListEvoOnly || child.dataset.hasEvo === 'true';
-                                const matchSearch = (child.dataset.searchName || '').includes(term);
-                                child.style.display = (matchEvo && matchSearch) ? 'flex' : 'none';
-                            });
+                            applyPreviewListFilters();
                         };
                         updateBtnStyle();
                         parent.insertBefore(btn, searchInput.nextSibling);
@@ -5379,8 +5390,6 @@ if (chestCloseButton) {
                 // Populate All Cards
                 const sortedCards = Object.keys(allCards)
                     .filter(id => id !== 'tower' && id !== 'miniStoneGiant')
-                    // When the evo filter is active, only include cards that have an evolution defined
-                    .filter(id => !previewListEvoOnly || (allCards[id] && allCards[id].evo))
                     .sort((a, b) => allCards[a].name.localeCompare(allCards[b].name));
 
                 sortedCards.forEach(cid => {
@@ -5395,23 +5404,14 @@ if (chestCloseButton) {
                         startPreviewLoop();
                     };
                     el.dataset.searchName = allCards[cid].name.toLowerCase();
-                    // Apply initial display based on evo filter (previewListEvoOnly) and empty search term
-                    const matchEvo = !previewListEvoOnly || el.dataset.hasEvo === 'true';
-                    el.style.display = matchEvo ? 'flex' : 'none';
                     allCardsList.appendChild(el);
                 });
+                applyPreviewListFilters();
 
                 // Search Listener (Once)
                 if (!searchInput.dataset.hasListener) {
                     searchInput.dataset.hasListener = 'true';
-                    searchInput.addEventListener('input', (e) => {
-                        const term = e.target.value.toLowerCase();
-                        Array.from(allCardsList.children).forEach(child => {
-                            const name = child.dataset.searchName || '';
-                            const matchEvo = !previewListEvoOnly || child.dataset.hasEvo === 'true';
-                            child.style.display = (name.includes(term) && matchEvo) ? 'flex' : 'none';
-                        });
-                    });
+                    searchInput.addEventListener('input', applyPreviewListFilters);
                 }
 
                 cardInfoModal.style.display = 'flex';
@@ -5717,6 +5717,7 @@ if (chestCloseButton) {
                                  else if (currentPreviewCardId === 'voidTrap') gameObjects.push(new VoidTrapEffect(tx, ty, 'player', card.radius, s.damage));
                                  else if (currentPreviewCardId === 'chaosOrb') gameObjects.push(new ChaosOrbEffect(tx, ty, 'player', card.radius, s.damage));
                                  else if (currentPreviewCardId === 'skeletonYard') gameObjects.push(new SkeletonYard(tx, ty, 'player', s.duration, card.radius, 10));
+                                 else if (currentPreviewCardId === 'tornado') gameObjects.push(new TornadoSpell(tx, ty, 'player', card.radius, s.duration, s.pullStrength, s.damagePerSecond));
                                  else {
                                      const isEvoSpell = previewUseEvo && evolutionsUnlocked && card.evo;
                                      gameObjects.push(new Spell(tx, ty, 'player', s.damage, card.radius, card.emoji, isEvoSpell));
@@ -5740,6 +5741,7 @@ if (chestCloseButton) {
                                  else if (currentPreviewOpponentId === 'voidTrap') gameObjects.push(new VoidTrapEffect(tx, ty, 'ai', opponent.radius, s.damage));
                                  else if (currentPreviewOpponentId === 'chaosOrb') gameObjects.push(new ChaosOrbEffect(tx, ty, 'ai', opponent.radius, s.damage));
                                  else if (currentPreviewOpponentId === 'skeletonYard') gameObjects.push(new SkeletonYard(tx, ty, 'ai', s.duration, opponent.radius, 10));
+                                 else if (currentPreviewOpponentId === 'tornado') gameObjects.push(new TornadoSpell(tx, ty, 'ai', opponent.radius, s.duration, s.pullStrength, s.damagePerSecond));
                                  else {
                                      const isEvoSpell = previewListEvoOnly && evolutionsUnlocked && opponent.evo;
                                      gameObjects.push(new Spell(tx, ty, 'ai', s.damage, opponent.radius, opponent.emoji, isEvoSpell));
@@ -6132,7 +6134,7 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                     const y = RIVER_Y + 20 + Math.random() * 100; // Player's side
 
                     if (checkPlacement(x, y, card.placementRadius, card.type)) {
-                        const level = (gameMode === '2v2') ? 15 : 5; // Demo level, force 15 in 2v2
+                        const level = isMaxLevelMatch() ? 15 : 5; // Demo level, force 15 in 2v2
                         // Safety check: ensure unitClass exists
                         if (!card.unitClass || typeof card.unitClass !== 'function') {
                             console.error('Invalid unitClass for card:', cardId, card);
@@ -6380,7 +6382,10 @@ function ensureMatchEvoSlotsForMode(modeKey) {
             }
 
             function applyDamage(target, amount) {
-                if (target && target.health > 0) {
+            if (target && target.health > 0) {
+                if (typeof DiddyMiner !== 'undefined' && target instanceof DiddyMiner && !target.hasSurfaced) {
+                    return;
+                }
                     // If the target has shield hits remaining (e.g., evolved Barbarians), consume
                     // one shield and ignore the damage for this hit.  We still show damage
                     // numbers so the hit is visible.
@@ -8254,6 +8259,118 @@ class ColdSpirit extends Unit {
             }
         }
 
+            const ELIXIR_GIANT_STAGE_CONFIG = {
+                mini: {
+                    healthMult: 0.45,
+                    damageMult: 0.35,
+                    hitSpeedMult: 0.95,
+                    speedAdd: 0.35,
+                    radius: 17,
+                    aggroRange: 120,
+                    emoji: '🧫'
+                },
+                shard: {
+                    healthMult: 0.25,
+                    damageMult: 0.25,
+                    hitSpeedMult: 0.9,
+                    speedAdd: 0.45,
+                    radius: 13,
+                    aggroRange: 105,
+                    emoji: '🧬'
+                }
+            };
+
+            function buildElixirStageStats(level, stageKey) {
+                const config = ELIXIR_GIANT_STAGE_CONFIG[stageKey];
+                if (!config || !allCards['elixirGiant']) {
+                    return {
+                        health: 100,
+                        damage: 10,
+                        hitSpeed: 1.3,
+                        speed: 1.0,
+                        radius: 14,
+                        aggroRange: 100,
+                        emoji: '🧫'
+                    };
+                }
+                const cardStats = allCards['elixirGiant'].stats[level] || allCards['elixirGiant'].stats[1];
+                const health = Math.max(1, Math.round(cardStats.health * config.healthMult));
+                const damage = Math.max(1, Math.round(cardStats.damage * config.damageMult));
+                const hitSpeed = Math.max(0.3, cardStats.hitSpeed * config.hitSpeedMult);
+                const speed = (typeof cardStats.speed === 'number' ? cardStats.speed : 0.6) + config.speedAdd;
+                return {
+                    health,
+                    damage,
+                    hitSpeed,
+                    speed,
+                    radius: config.radius,
+                    aggroRange: config.aggroRange,
+                    emoji: config.emoji
+                };
+            }
+
+            function findClosestEnemyStructure(unit) {
+                let target = null;
+                let bestDist = Infinity;
+                for (const obj of gameObjects) {
+                    if (obj.team === unit.team) continue;
+                    if (!(obj instanceof Tower) && !(obj instanceof Building)) continue;
+                    if (obj.health <= 0) continue;
+                    const dist = getDistance(unit, obj);
+                    if (dist < bestDist) {
+                        bestDist = dist;
+                        target = obj;
+                    }
+                }
+                return target;
+            }
+
+            class ElixirGiant extends Unit {
+                constructor(x, y, team, level = 1) {
+                    const s = allCards['elixirGiant'].stats[level];
+                    super(x, y, 22, team, s.health, s.speed, 30, s.damage, s.hitSpeed, '🧪', false, false, level, allCards['elixirGiant'].aggroRange);
+                    this.didSpawnMini = false;
+                }
+                findTarget() {
+                    return findClosestEnemyStructure(this);
+                }
+                spawnMinis(targetArray) {
+                    if (this.didSpawnMini) return;
+                    this.didSpawnMini = true;
+                    const offset = 16;
+                    targetArray.push(new ElixirGiantMini(this.x - offset, this.y, this.team, this.level));
+                    targetArray.push(new ElixirGiantMini(this.x + offset, this.y, this.team, this.level));
+                }
+            }
+
+            class ElixirGiantMini extends Unit {
+                constructor(x, y, team, level = 1) {
+                    const s = buildElixirStageStats(level, 'mini');
+                    super(x, y, s.radius, team, s.health, s.speed, 26, s.damage, s.hitSpeed, s.emoji, false, false, level, s.aggroRange);
+                    this.didSpawnShards = false;
+                }
+                findTarget() {
+                    return findClosestEnemyStructure(this);
+                }
+                spawnShards(targetArray) {
+                    if (this.didSpawnShards) return;
+                    this.didSpawnShards = true;
+                    const offset = 10;
+                    targetArray.push(new ElixirGiantShard(this.x - offset, this.y, this.team, this.level));
+                    targetArray.push(new ElixirGiantShard(this.x + offset, this.y, this.team, this.level));
+                }
+            }
+
+            class ElixirGiantShard extends Unit {
+                constructor(x, y, team, level = 1) {
+                    const s = buildElixirStageStats(level, 'shard');
+                    super(x, y, s.radius, team, s.health, s.speed, 22, s.damage, s.hitSpeed, s.emoji, false, false, level, s.aggroRange);
+                }
+                findTarget() {
+                    return findClosestEnemyStructure(this);
+                }
+            }
+
         class ZapSpirit extends Unit {
             constructor(x, y, team, level = 1) {
                 const s = allCards['zapSpirit'].stats[level];
@@ -9788,6 +9905,88 @@ class StoneGiant extends Unit {
                 }
             }
 
+            class TornadoSpell extends GameObject {
+                constructor(x, y, team, radius, duration, pullStrength, damagePerSecond) {
+                    super(x, y, radius, team, 1);
+                    this.duration = (duration || 4) * 60;
+                    this.lifetime = this.duration;
+                    this.pullStrength = pullStrength || 6;
+                    this.damagePerSecond = damagePerSecond || 30;
+                    this.tickInterval = 15;
+                    this.tickTimer = this.tickInterval;
+                    this.spin = 0;
+                }
+                update() {
+                    const frameDelta = Math.max(1, deltaTime * 60);
+                    this.lifetime -= frameDelta;
+                    if (this.lifetime <= 0) {
+                        this.health = 0;
+                        return;
+                    }
+                    const pullPerFrame = this.pullStrength * frameDelta;
+                    for (const obj of gameObjects) {
+                        if (!obj || obj.team === this.team) continue;
+                        if (!(obj instanceof Unit)) continue;
+                        const dx = this.x - obj.x;
+                        const dy = this.y - obj.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < this.radius + (obj.radius || 0) && distance > 0.5) {
+                            const moveTarget = Math.max(0, distance - 6);
+                            const step = Math.min(pullPerFrame, moveTarget);
+                            if (step > 0) {
+                                obj.x += (dx / distance) * step;
+                                obj.y += (dy / distance) * step;
+                            }
+                        }
+                    }
+                    this.spin += 0.05 * (frameDelta / 60);
+
+                    this.tickTimer -= frameDelta;
+                    if (this.tickTimer <= 0) {
+                        this.tickTimer = this.tickInterval;
+                        const tickDamage = Math.max(1, Math.round((this.damagePerSecond || 20) * (this.tickInterval / 60)));
+                        for (const obj of gameObjects) {
+                            if (!obj || obj.team === this.team) continue;
+                            if (obj instanceof Unit || obj instanceof Building || obj instanceof Tower) {
+                                if (getDistance(this, obj) < this.radius) {
+                                    applyDamage(obj, tickDamage);
+                                }
+                            }
+                        }
+                    }
+                }
+                draw() {
+                    const progress = Math.max(0, Math.min(1, this.lifetime / this.duration));
+                    const glow = 0.25 + 0.15 * Math.sin((1 - progress) * Math.PI * 2);
+                    ctx.save();
+                    ctx.globalAlpha = glow;
+                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');
+                    gradient.addColorStop(0.5, 'rgba(14, 165, 233, 0.5)');
+                    gradient.addColorStop(1, 'rgba(14, 165, 233, 0)');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = `rgba(99, 102, 241, ${glow})`;
+                    for (let i = 0; i < 3; i++) {
+                        ctx.beginPath();
+                        const arcRadius = this.radius * (0.35 + i * 0.15);
+                        ctx.arc(this.x, this.y, arcRadius, this.spin + i, this.spin + i + Math.PI * 1.6);
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                    ctx.save();
+                    ctx.font = 'bold 18px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText('🌀', this.x, this.y);
+                    ctx.restore();
+                }
+            }
+
             class FlameWave extends GameObject {
                 constructor(x, y, team, damage, maxRadius) {
                     super(x, y, maxRadius, team, 1);
@@ -9976,6 +10175,8 @@ class StoneGiant extends Unit {
                             stats: { 1: { health: 700, damage: 41, hitSpeed: 1.3, speed: 0.5 }, 2: { health: 770, damage: 46, hitSpeed: 1.3, speed: 0.5 }, 3: { health: 848, damage: 51, hitSpeed: 1.3, speed: 0.5 }, 4: { health: 931, damage: 55, hitSpeed: 1.3, speed: 0.5 }, 5: { health: 1025, damage: 61, hitSpeed: 1.3, speed: 0.5 }, 6: { health: 1128, damage: 67, hitSpeed: 1.3, speed: 0.5 } } },
                     'chaosOrb': { name: 'Chaos Orb', cost: 3, emoji: '🌀', type: 'Spell', radius: 50, placementRadius: 50, arena: 8, targets: 'Air & Ground',
                                 stats: { 1: { damage: 200 } } },
+                    'tornado': { name: 'Tornado', cost: 3, emoji: '🌪️', type: 'Spell', radius: 90, placementRadius: 90, arena: 9, targets: 'Air & Ground',
+                                stats: { 1: { duration: 4.5, damagePerSecond: 36, pullStrength: 5 } } },
                     // Arena 9 (NEW)
                     'skeletonYard': { name: 'Skeleton Yard', cost: 5, emoji: '🪦', type: 'Spell', radius: 50, placementRadius: 50, arena: 9, targets: 'Ground',
                                 stats: { 1: { duration: 7.5 } } },
@@ -9989,9 +10190,9 @@ class StoneGiant extends Unit {
                     'megaSmasher': { name: 'Mega Smasher', cost: 7, emoji: '💥', type: 'Tank', unitClass: MegaSmasher, placementRadius: 18, isFlying: false, arena: 10, targets: 'Ground', aggroRange: 120,
                                 stats: { 1: { health: 1250, damage: 100, hitSpeed: 1.8, speed: 0.4, spawnSplashRadius: 70, jumpDamage: 150, jumpSplashRadius: 80, jumpRange: 100, jumpCooldown: 6, minJumpRange: 40, attackWidth: 60, attackHeight: 40 } } },
                     'zapGiant': { name: 'Zap Giant', cost: 7, emoji: '⚡💪', type: 'Tank', unitClass: ZapGiant, placementRadius: 18, isFlying: false, arena: 10, targets: 'Buildings', aggroRange: 100,
-                                stats: { 1: { health: 2200, damage: 80, hitSpeed: 1.5, speed: 0.3, spawnDamage: 200, spawnRadius: 60, zapDamage: 50, zapRadius: 90, zapInterval: 1.5 } } },
+                                stats: { 1: { health: 1800, damage: 80, hitSpeed: 1.5, speed: 0.3, spawnDamage: 200, spawnRadius: 60, zapDamage: 50, zapRadius: 90, zapInterval: 1.5 } } },
                     'flameDragon': { name: 'Flame Dragon', cost: 4, emoji: '🐲🔥', type: 'Air', unitClass: FlameDragon, placementRadius: 14, isFlying: true, arena: 10, targets: 'Air & Ground', aggroRange: 120,
-                                stats: { 1: { health: 800, damage: 20, hitSpeed: 0.4, speed: 0.8, rampMultiplier: 1.2, maxDamage: 200 } } },
+                                stats: { 1: { health: 600, damage: 16, hitSpeed: 0.4, speed: 0.8, rampMultiplier: 1.05, maxDamage: 150 } } },
 
                     'flameTower': { name: 'Flame Tower', cost: 5, emoji: '🏯🔥', type: 'Building', unitClass: FlameTower, placementRadius: 20, isFlying: false, arena: 10, targets: 'Air & Ground',
                                 stats: { 1: { health: 1400, damage: 20, hitSpeed: 1.0, lifetime: '40s', spawn_speed: '0s', rampMultiplier: 1.3, maxDamage: 250 } } },
@@ -10009,12 +10210,16 @@ class StoneGiant extends Unit {
                     'diddyGiant': { name: 'Diddy Giant', cost: 7, emoji: '🐵💪', type: 'Tank', unitClass: DiddyGiant, placementRadius: 18, isFlying: false, arena: 11, targets: 'Buildings', aggroRange: 100,
                         stats: { 1: { health: 1800, damage: 70, hitSpeed: 1.5, speed: 0.5 } } },
 
+                    // Arena 12 win condition: Splits into elixir shards that reward opponents on death
+                    'elixirGiant': { name: 'Elixir Giant', cost: 8, emoji: '🧪', type: 'WinCon', unitClass: ElixirGiant, placementRadius: 22, isFlying: false, arena: 12, targets: 'Buildings', aggroRange: 130,
+                                stats: { 1: { health: 1500, damage: 140, hitSpeed: 1.7, speed: 0.55 } } },
+
                     'horseRider': { name: 'Horse Rider', cost: 6, emoji: '🐎⚔️', type: 'Melee', unitClass: HorseRider, placementRadius: 14, isFlying: false, arena: 12, targets: 'Ground', aggroRange: 120,
                                 stats: { 1: { health: 1250, damage: 100, hitSpeed: 1.3, speed: 1.0, chargeDamage: 150, chargePrep: 3, chargeSpeed: 2.0, riverJumpDelay: 0.5, riverJumpDuration: 40, riverJumpHeight: 45 } } },
                     'zapDragon': { name: 'Zap Dragon', cost: 5, emoji: '⚡🐉', type: 'Air', unitClass: ZapDragon, placementRadius: 14, isFlying: true, arena: 12, targets: 'Air & Ground', aggroRange: 160,
-                                stats: { 1: { health: 900, damage: 70, hitSpeed: 1.5, speed: 0.8, chainRadius: 90, chainLimit: 10 } } },
+                                stats: { 1: { health: 900, damage: 35, hitSpeed: 1.5, speed: 0.8, chainRadius: 90, chainLimit: 10 } } },
                     'zapWizard': { name: 'Zap Wizard', cost: 5, emoji: '🧙⚡', type: 'Melee', unitClass: ZapWizard, placementRadius: 14, isFlying: false, arena: 12, targets: 'Ground', aggroRange: 150,
-                                stats: { 1: { health: 950, damage: 90, hitSpeed: 1.5, speed: 0.7, chainRadius: 90, chainLimit: 10 } } },
+                                stats: { 1: { health: 950, damage: 40, hitSpeed: 1.5, speed: 0.7, chainRadius: 90, chainLimit: 10 } } },
                     'pigJockey': { name: 'Pig Jockey', cost: 4, emoji: '🐷🏇', type: 'WinCon', unitClass: PigJockey, placementRadius: 12, isFlying: false, arena: 12, targets: 'Buildings', aggroRange: 150,
                                 stats: { 1: { health: 950, damage: 110, hitSpeed: 1.2, speed: 1.2, riverJumpDelay: 0.5, riverJumpDuration: 34, riverJumpHeight: 38 } } },
                     'tower': { name: 'Tower Upgrade', emoji: '👑' }
@@ -10031,6 +10236,7 @@ class StoneGiant extends Unit {
                             // Increase health and damage by ~10% per level
                             if (newStats.health) newStats.health = Math.round(newStats.health * 1.1);
                             if (newStats.damage) newStats.damage = Math.round(newStats.damage * 1.1);
+                            if (newStats.chargeDamage) newStats.chargeDamage = Math.round(newStats.chargeDamage * 1.1);
                             if (newStats.damagePerSecond) newStats.damagePerSecond = Math.round(newStats.damagePerSecond * 1.1); // For Poison
                             // Handle sub-unit stats
                             if (newStats.spear_health) newStats.spear_health = Math.round(newStats.spear_health * 1.1);
@@ -10396,7 +10602,8 @@ class StoneGiant extends Unit {
                     return cardEl;
                 }
 
-                const displayLevel = isParty ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
+                const useMaxLevel = isMaxLevelMatch();
+                const displayLevel = useMaxLevel ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
                 const displayCount = (cardData && cardData.count) ? cardData.count : 0;
                 
                 cardEl.dataset.cost = card.cost;
@@ -10597,9 +10804,9 @@ class StoneGiant extends Unit {
                     currentAiStatLevel = Math.floor(Math.random() * 2) + 9; // 9 or 10
                 }
                 
-                const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
-                const playerTowerLevel = isParty ? 15 : towerLevel;
-                const aiTowerLevel = isParty ? 15 : currentAiStatLevel;
+                const useMaxLevel = isMaxLevelMatch();
+                const playerTowerLevel = useMaxLevel ? 15 : towerLevel;
+                const aiTowerLevel = useMaxLevel ? 15 : currentAiStatLevel;
                 
                 if (gameMode === '2v2') {
                     // 2v2: Two princess towers per side, one combined double king tower per side
@@ -10625,7 +10832,7 @@ class StoneGiant extends Unit {
                     const aiType = (aiArenaLevel >= 10 && Math.random() > 0.5) ? ['waffle','machineGun','rocketeer'][Math.floor(Math.random()*3)] : 'princess';
                     // Use collection level if available for player
                     const pTowerData = towerCollection[selectedTower];
-                    const pLvl = (gameMode === 'party1v1') ? 15 : (pTowerData ? pTowerData.level : playerTowerLevel);
+                    const pLvl = useMaxLevel ? 15 : (pTowerData ? pTowerData.level : playerTowerLevel);
                     
                     gameObjects.push(new Tower(LANE_LEFT_X, HEIGHT - 100, 'player', false, pLvl, false, selectedTower));
                     gameObjects.push(new Tower(LANE_RIGHT_X, HEIGHT - 100, 'player', false, pLvl, false, selectedTower));
@@ -10662,7 +10869,7 @@ class StoneGiant extends Unit {
                     defensive: true
                 },
                 {
-                    predicate: unit => unit instanceof Giant || unit instanceof Pigs || unit instanceof HorseRider || unit instanceof PigJockey || unit instanceof StoneGiant || unit instanceof ZapGiant,
+                    predicate: isMeleeWinConditionUnit,
                     cards: ['farmer', 'tinyBot', 'barbarians'],
                     defensive: true
                 },
@@ -10678,8 +10885,22 @@ class StoneGiant extends Unit {
                 }
             ];
 
+            function isMeleeWinConditionUnit(unit) {
+                if (!unit) return false;
+                const heavyCounters = [
+                    Giant, Pigs, HorseRider, PigJockey, StoneGiant, ZapGiant,
+                    ElixirGiant, ElixirGiantMini, ElixirGiantShard, DiddyGiant, MegaSmasher, BattleRam
+                ];
+                if (heavyCounters.some(cls => unit instanceof cls)) return true;
+                if (unit instanceof Unit && !unit.isFlying && unit.targetsAir === false && unit.attackRange <= 40 && unit.health >= 1200) {
+                    return true;
+                }
+                return false;
+            }
+
             function isWinConditionUnit(unit) {
-                return unit instanceof PigJockey || unit instanceof MegaSmasher || unit instanceof HorseRider || unit instanceof Pigs;
+                return unit instanceof PigJockey || unit instanceof MegaSmasher || unit instanceof HorseRider || unit instanceof Pigs
+                    || unit instanceof ElixirGiant || unit instanceof ElixirGiantMini || unit instanceof ElixirGiantShard;
             }
 
             function evaluateUnitThreatScore(unit, towers) {
@@ -10709,6 +10930,65 @@ class StoneGiant extends Unit {
                 return null;
             }
 
+            function summarizePlayerThreats(units) {
+                const summary = {
+                    hasFlying: false,
+                    hasWinCon: false,
+                    hasSwarm: false,
+                    hasMelee: false,
+                    totalHealth: 0,
+                    targetingTower: false,
+                    hasSplash: false,
+                    hasZapThreat: false,
+                    hasFlameDragon: false
+                };
+                units.forEach(unit => {
+                    if (!unit || unit.health <= 0) return;
+                    summary.totalHealth += unit.health;
+                    if (unit.isFlying) summary.hasFlying = true;
+                    if (isWinConditionUnit(unit) || isMeleeWinConditionUnit(unit)) summary.hasWinCon = true;
+                    if (unit instanceof Skeleton || unit instanceof SkeletonArmy || unit instanceof GoblinGang || unit instanceof FlyingSkeletonGroup) summary.hasSwarm = true;
+                    if (!unit.isFlying && unit.attackRange <= (unit.radius + 20)) summary.hasMelee = true;
+                    if (unit.target instanceof Tower && unit.target.team === 'ai') summary.targetingTower = true;
+                    const nearCount = units.filter(other => other !== unit && getDistance(other, unit) < 40).length;
+                    if (nearCount >= 2) summary.hasSplash = true;
+                    if (unit instanceof ZapSpirit || unit instanceof ZapWizard || unit instanceof ZapDragon || unit.emoji === '⚡') summary.hasZapThreat = true;
+                    if (unit instanceof FlameDragon) summary.hasFlameDragon = true;
+                });
+                return summary;
+            }
+
+            const aiFallbackThreatCounters = [
+                { condition: summary => summary.hasFlying, cards: ['zapDragon', 'fireDragon', 'archer', 'arrows'], defensive: true },
+                { condition: summary => summary.hasSplash || summary.hasZapThreat, cards: ['arrows', 'poison', 'zapDragon'], defensive: true },
+                { condition: summary => summary.targetingTower, cards: ['barbarians', 'farmer', 'tinyBot', 'axeSwinger'], defensive: true },
+                { condition: summary => summary.hasWinCon, cards: ['barbarians', 'farmer', 'tinyBot', 'axeSwinger'], defensive: true },
+                { condition: summary => summary.hasSwarm, cards: ['poison', 'arrows', 'axeSwinger'], defensive: true },
+                { condition: summary => summary.hasFlameDragon, cards: ['zapDragon', 'archer', 'arrows', 'fireDragon'], defensive: true },
+                { condition: summary => summary.hasMelee, cards: ['barbarians', 'axeSwinger', 'zapWizard'], defensive: true }
+            ];
+
+            function findFallbackCounter(summary) {
+                for (const entry of aiFallbackThreatCounters) {
+                    if (!entry.condition(summary)) continue;
+                    const candidate = entry.cards.find(cardId => aiHand.includes(cardId) && aiElixir >= (allCards[cardId]?.cost || Infinity));
+                    if (candidate) {
+                        return { card: candidate, isDefensive: entry.defensive };
+                    }
+                }
+                return null;
+            }
+
+            function findStrongestAffordableUnitCard() {
+                const candidates = aiHand
+                    .filter(cardId => {
+                        const card = allCards[cardId];
+                        return card && card.type !== 'Spell' && aiElixir >= card.cost;
+                    })
+                    .sort((a, b) => (allCards[b]?.cost || 0) - (allCards[a]?.cost || 0));
+                return candidates.length > 0 ? candidates[0] : null;
+            }
+
             function findCounterForUnit(unit) {
                 for (const entry of aiCounterConfig) {
                     if (!entry.predicate(unit)) continue;
@@ -10722,11 +11002,30 @@ class StoneGiant extends Unit {
             }
 
             function runAI() {
-                const playerUnits = gameObjects.filter(o => o.team === 'player' && o instanceof Unit && o.y < RIVER_Y + 50);
+                const playerUnits = gameObjects.filter(o => o.team === 'player' && o instanceof Unit);
                 const aiTowers = gameObjects.filter(obj => obj.team === 'ai' && obj instanceof Tower && obj.health > 0);
                 const towerThreats = playerUnits.filter(u => {
+                    if (u.target && u.target instanceof Tower && u.target.team === 'ai') {
+                        return true;
+                    }
                     return aiTowers.some(t => getDistance(u, t) < 120);
                 });
+                const aiKingTower = aiTowers.find(t => t.isKing && t.health > 0);
+                const kingThreat = aiKingTower && playerUnits.some(u => {
+                    if (!u || !u.health) return false;
+                    if (u.target === aiKingTower) return true;
+                    return getDistance(u, aiKingTower) < aiKingTower.radius + 80;
+                });
+                if (!towerThreats.length && kingThreat) {
+                    towerThreats.push({ king: true });
+                }
+                if (playerUnits.length === 0 && aiTowers.length < 3) {
+                    const pushCard = findStrongestAffordableUnitCard();
+                    if (pushCard) {
+                        spawnAIUnit(pushCard, currentAiStatLevel, false);
+                        return;
+                    }
+                }
                 if (towerThreats.length > 0) {
                     const defenseOrder = ['poison', 'arrows', 'barbarians', 'archer', 'goblins'];
                     let defenseCard = null;
@@ -10745,6 +11044,12 @@ class StoneGiant extends Unit {
                     const counterPlay = selectCounterCard(playerUnits, aiTowers);
                     if (counterPlay) {
                         spawnAIUnit(counterPlay.card, currentAiStatLevel, counterPlay.isDefensive);
+                        return;
+                    }
+                    const threatSummary = summarizePlayerThreats(playerUnits);
+                    const fallbackCounter = findFallbackCounter(threatSummary);
+                    if (fallbackCounter) {
+                        spawnAIUnit(fallbackCounter.card, currentAiStatLevel, fallbackCounter.isDefensive);
                         return;
                     }
                     let bestCardId = null;
@@ -10771,6 +11076,11 @@ class StoneGiant extends Unit {
                         bestCardId = 'goblins';
                     }
                     if (bestCardId) { spawnAIUnit(bestCardId, currentAiStatLevel, true); return; } // Use global
+                    const fallbackPush = findStrongestAffordableUnitCard();
+                    if (fallbackPush) {
+                        spawnAIUnit(fallbackPush, currentAiStatLevel, false);
+                        return;
+                    }
                 }
                 
                 // Fallback: If elixir is high, play a card
@@ -10810,20 +11120,19 @@ class StoneGiant extends Unit {
                 let aiEvoSpawn = false;
                 if (evolutionsUnlocked && evoUnlockedCards && evoUnlockedCards[cardId]) {
                     try {
-                        const requiredCycles = (card && card.evo && card.evo.cycle) ? card.evo.cycle : 1;
-                        const currentCount = aiEvoCycleCounts[cardId] || 0;
-                        if (currentCount + 1 >= requiredCycles) {
+                        const requiredCycles = Math.max(1, (card && card.evo && card.evo.cycle) ? card.evo.cycle : 1);
+                        const nextCount = (aiEvoCycleCounts[cardId] || 0) + 1;
+                        if (nextCount >= requiredCycles) {
                             aiEvoSpawn = true;
                             aiEvoCycleCounts[cardId] = 0;
                         } else {
-                            aiEvoCycleCounts[cardId] = currentCount + 1;
+                            aiEvoCycleCounts[cardId] = nextCount;
                         }
                     } catch (err) {}
                 }
                 
                 // Get AI's level for this card (force 15 in 2v2 or Party 1v1)
-                const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
-                const cardLevel = isParty ? 15 : level;
+                const cardLevel = isMaxLevelMatch() ? 15 : level;
                 
                 if (card.type === 'Spell') {
                     let target = null;
@@ -11084,7 +11393,7 @@ class StoneGiant extends Unit {
                         let spawnX = LANE_LEFT_X + Math.random() * (LANE_RIGHT_X - LANE_LEFT_X);
                         let spawnY = 100 + Math.random() * 100;
                         if (checkPlacement(spawnX, spawnY, card.placementRadius, card.type)) {
-                            const level = (gameMode === '2v2') ? 15 : currentAi2StatLevel;
+                            const level = isMaxLevelMatch() ? 15 : currentAi2StatLevel;
                             
                             // Handle spells properly
                             if (card.type === 'Spell') {
@@ -11355,6 +11664,15 @@ class StoneGiant extends Unit {
                     updateAITeammateUI(); // Update UI continuously when elixir is gained
                 }
             }
+
+            function rewardOpponentElixir(ownerTeam, amount) {
+                if (amount <= 0) return;
+                if (ownerTeam === 'player') {
+                    aiElixir = Math.min(MAX_ELIXIR, aiElixir + amount);
+                } else if (ownerTeam === 'ai') {
+                    playerElixir = Math.min(MAX_ELIXIR, playerElixir + amount);
+                }
+            }
             
             // NEW: Update function to check tower status
             function checkTowerStatus() {
@@ -11484,8 +11802,8 @@ class StoneGiant extends Unit {
                 cancelAnimationFrame(gameLoopId);
                 startBgAnimation(); // Restart background animation when game ends
                 
-                // Trophies only for Trophy Road
-                if (gameMode === 'trophy') {
+                // Trophies only for Trophy Road (ranked matches)
+                if (isRankedMode()) {
                     trophies += 30;
                     updateArena();
                     trophyDisplay.textContent = `🏆 ${trophies}`;
@@ -11516,7 +11834,7 @@ class StoneGiant extends Unit {
                     renderChests();
                 }
                 let msg = 'You Win!';
-                if (gameMode === 'trophy') msg += ' (+30 🏆, +50 💰, 📦)';
+                if (isRankedMode()) msg += ' (+30 🏆, +50 💰, 📦)';
                 else msg += ' (+50 💰, 📦)';
                 
                 messageText.textContent = msg;
@@ -11565,7 +11883,7 @@ class StoneGiant extends Unit {
                 // Calculate minimum trophy floor for current arena
                 let minTrophyFloor = 0;
                 let lossAmount = 0;
-                if (gameMode === 'trophy') {
+                if (isRankedMode()) {
                     for (const floor in arenaFloors) {
                         if (trophies >= parseInt(floor)) {
                             minTrophyFloor = parseInt(floor);
@@ -11581,7 +11899,7 @@ class StoneGiant extends Unit {
                     trophyDisplay.textContent = `🏆 ${trophies}`;
                 }
                 
-                if (gameMode === 'trophy') {
+                if (isRankedMode()) {
                      messageText.textContent = `${message} (-${lossAmount} 🏆)`;
                 } else {
                      messageText.textContent = message;
@@ -11666,6 +11984,21 @@ class StoneGiant extends Unit {
                         if (obj instanceof StoneGiant && !obj.didSpawnMinis) {
                             console.log('Cleanup: StoneGiant died at', obj.x, obj.y, 'spawning minis');
                             obj.spawnMinis();
+                        }
+                        // Special case: Elixir Giant chain splits and rewards opponent elixir
+                        if (obj instanceof ElixirGiant) {
+                            rewardOpponentElixir(obj.team, 1);
+                            obj.spawnMinis(newGameObjects);
+                            continue;
+                        }
+                        if (obj instanceof ElixirGiantMini) {
+                            rewardOpponentElixir(obj.team, 0.5);
+                            obj.spawnShards(newGameObjects);
+                            continue;
+                        }
+                        if (obj instanceof ElixirGiantShard) {
+                            rewardOpponentElixir(obj.team, 0.25);
+                            continue;
                         }
                         // Special case: Huge Skeleton drops bomb
                         if (obj instanceof HugeSkeleton && !obj.droppedBomb) {
@@ -11962,8 +12295,8 @@ class StoneGiant extends Unit {
                 const clampedY = Math.max(0, Math.min(HEIGHT, y));
                 
                 const card = allCards[selectedSpawningUnit.id];
-                const isPartyModeForLevel = (gameMode === '2v2' || gameMode === 'party1v1');
-                const level = isPartyModeForLevel ? 15 : (cardCollection[selectedSpawningUnit.id] ? cardCollection[selectedSpawningUnit.id].level : 1);
+                const useMaxLevel = isMaxLevelMatch();
+                const level = useMaxLevel ? 15 : (cardCollection[selectedSpawningUnit.id] ? cardCollection[selectedSpawningUnit.id].level : 1);
                 
                 // Determine if this spawn should be evolved based on deck slot, unlock status, and cycle progress.
                 let evoSpawnThisUnit = false;
@@ -12008,6 +12341,9 @@ class StoneGiant extends Unit {
                     } else if (selectedSpawningUnit.id === 'skeletonYard') { // NEW
                         const duration = card.stats[level].duration;
                         gameObjects.push(new SkeletonYard(clampedX, clampedY, 'player', duration, card.radius, level));
+                    } else if (selectedSpawningUnit.id === 'tornado') {
+                        const s = card.stats[level];
+                        gameObjects.push(new TornadoSpell(clampedX, clampedY, 'player', card.radius, s.duration, s.pullStrength, s.damagePerSecond));
                     } else if (selectedSpawningUnit.id === 'meteor') {
                          // Meteor spawns a projectile that takes time to land (simulated by slow projectile or effect)
                          const damage = card.stats[level].damage;
