@@ -5717,7 +5717,7 @@ if (chestCloseButton) {
                                  else if (currentPreviewCardId === 'voidTrap') gameObjects.push(new VoidTrapEffect(tx, ty, 'player', card.radius, s.damage));
                                  else if (currentPreviewCardId === 'chaosOrb') gameObjects.push(new ChaosOrbEffect(tx, ty, 'player', card.radius, s.damage));
                                  else if (currentPreviewCardId === 'skeletonYard') gameObjects.push(new SkeletonYard(tx, ty, 'player', s.duration, card.radius, 10));
-                                 else if (currentPreviewCardId === 'tornado') gameObjects.push(new TornadoSpell(tx, ty, 'player', card.radius, s.duration, s.pullStrength, s.damagePerSecond));
+                                 else if (currentPreviewCardId === 'tornado') gameObjects.push(new TornadoSpell(tx, ty, 'player', card.radius, s.duration, s.pullStrength, s.damagePerSecond, card.emoji));
                                  else {
                                      const isEvoSpell = previewUseEvo && evolutionsUnlocked && card.evo;
                                      gameObjects.push(new Spell(tx, ty, 'player', s.damage, card.radius, card.emoji, isEvoSpell));
@@ -5741,7 +5741,7 @@ if (chestCloseButton) {
                                  else if (currentPreviewOpponentId === 'voidTrap') gameObjects.push(new VoidTrapEffect(tx, ty, 'ai', opponent.radius, s.damage));
                                  else if (currentPreviewOpponentId === 'chaosOrb') gameObjects.push(new ChaosOrbEffect(tx, ty, 'ai', opponent.radius, s.damage));
                                  else if (currentPreviewOpponentId === 'skeletonYard') gameObjects.push(new SkeletonYard(tx, ty, 'ai', s.duration, opponent.radius, 10));
-                                 else if (currentPreviewOpponentId === 'tornado') gameObjects.push(new TornadoSpell(tx, ty, 'ai', opponent.radius, s.duration, s.pullStrength, s.damagePerSecond));
+                                 else if (currentPreviewOpponentId === 'tornado') gameObjects.push(new TornadoSpell(tx, ty, 'ai', opponent.radius, s.duration, s.pullStrength, s.damagePerSecond, opponent.emoji));
                                  else {
                                      const isEvoSpell = previewListEvoOnly && evolutionsUnlocked && opponent.evo;
                                      gameObjects.push(new Spell(tx, ty, 'ai', s.damage, opponent.radius, opponent.emoji, isEvoSpell));
@@ -9906,12 +9906,13 @@ class StoneGiant extends Unit {
             }
 
             class TornadoSpell extends GameObject {
-                constructor(x, y, team, radius, duration, pullStrength, damagePerSecond) {
+                constructor(x, y, team, radius, duration, pullStrength, damagePerSecond, emoji = '🌪️') {
                     super(x, y, radius, team, 1);
                     this.duration = (duration || 4) * 60;
                     this.lifetime = this.duration;
                     this.pullStrength = pullStrength || 6;
                     this.damagePerSecond = damagePerSecond || 30;
+                    this.emoji = emoji;
                     this.tickInterval = 15;
                     this.tickTimer = this.tickInterval;
                     this.spin = 0;
@@ -9982,7 +9983,7 @@ class StoneGiant extends Unit {
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillStyle = '#fff';
-                    ctx.fillText('🌀', this.x, this.y);
+                    ctx.fillText(this.emoji || '🌪️', this.x, this.y);
                     ctx.restore();
                 }
             }
@@ -12343,7 +12344,7 @@ class StoneGiant extends Unit {
                         gameObjects.push(new SkeletonYard(clampedX, clampedY, 'player', duration, card.radius, level));
                     } else if (selectedSpawningUnit.id === 'tornado') {
                         const s = card.stats[level];
-                        gameObjects.push(new TornadoSpell(clampedX, clampedY, 'player', card.radius, s.duration, s.pullStrength, s.damagePerSecond));
+                        gameObjects.push(new TornadoSpell(clampedX, clampedY, 'player', card.radius, s.duration, s.pullStrength, s.damagePerSecond, card.emoji));
                     } else if (selectedSpawningUnit.id === 'meteor') {
                          // Meteor spawns a projectile that takes time to land (simulated by slow projectile or effect)
                          const damage = card.stats[level].damage;
