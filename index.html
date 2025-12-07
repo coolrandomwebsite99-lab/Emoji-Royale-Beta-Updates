@@ -14,12 +14,74 @@
         }
     </script>
     <style>
+:root {
+            --bg-dark: #090d1e;
+            --bg-mid: #111530;
+            --bg-glow: rgba(59, 130, 246, 0.35);
+            --bg-accent: rgba(34, 197, 94, 0.25);
+            --panel-bg: rgba(15, 23, 42, 0.65);
+            --panel-border: rgba(59, 130, 246, 0.45);
+            --accent: #ec4899;
+            --text-muted: #cbd5f5;
+            --glossy-panel-bg: rgba(15, 23, 42, 0.75);
+            --glossy-panel-border: rgba(59, 130, 246, 0.4);
+            --glossy-panel-shadow: 0 25px 40px rgba(2, 6, 23, 0.7);
+            --glossy-btn-bg: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(15, 23, 42, 0.95));
+            --glossy-btn-border: 1px solid rgba(255, 255, 255, 0.25);
+            --glossy-btn-shadow: 0 15px 30px rgba(2, 6, 23, 0.7), inset 0 2px 0 rgba(255, 255, 255, 0.15);
+        }
+        .glossy-panel {
+            background: var(--glossy-panel-bg);
+            border: 1px solid var(--glossy-panel-border);
+            box-shadow: var(--glossy-panel-shadow), 0 0 25px rgba(59, 130, 246, 0.1);
+            backdrop-filter: blur(22px);
+            position: relative;
+            overflow: hidden;
+        }
+        .glossy-panel::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.35), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+        .glossy-panel:hover::after {
+            opacity: 1;
+        }
+        .glossy-btn {
+            background: var(--glossy-btn-bg);
+            border: var(--glossy-btn-border);
+            border-radius: 12px;
+            color: #f8fafc;
+            box-shadow: var(--glossy-btn-shadow);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .glossy-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .glossy-btn:hover::after {
+            opacity: 1;
+        }
         body {
             font-family: 'Inter', sans-serif;
             overflow: hidden;
             touch-action: none;
-            background: linear-gradient(135deg, #1e1b2e 0%, #151932 50%, #0f172a 100%);
-            color: white;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.35), transparent 35%),
+                radial-gradient(circle at 85% 5%, rgba(14, 165, 233, 0.25), transparent 33%),
+                linear-gradient(145deg, var(--bg-dark) 0%, #0f172a 45%, #020617 100%);
+            background-attachment: fixed;
+            color: #f8fafc;
             /* Remove 3D perspective to keep the game board flat */
             perspective: none;
             transform-style: preserve-3d;
@@ -144,6 +206,28 @@
         .nav-btn {
             position: relative;
             z-index: 1;
+            border-radius: 12px;
+            padding: 0.75rem 0;
+            transition: color 0.2s ease, background 0.2s ease;
+            background: var(--glossy-btn-bg);
+            border: var(--glossy-btn-border);
+            box-shadow: var(--glossy-btn-shadow);
+            backdrop-filter: blur(12px);
+            font-weight: bold;
+            color: #f8fafc;
+        }
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            inset: 6px 8px 6px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .nav-btn:hover::before,
+        .nav-btn.active-nav::before {
+            opacity: 1;
         }
         /* Ripple Effect */
         .ripple {
@@ -223,31 +307,27 @@
             text-shadow: none;
         }
         /* Enhanced Button Hovers */
-        .login-btn, .arena-btn, .modal-btn, #battleButton, .debug-btn, #navBtnMenu, #navBtnDeck, #navBtnTower, #navBtnDebug, 
+        .login-btn, .arena-btn, .modal-btn, #battleButton, .debug-btn, #navBtnMenu, #navBtnDeck, #navBtnTower, #navBtnDebug,
         #saveDataOverlay button, #loadDataOverlay button, #updateLogOverlay button, #chestOpenOverlay button {
             overflow: hidden;
             position: relative;
             transform-style: preserve-3d;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 
-                0 4px 6px -1px rgba(0, 0, 0, 0.1),
-                0 2px 4px -1px rgba(0, 0, 0, 0.06),
-                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+            background: var(--glossy-btn-bg);
+            border: var(--glossy-btn-border);
+            border-radius: 12px;
+            box-shadow: var(--glossy-btn-shadow);
+            color: #f8fafc;
         }
-        .login-btn:hover, .arena-btn:hover, .modal-btn:hover, #battleButton:hover, #saveDataOverlay button:hover, 
+        .login-btn:hover, .arena-btn:hover, .modal-btn:hover, #battleButton:hover, #saveDataOverlay button:hover,
         #loadDataOverlay button:hover, #updateLogOverlay button:hover, #chestOpenOverlay button:hover {
-            transform: translateY(-2px) scale(1.02) rotateX(5deg);
-            filter: brightness(1.3) saturate(1.2);
-            box-shadow: 
-                0 20px 25px -5px rgba(0, 0, 0, 0.2),
-                0 10px 10px -5px rgba(0, 0, 0, 0.04),
-                0 0 20px rgba(255, 255, 255, 0.3),
-                0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+            transform: translateY(-2px) scale(1.02);
+            filter: brightness(1.15);
         }
-        .login-btn:active, .arena-btn:active, .modal-btn:active, #battleButton:active, #saveDataOverlay button:active, 
+        .login-btn:active, .arena-btn:active, .modal-btn:active, #battleButton:active, #saveDataOverlay button:active,
         #loadDataOverlay button:active, #updateLogOverlay button:active, #chestOpenOverlay button:active {
-            transform: translateY(0) scale(0.98) rotateX(0deg);
-            transition: all 0.1s ease;
+            transform: translateY(0) scale(0.98);
+            transition: transform 0.1s ease;
         }
         canvas {
             background-color: #f1f5f9; /* Snow White */
@@ -327,6 +407,14 @@
             background-image:
                 linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+        }
+        /* NEW ARENA 12 STYLE */
+        canvas.arena-12 {
+            background-color: #0b1220; /* deep night */
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.15), transparent 45%),
+                radial-gradient(circle at 80% 10%, rgba(192, 132, 252, 0.12), transparent 48%),
+                linear-gradient(135deg, #050914 0%, #0f172a 55%, #051025 100%);
         }
 
         /*
@@ -425,6 +513,58 @@
         }
         #messageOverlay button:hover, .login-btn:hover, .arena-btn:hover {
             filter: brightness(1.1);
+        }
+
+        .arena-callout, .arena-card {
+            color: #f8fafc;
+            background:
+                var(--arena-card-gradient, linear-gradient(135deg, rgba(120, 83, 240, 0.95), rgba(14, 165, 233, 0.15))),
+                linear-gradient(120deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9));
+            background-size: cover;
+            border: 1px solid rgba(248, 250, 252, 0.2);
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.45);
+            border-radius: 20px;
+            backdrop-filter: blur(6px);
+        }
+        .arena-callout {
+            width: 100%;
+            max-width: 420px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .arena-callout .arena-callout-emoji {
+            font-size: 3rem;
+        }
+        .arena-callout .arena-callout-meta {
+            line-height: 1.3;
+        }
+        .arena-callout .arena-callout-meta p {
+            margin: 0;
+        }
+        #arenaScreen .arena-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        #arenaScreen .arena-card {
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        #arenaScreen .arena-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 25px 45px rgba(15, 23, 42, 0.55);
+        }
+        .arena-card .arena-emoji {
+            font-size: 2.5rem;
+            width: 3rem;
+            text-align: center;
         }
 
         /* Color Variants */
@@ -590,21 +730,42 @@
             transition: transform 0.3s ease-out;
             padding-top: 0 !important;
             padding-bottom: 0 !important;
+            background: rgba(10, 15, 32, 0.8);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -10px 30px rgba(2, 6, 23, 0.8), 0 10px 25px rgba(14, 165, 233, 0.15);
+            backdrop-filter: blur(20px);
         }
         /* Nav Highlight Slider */
         #navHighlight {
             position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 20%; /* 5 buttons = 20% width */
-            background-color: rgba(250, 204, 21, 0.15);
-            border-left: 1px solid rgba(250, 204, 21, 0.4);
-            border-right: 1px solid rgba(250, 204, 21, 0.4);
-            /* border-radius: 8px; */
+            bottom: 8px;
+            left: 0;
+            width: 20%;
+            height: 4px;
+            border-radius: 999px;
             pointer-events: none;
-            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 0;
-            box-shadow: 0 0 10px rgba(250, 204, 21, 0.1);
+            background: transparent;
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.65), inset 0 0 12px rgba(236, 72, 153, 0.4);
+        }
+        #navHighlight::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(14, 165, 233, 0.9), rgba(99, 102, 241, 0.9), rgba(236, 72, 153, 0.9));
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.9), 0 0 30px rgba(236, 72, 153, 0.6);
+            transform: scaleX(0);
+            transform-origin: left center;
+            transition: transform 0.35s ease;
+        }
+        #navHighlight[data-direction='left']::after {
+            transform-origin: right center;
+        }
+        #navHighlight.nav-highlight-animate::after {
+            transform: scaleX(1);
         }
         /* Enhanced Chest Slots */
         .chest-slot {
@@ -634,28 +795,35 @@
         .card-ui {
             width: 80px;
             height: 112px;
-            background-color: #4b5563; /* gray-600 */
-            background-size: cover;
-            background-position: center;
-            border-radius: 8px;
-            padding: 4px;
+            background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(30,41,59,0.85));
+            border-radius: 14px;
+            padding: 6px;
             position: relative;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
             font-weight: bold;
-            color: white;
+            color: #f8fafc;
             cursor: pointer;
             user-select: none;
-            border: 4px solid #374151; /* gray-700 */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 30px rgba(2, 6, 23, 0.7), inset 0 0 10px rgba(59, 130, 246, 0.3);
             overflow: hidden;
+            backdrop-filter: blur(12px);
+        }
+        .card-ui::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.25), transparent 55%);
+            pointer-events: none;
+            mix-blend-mode: screen;
         }
         .card-ui.selected {
-            border-color: #ec4899; /* pink-500 */
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 0 20px #ec4899;
+            border-color: var(--accent);
+            transform: translateY(-6px) scale(1.08);
+            box-shadow: 0 25px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(236, 72, 153, 0.5);
         }
         .card-ui.disabled {
             opacity: 0.5;
@@ -792,17 +960,31 @@
             z-index: 100;
         }
         #cardInfoModalContent {
-            background-color: #374151; /* gray-700 */
-            border-radius: 12px;
-            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(2, 6, 23, 0.95), rgba(15, 23, 42, 0.9));
+            border-radius: 18px;
+            padding: 1.75rem;
             width: 90%;
-            max-width: 350px;
-            border: 4px solid #4b5563; /* gray-600 */
+            max-width: 380px;
+            border: 1px solid transparent;
+            border-image: linear-gradient(135deg, #8b5cf6, #38bdf8, #22d3ee, #f472b6) 1;
             position: relative;
             max-height: 85vh;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 25px 50px rgba(2, 6, 23, 0.75), 0 0 30px rgba(59, 130, 246, 0.4);
+            backdrop-filter: blur(22px);
+            z-index: 1;
+        }
+        #cardInfoModalContent::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(14, 165, 233, 0.2), transparent 55%);
+            opacity: 0.6;
+            mix-blend-mode: screen;
+            pointer-events: none;
+            z-index: 0;
         }
         #cardInfoCloseBtn {
             position: sticky;
@@ -832,10 +1014,13 @@
             font-weight: 600;
             padding: 0.75rem;
             margin-top: 1rem;
-            border: none;
-            border-radius: 8px;
+            border: var(--glossy-btn-border);
+            border-radius: 10px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background: var(--glossy-btn-bg);
+            color: #f8fafc;
+            box-shadow: var(--glossy-btn-shadow);
         }
         .modal-btn.add { background: #16a34a !important; color: white; border-bottom: 4px solid #14532d !important; }
         .modal-btn.remove { background: #dc2626 !important; color: white; border-bottom: 4px solid #7f1d1d !important; }
@@ -844,6 +1029,60 @@
             background-color: #6b7280; /* gray-500 */
             color: #d1d5db; /* gray-300 */
             cursor: not-allowed;
+        }
+        #previewRefreshButton {
+            background: linear-gradient(145deg, rgba(59, 130, 246, 0.45), rgba(30, 64, 175, 0.65));
+            border: 1px solid rgba(59, 130, 246, 0.7);
+            box-shadow: 0 12px 25px rgba(15, 23, 42, 0.5);
+            color: #f8fafc;
+        }
+        #cardInfoPreviewPanel {
+            margin-top: 1rem;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            border-radius: 16px;
+            padding: 1rem;
+            box-shadow: 0 25px 40px rgba(2, 6, 23, 0.7);
+            backdrop-filter: blur(18px);
+        }
+        #cardPreviewCanvas {
+            border-radius: 14px;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.3), 0 15px 30px rgba(2, 6, 23, 0.6);
+            background-color: #0f172a;
+        }
+        #previewStrong, #previewWeak {
+            width: 100%;
+            min-height: 48px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 12px;
+            padding: 0.4rem 0.6rem;
+            box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(8px);
+        }
+        #previewWeakContainer {
+            margin-top: 0.4rem;
+        }
+        #previewAllCardsList {
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.55);
+            padding: 0.75rem;
+            max-height: 180px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 15px rgba(15, 23, 42, 0.5);
+        }
+        #previewSearchInput {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(59, 130, 246, 0.45);
+            color: #f8fafc;
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+        }
+        #previewSearchInput:focus {
+            border-color: rgba(14, 165, 233, 0.85);
+            box-shadow: 0 0 12px rgba(14, 165, 233, 0.45);
         }
         #cardInfoProgressContainer, #towerInfoProgressContainer {
             width: 100%;
@@ -1203,96 +1442,93 @@
             <h1 class="text-3xl font-bold mb-8 ui-text-effect battle-arena-name">Arenas</h1>
             
             <div class="space-y-4 w-full">
-                <!-- Arena 1 -->
-                <div class="bg-gray-800 p-4 rounded-lg flex items-center space-x-4">
-                    <span class="text-6xl">🏞️</span>
-                    <div>
-                        <h2 class="text-xl font-bold">Arena 1: Emoji Valley</h2>
-                        <p class="text-yellow-400">0+ Trophies 🏆</p>
+                <div class="arena-list">
+                    <div class="arena-card" style="--arena-card-gradient: linear-gradient(135deg, #38bdf8, #2563eb);">
+                        <span class="arena-emoji">🌊</span>
+                        <div>
+                            <h2 class="text-xl font-bold">Arena 1: Emoji Valley</h2>
+                            <p class="text-yellow-300">0+ Trophies 🏆</p>
+                        </div>
                     </div>
-                </div>
-                <!-- Arena 2 -->
-                <div class="bg-gray-800 p-4 rounded-lg flex items-center space-x-4">
-                    <span class="text-6xl">🏘️</span>
-                    <div>
-                        <h2 class="text-xl font-bold">Arena 2: Laughing Village</h2>
-                        <p class="text-yellow-400">250+ Trophies 🏆</p>
+                    <div class="arena-card" style="--arena-card-gradient: linear-gradient(135deg, #fb923c, #f97316);">
+                        <span class="arena-emoji">🏡</span>
+                        <div>
+                            <h2 class="text-xl font-bold">Arena 2: Laughing Village</h2>
+                            <p class="text-yellow-300">250+ Trophies 🏆</p>
+                        </div>
                     </div>
-                </div>
-                <!-- Arena 3 -->
-                <div class="bg-gray-800 p-4 rounded-lg flex items-center space-x-4">
-                    <span class="text-6xl">🌋</span>
-                    <div>
-                        <h2 class="text-xl font-bold">Arena 3: Lava Town</h2>
-                        <p class="text-yellow-400">500+ Trophies 🏆</p>
+                    <div class="arena-card" style="--arena-card-gradient: linear-gradient(135deg, #ef4444, #b91c1c);">
+                        <span class="arena-emoji">🔥</span>
+                        <div>
+                            <h2 class="text-xl font-bold">Arena 3: Lava Town</h2>
+                            <p class="text-yellow-300">500+ Trophies 🏆</p>
+                        </div>
                     </div>
-                </div>
-                <!-- Arena 4 -->
-                <div class="bg-gray-800 p-4 rounded-lg flex items-center space-x-4">
-                    <span class="text-6xl">🚜</span>
-                    <div>
-                        <h2 class="text-xl font-bold">Arena 4: The Farm</h2>
-                        <p class="text-yellow-400">750+ Trophies 🏆</p>
+                    <div class="arena-card" style="--arena-card-gradient: linear-gradient(135deg, #bef264, #4d7c0f);">
+                        <span class="arena-emoji">🚜</span>
+                        <div>
+                            <h2 class="text-xl font-bold">Arena 4: The Farm</h2>
+                            <p class="text-yellow-300">750+ Trophies 🏆</p>
+                        </div>
                     </div>
-                </div>
-                <!-- Arena 4 -->
-                <div class="bg-gray-800 p-4 rounded-lg flex items-center space-x-4">
-                    <span class="text-6xl">🚜</span>
-                    <div>
-                        <h2 class="text-xl font-bold">Arena 4: The Farm</h2>
-                        <p class="text-yellow-400">750+ Trophies 🏆</p>
+                    <div class="arena-card" style="--arena-card-gradient: linear-gradient(135deg, #a855f7, #7c3aed);">
+                        <span class="arena-emoji">💀</span>
+                        <div>
+                            <h2 class="text-xl font-bold">Arena 5: Skull Kingdom</h2>
+                            <p class="text-yellow-300">1000+ Trophies 🏆</p>
+                        </div>
                     </div>
-                </div>
-                <!-- Arena 5 (NEW) -->
-                <div class="bg-gray-800 p-4 rounded-lg flex items-center space-x-4">
-                    <span class="text-6xl">💀</span>
-                    <div>
-                        <h2 class="text-xl font-bold">Arena 5: Skull Kingdom</h2>
-                        <p class="text-yellow-400">1000+ Trophies 🏆</p>
+                    <div class="arena-card" style="--arena-card-gradient: linear-gradient(135deg, #facc15, #ca8a04);">
+                        <span class="arena-emoji">🔮</span>
+                        <div>
+                            <h2 class="text-xl font-bold">Arena 6: Warlock's Workshop</h2>
+                            <p class="text-yellow-300">1250+ Trophies 🏆</p>
+                        </div>
                     </div>
-                </div>
-                <!-- Arena 6 (NEW) -->
-                <div class="bg-gray-800 p-4 rounded-lg flex items-center space-x-4">
-                    <span class="text-6xl">🔮</span>
-                    <div>
-                        <h2 class="text-xl font-bold">Arena 6: Warlock's Workshop</h2>
-                        <p class="text-yellow-400">1250+ Trophies 🏆</p>
+                    <div class="arena-card" style="--arena-card-gradient: linear-gradient(135deg, #0ea5e9, #1d4ed8);">
+                        <span class="arena-emoji">🧙‍♂️</span>
+                        <div>
+                            <h2 class="text-xl font-bold">Arena 7: Mages Graveyard</h2>
+                            <p class="text-yellow-300">1500+ Trophies 🏆</p>
+                        </div>
                     </div>
-                </div>
-                <!-- Arena 7 (NEW) -->
-                <div class="bg-gray-800 p-4 rounded-lg flex items-center space-x-4">
-                    <span class="text-6xl">🪦</span>
-                    <div>
-                        <h2 class="text-xl font-bold">Arena 7: Mages Graveyard</h2>
-                        <p class="text-yellow-400">1500+ Trophies 🏆</p>
+                    <div class="arena-card" style="--arena-card-gradient: linear-gradient(135deg, #4c1d95, #0f172a);">
+                        <span class="arena-emoji">🌌</span>
+                        <div>
+                            <h2 class="text-xl font-bold">Arena 8: Chaos Canyon</h2>
+                            <p class="text-yellow-300">1750+ Trophies 🏆</p>
+                        </div>
                     </div>
-                </div>
-                <!-- Arena 8 (NEW) -->
-                <div class="bg-gray-800 p-4 rounded-lg flex items-center space-x-4">
-                    <span class="text-6xl">⚡</span>
-                    <div>
-                        <h2 class="text-xl font-bold">Arena 8: Chaos Canyon</h2>
-                        <p class="text-yellow-400">1750+ Trophies 🏆</p>
+                    <div class="arena-card" style="--arena-card-gradient: linear-gradient(135deg, #f97316, #f43f5e);">
+                        <span class="arena-emoji">🏔️</span>
+                        <div>
+                            <h2 class="text-xl font-bold">Arena 9: Titan's Peak</h2>
+                            <p class="text-yellow-300">2000+ Trophies 🏆</p>
+                        </div>
                     </div>
-                </div>
-                <!-- Arena 9 (NEW) -->
-                <div class="bg-gray-800 p-4 rounded-lg flex items-center space-x-4">
-                    <span class="text-6xl">🪨</span>
-                    <div>
-                        <h2 class="text-xl font-bold">Arena 9: Titan's Peak</h2>
-                        <p class="text-yellow-400">2000+ Trophies 🏆</p>
+                    <div class="arena-card" style="--arena-card-gradient: linear-gradient(135deg, #db2777, #9333ea);">
+                        <span class="arena-emoji">🔥</span>
+                        <div>
+                            <h2 class="text-xl font-bold">Arena 10: Chaos Realm</h2>
+                            <p class="text-yellow-300">2250+ Trophies 🏆</p>
+                        </div>
                     </div>
-                </div>
-                <!-- Arena 10 (NEW) -->
-                <div class="bg-gray-800 p-4 rounded-lg flex items-center space-x-4">
-                    <span class="text-6xl">🔥</span>
-                    <div>
-                        <h2 class="text-xl font-bold">Arena 10: Chaos Realm</h2>
-                        <p class="text-yellow-400">2250+ Trophies 🏆</p>
+                    <div class="arena-card" style="--arena-card-gradient: linear-gradient(135deg, #ea580c, #b91c1c);">
+                        <span class="arena-emoji">🧱</span>
+                        <div>
+                            <h2 class="text-xl font-bold">Arena 11: Diddy's Prison</h2>
+                            <p class="text-yellow-300">2500+ Trophies 🏆</p>
+                        </div>
+                    </div>
+                    <div class="arena-card" style="--arena-card-gradient: linear-gradient(135deg, #0ea5e9, #9333ea);">
+                        <span class="arena-emoji">🐉</span>
+                        <div>
+                            <h2 class="text-xl font-bold">Arena 12: Mythic Arena</h2>
+                            <p class="text-yellow-300">2750+ Trophies ?</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            
             <button id="arenaBackButton" class="arena-btn bg-gray-600 hover:bg-gray-700 mt-8 w-3/4">
                 Back to Menu
             </button>
@@ -1341,6 +1577,7 @@
                     <button id="debugArena9" class="debug-btn bg-slate-900 hover:bg-slate-800">Jump to Arena 9 (2000 🏆)</button>
                     <button id="debugArena10" class="debug-btn bg-red-900 hover:bg-red-800">Jump to Arena 10 (2250 🏆)</button>
             <button id="debugArena11" class="debug-btn bg-orange-700 hover:bg-orange-800">Jump to Arena 11 (2500 🏆)</button>
+            <button id="debugArena12" class="debug-btn bg-fuchsia-600 hover:bg-fuchsia-700">Jump to Arena 12 (2750 🏆)</button>
             <button id="debugUnlockAll" class="debug-btn bg-blue-600 hover:bg-blue-700">Unlock All Cards</button>
             <button id="debugUpgradeAll" class="debug-btn bg-purple-600 hover:bg-purple-700">Upgrade All Cards +1 Lvl</button>
             <button id="debugGetChest" class="debug-btn bg-yellow-600 hover:bg-yellow-700">Get a Free Chest 📦</button>
@@ -1565,9 +1802,9 @@
     <div id="updateLogOverlay">
         <!-- Animated header with battle scene and update icons -->
         <div class="flex justify-center items-center space-x-2 text-3xl mb-2">
-            <span class="animate-spin">⭐</span>
-            <span class="animate-pulse">🧬</span>
-            <span class="animate-bounce">🎁</span>
+            <span class="animate-bounce">🐎</span>
+            <span class="animate-ping">🐉</span>
+            <span class="animate-spin">⚡</span>
         </div>
         <h2 class="text-3xl font-bold mb-4">📋 Update Log</h2>
         <div id="updateLogContent" class="text-left text-sm max-h-96 overflow-y-auto w-full max-w-md px-4 space-y-3">
@@ -2021,10 +2258,18 @@ const firebaseConfig = {
         let canPlace = false;
         /*
          * Arena floors define the trophy milestones at which new arenas are unlocked.
-         * Add Diddy's Prison as Arena 11 at 2500 trophies. New cards such as the
-         * Diddy Cage, Diddy Miner and Diddy Giant become available in this arena.
+         * Diddy's Prison is Arena 11 (2500 trophies) and Mythic Arena is Arena 12 (2750 trophies).
          */
-        const arenaFloors = { 0: "Arena 1: Emoji Valley", 250: "Arena 2: Laughing Village", 500: "Arena 3: Lava Town", 750: "Arena 4: The Farm", 1000: "Arena 5: Skull Kingdom", 1250: "Arena 6: Warlock's Workshop", 1500: "Arena 7: Mages Graveyard", 1750: "Arena 8: Chaos Canyon", 2000: "Arena 9: Titan's Peak", 2250: "Arena 10: Chaos Realm", 2500: "Arena 11: Diddy's Prison" };
+        const arenaFloors = { 0: "Arena 1: Emoji Valley", 250: "Arena 2: Laughing Village", 500: "Arena 3: Lava Town", 750: "Arena 4: The Farm", 1000: "Arena 5: Skull Kingdom", 1250: "Arena 6: Warlock's Workshop", 1500: "Arena 7: Mages Graveyard", 1750: "Arena 8: Chaos Canyon", 2000: "Arena 9: Titan's Peak", 2250: "Arena 10: Chaos Realm", 2500: "Arena 11: Diddy's Prison", 2750: "Arena 12: Mythic Arena" };
+        const sortedArenaFloors = Object.keys(arenaFloors).map(Number).sort((a, b) => a - b);
+        function getArenaNumberFromFloor(floor = 0) {
+            for (let i = sortedArenaFloors.length - 1; i >= 0; i--) {
+                if (floor >= sortedArenaFloors[i]) {
+                    return i + 1;
+                }
+            }
+            return 1;
+        }
         let currentArenaFloor = 0;
         let currentArenaTheme = 'arena-1'; // For canvas styling
 
@@ -2257,6 +2502,7 @@ const firebaseConfig = {
             const navButtons = document.querySelectorAll('.nav-btn');
             const persistentNav = document.getElementById('bottomNav');
             const navHighlight = document.getElementById('navHighlight');
+            let lastNavIndex = 0;
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) {
                 // Direct assignment to replace any existing listeners
@@ -2495,6 +2741,7 @@ const firebaseConfig = {
             const debugArena9 = document.getElementById('debugArena9');
             const debugArena10 = document.getElementById('debugArena10');
             const debugArena11 = document.getElementById('debugArena11');
+            const debugArena12 = document.getElementById('debugArena12');
             const debugUnlockAll = document.getElementById('debugUnlockAll');
             const debugUpgradeAll = document.getElementById('debugUpgradeAll');
             const debugGetChest = document.getElementById('debugGetChest');
@@ -3095,12 +3342,20 @@ const firebaseConfig = {
                         btn.classList.remove('text-yellow-400'); 
                         btn.classList.add('text-gray-400'); 
 
-                        if (btn.dataset.screen === screenId) { 
-                            btn.classList.add('text-yellow-400'); 
+                        if (btn.dataset.screen === screenId) {
+                            btn.classList.add('text-yellow-400');
                             btn.classList.remove('text-gray-400');
-                            // Move Highlight
+                            const direction = index >= lastNavIndex ? 'right' : 'left';
+                            lastNavIndex = index;
                             if (navHighlight) {
+                                navHighlight.dataset.direction = direction;
+                                navHighlight.classList.remove('nav-highlight-animate');
                                 navHighlight.style.left = `${index * 20}%`;
+                                if (typeof requestAnimationFrame === 'function') {
+                                    requestAnimationFrame(() => navHighlight.classList.add('nav-highlight-animate'));
+                                } else {
+                                    navHighlight.classList.add('nav-highlight-animate');
+                                }
                             }
                         }
                     });
@@ -3151,6 +3406,13 @@ const firebaseConfig = {
             // NEW: Show update log function
             function showUpdateLog() {
             const updates = [
+                { date: '12/06/2025', title: 'Mythic Arena Update', items: [
+                    '🐎🐉⚡ Mythic Arena (Arena 12) premieres with a celestial orientation, Mythic trophy goals, and a new visual mood.',
+                    'Horse Rider charges after a 3-second pause, smashes with charge damage, and jumps the river whenever the bridge is too far.',
+                    'Zap Dragon fires a chaining beam that hits up to ten enemies in sequence and can activate King Towers just like Zap Spirit.',
+                    'Pig Jockey leaps over the river and bulldozes straight toward buildings as a win condition that ignores bridges.',
+                    'AI levels and chest rewards now stretch into Mythic Arena so the new cards appear in decks and star boxes.'
+                ]},
                 { date: '12/05/2025', title: 'Stars & Evolutions Update', items: [
                     '⭐ Introduced Quarter Stars: earn a star every 2500 trophies with a flashy animation.',
                     '📦 Added Star Boxes: spend Quarter Stars to open Star Boxes instantly. Future boxes coming soon!',
@@ -3280,6 +3542,9 @@ const firebaseConfig = {
                 } else if (arenaDisplayName.includes("Chaos Realm")) {
                     emoji = "🔥";
                     currentArenaTheme = 'arena-10';
+                } else if (arenaDisplayName.includes("Mythic Arena")) {
+                    emoji = "🐉";
+                    currentArenaTheme = 'arena-12';
                 } else if (arenaDisplayName.includes("Diddy's Prison")) {
                     // Diddy's Prison uses the new arena-11 theme
                     emoji = '🐒';
@@ -3435,7 +3700,9 @@ const firebaseConfig = {
                     7: 2.3,
                     8: 2.6,
                     9: 2.9,
-                    10: 3.2
+                    10: 3.2,
+                    11: 3.5,
+                    12: 3.8
                 };
                 return multipliers[arenaLevel] || 1.0;
             }
@@ -4025,6 +4292,15 @@ if (chestCloseButton) {
                         showScreen('menu');
                     };
                 }
+                if (debugArena12) {
+                    debugArena12.onclick = null;
+                    debugArena12.onclick = () => {
+                        trophies = 2750;
+                        updateArena();
+                        saveUserData();
+                        showScreen('menu');
+                    };
+                }
                 if (debugUnlockAll) {
                     debugUnlockAll.onclick = null;
                     debugUnlockAll.onclick = () => {
@@ -4293,8 +4569,8 @@ if (chestCloseButton) {
 
             function getUnlockedCards(includeTower = false, aiLevel = 0) {
                 const unlocked = [];
-                // Use AI level if provided, otherwise use player's trophies
-                const arenaNum = aiLevel > 0 ? aiLevel : (currentArenaFloor === 0 ? 1 : (currentArenaFloor === 250 ? 2 : (currentArenaFloor === 500 ? 3 : (currentArenaFloor === 750 ? 4 : 5)))); // UPDATED
+                // Use AI level if provided, otherwise resolve the arena count from the trophy floor
+                const arenaNum = aiLevel > 0 ? aiLevel : getArenaNumberFromFloor(currentArenaFloor);
                 
                 for (const cardId in allCards) {
                     if (cardId === 'tower' || cardId === 'miniStoneGiant') continue; // Never include tower or internal mini in this list
@@ -4975,11 +5251,9 @@ if (chestCloseButton) {
                             };
                             cardInfoButtons.appendChild(unlockBtn);
                         }
-                        // Always provide the DNA toggle for evolutions after the unlock button
-                        // to allow previewing evolved stats and graphics. Toggling does not
-                        // depend on whether the evolution is unlocked: the user can preview
-                        // evolutions even before unlocking.
-                        // Store the original stats HTML so we can restore it when toggling off
+                        // Always show the DNA toggle once evolutions are unlocked globally.
+                        // This lets players preview the evolved stats even before unlocking that
+                        // particular card's evolution.
                         originalStatsHTML = cardInfoStats.innerHTML;
                         const evoToggleBtn = document.createElement('button');
                         evoToggleBtn.className = 'modal-btn flex items-center justify-center';
@@ -5041,6 +5315,13 @@ if (chestCloseButton) {
                 // Create the button only once to avoid duplicate elements upon repeated modal openings
                 (function() {
                     const parent = searchInput.parentNode;
+                    if (!evolutionsUnlocked) {
+                        const existingToggle = document.getElementById('previewListEvoToggle');
+                        if (existingToggle) {
+                            existingToggle.remove();
+                        }
+                        return;
+                    }
                     if (parent && !document.getElementById('previewListEvoToggle')) {
                         const btn = document.createElement('button');
                         btn.id = 'previewListEvoToggle';
@@ -5237,6 +5518,7 @@ if (chestCloseButton) {
                 }
 
                 const opponent = currentPreviewOpponentId ? allCards[currentPreviewOpponentId] : null;
+                const isOpponentKnightPreview = currentPreviewOpponentId === 'knight';
 
                 // Switch drawing context to the preview canvas. This allows all preview drawing
                 // operations to render inside the small card preview instead of the main game canvas.
@@ -5338,7 +5620,12 @@ if (chestCloseButton) {
                                     window.pendingEvoSpawn = false;
                                     window.currentSpawnCardHasEvo = false;
                                 } catch(e) {}
-                                if (unit instanceof GameObject) previewSimulationObjects.push(unit);
+                                if (unit instanceof GameObject) {
+                                    if (previewListEvoOnly && isOpponentKnightPreview) {
+                                        unit.shieldTimer = 5;
+                                    }
+                                    previewSimulationObjects.push(unit);
+                                }
                             }
                         } else {
                             previewOpponentSpellTimer = 90;
@@ -5526,8 +5813,22 @@ if (chestCloseButton) {
                             const oppCard = allCards[currentPreviewOpponentId];
                             if (oppCard && oppCard.unitClass && oppCard.type !== 'Spell') {
                                 try {
+                                    const shouldPreviewEvolveOpponent = previewListEvoOnly && evolutionsUnlocked && oppCard.evo;
+                                    try {
+                                        window.pendingEvoSpawn = shouldPreviewEvolveOpponent ? true : false;
+                                        window.currentSpawnCardHasEvo = window.pendingEvoSpawn;
+                                    } catch(e) {}
                                     const newUnit = new oppCard.unitClass(spawnX, redSpawnY, 'ai', 10);
-                                    if (newUnit instanceof GameObject) previewSimulationObjects.push(newUnit);
+                                    try {
+                                        window.pendingEvoSpawn = false;
+                                        window.currentSpawnCardHasEvo = false;
+                                    } catch(e) {}
+                                    if (newUnit instanceof GameObject) {
+                                        if (shouldPreviewEvolveOpponent && isOpponentKnightPreview) {
+                                            newUnit.shieldTimer = 5;
+                                        }
+                                        previewSimulationObjects.push(newUnit);
+                                    }
                                 } catch(e) {
                                     console.warn('Opponent spawn error in tower preview', e);
                                 }
@@ -6109,6 +6410,40 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                 }
             }
 
+            function spawnZapTrail(source, chain, color = '#7dd3fc', duration = 25) {
+                if (!source || !chain || chain.length === 0) return;
+                const points = [{ x: source.x, y: source.y }];
+                chain.forEach(node => {
+                    points.push({ x: node.x, y: node.y });
+                });
+                gameObjects.push(new ZapTrailEffect(points, color, duration));
+            }
+
+            function applyZapFreeze(target, durationSeconds = 0.9) {
+                if (!target || target.health <= 0) return;
+                const frames = Math.max(1, Math.round(durationSeconds * 60));
+                target.zapFreezeTimer = Math.max(target.zapFreezeTimer || 0, frames);
+                if (target.speed !== undefined) {
+                    if (target._zapOriginalSpeed === undefined) {
+                        target._zapOriginalSpeed = target.speed;
+                    }
+                    target.speed = 0;
+                }
+                if (target.cooldownTimer !== undefined) {
+                    if (target._zapOriginalCooldown === undefined) {
+                        target._zapOriginalCooldown = target.cooldownTimer;
+                    }
+                    target.cooldownTimer = frames;
+                }
+                target.frozen = true;
+                if (target.target) {
+                    target.target = null;
+                }
+                if (typeof target.rampLevel === 'number') {
+                    target.rampLevel = 0;
+                }
+            }
+
             class WaffleProjectile extends GameObject {
                 constructor(x, y, target) {
                     super(x, y, 6, 'neutral', 1);
@@ -6181,6 +6516,16 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                 
                 update() {
                     if (this.health <= 0) return;
+                    if (this.zapFreezeTimer > 0) {
+                        this.zapFreezeTimer -= deltaTime * 60;
+                        if (this.zapFreezeTimer > 0) return;
+                        this.zapFreezeTimer = 0;
+                        if (this._zapOriginalCooldown !== undefined) {
+                            this.cooldownTimer = this._zapOriginalCooldown;
+                            delete this._zapOriginalCooldown;
+                        }
+                        this.frozen = false;
+                    }
                     if (this.cooldownTimer > 0) { this.cooldownTimer -= deltaTime * 60; }
 
                     // Waffle Ability (King Only)
@@ -6686,6 +7031,7 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                 } 
                 update() {
                     if (this.health <= 0) return;
+                    if (this.handleZapFreeze()) return;
                     // Decrement shield timer if active
                     if (this.shieldTimer && this.shieldTimer > 0) {
                         this.shieldTimer -= deltaTime;
@@ -6730,6 +7076,26 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                             resolveUnitCollision(this);
                         }
                     }
+                }
+                handleZapFreeze() {
+                    if (this.zapFreezeTimer > 0) {
+                        this.zapFreezeTimer -= deltaTime * 60;
+                        if (this.zapFreezeTimer <= 0) {
+                            this.zapFreezeTimer = 0;
+                            this.frozen = false;
+                            if (this._zapOriginalSpeed !== undefined) {
+                                this.speed = this._zapOriginalSpeed;
+                                delete this._zapOriginalSpeed;
+                            }
+                            if (this._zapOriginalCooldown !== undefined) {
+                                this.cooldownTimer = this._zapOriginalCooldown;
+                                delete this._zapOriginalCooldown;
+                            }
+                            return false;
+                        }
+                        return true;
+                    }
+                    return false;
                 }
                 draw() { 
                     const color = this.team === 'player' ? '#60a5fa' : '#f87171'; 
@@ -6781,6 +7147,79 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                         ctx.restore();
                     }
                 }
+            }
+
+            function tryRiverJump(unit, jumpDelay = 1, jumpDuration = 20, jumpHeight = 45) {
+                if (!unit || unit.isFlying || !unit.target) return false;
+                if (!unit._riverJumpState) {
+                    unit._riverJumpState = {
+                        isPreparing: false,
+                        isJumping: false,
+                        prepTimer: 0,
+                        jumpProgress: 0,
+                        jumpDuration: jumpDuration,
+                        jumpHeight: jumpHeight,
+                        jumpStartX: 0,
+                        jumpStartY: 0,
+                        jumpTargetX: 0,
+                        jumpTargetY: 0
+                    };
+                }
+                const state = unit._riverJumpState;
+                const needsToCross = (unit.team === 'player' && unit.y > RIVER_Y && unit.target.y < RIVER_Y)
+                    || (unit.team === 'ai' && unit.y < RIVER_Y && unit.target.y > RIVER_Y);
+                if (!needsToCross) {
+                    state.isPreparing = false;
+                    state.isJumping = false;
+                    return false;
+                }
+                const bridgeX = (unit.x < WIDTH / 2) ? LANE_LEFT_X : LANE_RIGHT_X;
+                const bridgeY = BRIDGE_Y;
+                const nearBridgeLane = Math.abs(unit.x - bridgeX) < 35 && Math.abs(unit.y - bridgeY) < 45;
+                if (nearBridgeLane) {
+                    state.isPreparing = false;
+                    state.isJumping = false;
+                    return false;
+                }
+                const nearRiver = Math.abs(unit.y - RIVER_Y) < 40;
+
+                if (state.isJumping) {
+                    state.jumpProgress += (deltaTime * 60) / state.jumpDuration;
+                    if (state.jumpProgress >= 1) {
+                        state.isJumping = false;
+                        unit.x = state.jumpTargetX;
+                        unit.y = state.jumpTargetY;
+                    } else {
+                        const arc = state.jumpHeight * 4 * state.jumpProgress * (1 - state.jumpProgress);
+                        unit.x = state.jumpStartX + (state.jumpTargetX - state.jumpStartX) * state.jumpProgress;
+                        unit.y = state.jumpStartY + (state.jumpTargetY - state.jumpStartY) * state.jumpProgress - arc;
+                    }
+                    return true;
+                }
+
+                if (state.isPreparing) {
+                    state.prepTimer -= deltaTime * 60;
+                    if (state.prepTimer <= 0) {
+                        state.isPreparing = false;
+                        state.isJumping = true;
+                        state.jumpProgress = 0;
+                        state.jumpDuration = jumpDuration;
+                        state.jumpHeight = jumpHeight;
+                    }
+                    return true;
+                }
+
+                if (nearRiver) {
+                    state.isPreparing = true;
+                    state.prepTimer = jumpDelay * 60;
+                    state.jumpStartX = unit.x;
+                    state.jumpStartY = unit.y;
+                    state.jumpTargetX = bridgeX;
+                    state.jumpTargetY = unit.team === 'player' ? RIVER_Y - 25 : RIVER_Y + 25;
+                    return true;
+                }
+
+                return false;
             }
 
             function resolveUnitCollision(unit) {
@@ -6882,6 +7321,7 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                 // FIX: Add custom update to ONLY use building-find logic
                 update() {
                     if (this.health <= 0) return;
+                    if (this.handleZapFreeze()) return;
                     if (this.cooldownTimer > 0) { this.cooldownTimer -= deltaTime * 60; } /* Scale cooldown by delta time */
                     
                     // --- TARGET LOCK-ON FIX (FOR REAL) ---
@@ -7084,6 +7524,7 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                         return;
                     }
                     if (this.didHit) return; // Already spawned, do nothing
+                    if (this.handleZapFreeze()) return;
                     
                     if (this.chargeTimer > 0) { this.chargeTimer -= deltaTime * 60; if(this.chargeTimer <= 0) this.isCharging = true; } /* Scale charge timer by delta time */
                     if (this.isCharging) this.speed = 2.0; else this.speed = 1.0;
@@ -7149,6 +7590,7 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                 // FIX: Custom update to allow attacking at splash range
                 update() {
                     if (this.health <= 0) return;
+                    if (this.handleZapFreeze()) return;
                     if (this.cooldownTimer > 0) { this.cooldownTimer -= deltaTime * 60; } /* Scale cooldown by delta time */
                     if (this.attackAnimationTimer > 0) { this.attackAnimationTimer--; } // NEW
 
@@ -7247,6 +7689,7 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                     
                     // Standard unit update logic (copied from Unit)
                     if (this.health <= 0) return;
+                    if (this.handleZapFreeze()) return;
                     if (this.cooldownTimer > 0) { this.cooldownTimer--; }
                     
                     if (this.target && this.target.health > 0 && getDistance(this, this.target) <= this.attackRange) {
@@ -7356,6 +7799,7 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                 }
                 update() { // Custom update to use building-only AI
                     if (this.health <= 0) return;
+                    if (this.handleZapFreeze()) return;
                     if (this.cooldownTimer > 0) { this.cooldownTimer -= deltaTime * 60; } /* Scale cooldown by delta time */
                     
                     // --- TARGET LOCK-ON FIX (FOR REAL) ---
@@ -7383,6 +7827,135 @@ function ensureMatchEvoSlotsForMode(modeKey) {
             }
             class Pigs { constructor(x, y, team, level = 1) { const s = allCards['pigs'].stats[level]; for (let i = 0; i < s.count; i++) { gameObjects.push(new Pig(x + Math.random()*20-10, y + Math.random()*20-10, team, level)); } } }
             
+            // --- HORSE RIDER (NEW ARENA 12) ---
+            class HorseRider extends Unit {
+                constructor(x, y, team, level = 1) {
+                    const s = allCards['horseRider'].stats[level];
+                    super(x, y, 13, team, s.health, s.speed, 30, s.damage, s.hitSpeed, '🐎⚔️', false, false, level, allCards['horseRider'].aggroRange);
+                    this.baseSpeed = s.speed;
+                    this.baseDamage = s.damage;
+                    this.chargeSpeed = s.chargeSpeed;
+                    this.chargeDamage = s.chargeDamage;
+                    this.chargePrep = s.chargePrep;
+                    this.chargeTimer = this.chargePrep;
+                    this.isCharging = false;
+                    this.riverJumpDelay = s.riverJumpDelay || 1;
+                    this.riverJumpDuration = s.riverJumpDuration || 20;
+                    this.riverJumpHeight = s.riverJumpHeight || 45;
+                }
+                update() {
+                    if (!this.isCharging) {
+                        this.chargeTimer -= deltaTime;
+                        if (this.chargeTimer <= 0) {
+                            this.isCharging = true;
+                            this.speed = this.chargeSpeed;
+                            this.chargeTimer = this.chargePrep;
+                        }
+                    }
+                    super.update();
+                    if (this.isCharging && (!this.target || this.target.health <= 0)) {
+                        this.isCharging = false;
+                        this.speed = this.baseSpeed;
+                        this.chargeTimer = this.chargePrep;
+                    }
+                }
+                attack() {
+                    if (!this.target || this.cooldownTimer > 0) return;
+                    const originalDamage = this.attackDamage;
+                    if (this.isCharging) {
+                        this.attackDamage = this.chargeDamage;
+                    }
+                    super.attack();
+                    this.attackDamage = originalDamage;
+                    this.isCharging = false;
+                    this.speed = this.baseSpeed;
+                    this.chargeTimer = this.chargePrep;
+                }
+                move() {
+                    if (tryRiverJump(this, this.riverJumpDelay, this.riverJumpDuration, this.riverJumpHeight)) return;
+                    super.move();
+                }
+            }
+
+            // --- PIG JOCKEY (ARENA 12 WIN CONDITION) ---
+            class PigJockey extends Unit {
+                constructor(x, y, team, level = 1) {
+                    const s = allCards['pigJockey'].stats[level];
+                    super(x, y, 12, team, s.health, s.speed, 30, s.damage, s.hitSpeed, '🐷🏇', false, false, level, allCards['pigJockey'].aggroRange);
+                    this.riverJumpDelay = s.riverJumpDelay || 1;
+                    this.riverJumpDuration = s.riverJumpDuration || 18;
+                    this.riverJumpHeight = s.riverJumpHeight || 40;
+                    this.targetLocked = false;
+                }
+                findTarget() {
+                    let closestTowerDist = Infinity;
+                    let towerTarget = null;
+                    for (const obj of gameObjects) {
+                        if (obj.team !== this.team && (obj instanceof Tower) && !obj.isKing) {
+                            if ((this.x < WIDTH / 2 && obj.x < WIDTH / 2) || (this.x > WIDTH / 2 && obj.x > WIDTH / 2)) {
+                                const dist = getDistance(this, obj);
+                                if (dist < closestTowerDist) {
+                                    closestTowerDist = dist;
+                                    towerTarget = obj;
+                                }
+                            }
+                        }
+                    }
+                    if (!towerTarget) {
+                        for (const obj of gameObjects) {
+                            if (obj.team !== this.team && (obj instanceof Tower) && obj.isKing) {
+                                const dist = getDistance(this, obj);
+                                if (dist < closestTowerDist) {
+                                    closestTowerDist = dist;
+                                    towerTarget = obj;
+                                }
+                            }
+                        }
+                    }
+                    let closestBuildingDist = Infinity;
+                    let buildingTarget = null;
+                    for (const obj of gameObjects) {
+                        if (obj.team !== this.team && (obj instanceof Building)) {
+                            const dist = getDistance(this, obj);
+                            if (dist < closestBuildingDist) {
+                                closestBuildingDist = dist;
+                                buildingTarget = obj;
+                            }
+                        }
+                    }
+                    const towerDist = towerTarget ? closestTowerDist : Infinity;
+                    if (buildingTarget && closestBuildingDist <= this.aggroRange && closestBuildingDist < towerDist) {
+                        this.target = buildingTarget;
+                    } else {
+                        this.target = towerTarget;
+                    }
+                    this.targetLocked = (this.target != null);
+                }
+                update() {
+                    if (this.health <= 0) return;
+                    if (this.handleZapFreeze()) return;
+                    if (this.cooldownTimer > 0) { this.cooldownTimer -= deltaTime * 60; }
+                    if (this.target && this.target.health > 0 && getDistance(this, this.target) <= this.attackRange) {
+                        this.attack();
+                        return;
+                    }
+                    if (!this.target || this.target.health <= 0 || (this.target instanceof Tower)) {
+                        this.findTarget();
+                    }
+                    if (this.target && this.target.health > 0) {
+                        if (getDistance(this, this.target) <= this.attackRange) {
+                            this.attack();
+                        } else {
+                            this.move();
+                        }
+                    }
+                }
+                move() {
+                    if (tryRiverJump(this, this.riverJumpDelay, this.riverJumpDuration, this.riverJumpHeight)) return;
+                    super.move();
+                }
+            }
+
             // --- FLYING SKELETON (NEW) ---
             class FlyingSkeleton extends Unit { 
                 constructor(x, y, team, level = 1) { 
@@ -7504,6 +8077,7 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                 }
                 update() {
                     if (this.health <= 0) return;
+                    if (this.handleZapFreeze()) return;
                     if (this.cooldownTimer > 0) { this.cooldownTimer--; }
                     
                     if (this.frozen) return;
@@ -7592,6 +8166,7 @@ class ColdSpirit extends Unit {
     }
     update() {
         if (this.health <= 0 || this.hasJumped) return;
+        if (this.handleZapFreeze()) return;
         // Use standard land troop AI to find target in aggro range
         let target = null;
         // Find closest enemy unit (including flying), building, or tower in aggro range
@@ -7637,10 +8212,12 @@ class ColdSpirit extends Unit {
             }
             update() {
                 if (this.health <= 0 || this.hasJumped) return;
+                if (this.handleZapFreeze()) return;
                 let target = null;
                 let closestDist = this.jumpRadius;
                 for (const obj of gameObjects) {
                     if (obj.team !== this.team && (obj instanceof Unit || obj instanceof Building || obj instanceof Tower)) {
+                        if (obj instanceof Tower && obj.isKing) continue; // Require another object before hitting the king
                         // Skip invisible Phantom Knights
                         if (obj instanceof PhantomKnight && obj.isInvisible) continue;
                         const dist = getDistance(this, obj);
@@ -7685,10 +8262,10 @@ class ColdSpirit extends Unit {
                 this.effectRadius = s.effectRadius;
                 this.damage = s.damage;
                 this.hasJumped = false;
-                this.zapChain = null; // For drawing
             }
             update() {
                 if (this.health <= 0 || this.hasJumped) return;
+                if (this.handleZapFreeze()) return;
                 let target = null;
                 let closestDist = this.jumpRadius;
                 for (const obj of gameObjects) {
@@ -7734,15 +8311,15 @@ class ColdSpirit extends Unit {
                         }
                     }
                     // Deal damage to all in chain
+                    spawnZapTrail(this, chain, '#7dd3fc', 22);
                     for (const obj of chain) {
                         applyDamage(obj, this.damage);
-                        // Special: If obj is a king tower, activate it
+                        applyZapFreeze(obj, 0.9);
                         if (obj instanceof Tower && obj.isKing && !obj.isActive) {
                             obj.isActive = true;
                             obj.activationAnimation = 30;
                         }
                     }
-                    this.zapChain = chain;
                     this.hasJumped = true;
                     this.health = 0;
                 } else {
@@ -7753,10 +8330,6 @@ class ColdSpirit extends Unit {
                         this.move();
                     }
                 }
-            }
-            draw() {
-                super.draw();
-                // Draw zap chain after death (handled in game loop for all ZapSpirits)
             }
         }
 
@@ -7771,6 +8344,7 @@ class ColdSpirit extends Unit {
             }
             update() {
                 if (this.health <= 0 || this.hasJumped) return;
+                if (this.handleZapFreeze()) return;
                 let target = null;
                 let closestDist = this.jumpRadius;
                 for (const obj of gameObjects) {
@@ -7948,6 +8522,7 @@ class ColdSpirit extends Unit {
 
                 update() {
                     if (this.health <= 0) return;
+                    if (this.handleZapFreeze()) return;
 
                     // Apply spawn damage once
                     if (!this.hasDealtSpawnDamage) {
@@ -8099,6 +8674,56 @@ class ColdSpirit extends Unit {
                 }
             }
 
+            // --- ZAP DRAGON (ARENA 12) ---
+            function buildZapChain(owner, primary) {
+                if (!primary) return [];
+                const chain = [primary];
+                const visited = new Set([primary]);
+                let current = primary;
+                for (let i = 1; i < (owner.chainLimit || owner.chainRadius ? owner.chainLimit : 10); i++) {
+                    let next = null;
+                    let minDist = Infinity;
+                    for (const obj of gameObjects) {
+                        if (obj.team !== owner.team && (obj instanceof Unit || obj instanceof Building || obj instanceof Tower) && !visited.has(obj)) {
+                            if (obj instanceof PhantomKnight && obj.isInvisible) continue;
+                            const dist = getDistance(current, obj);
+                            if (dist <= (owner.chainRadius || 90) && dist < minDist) {
+                                minDist = dist;
+                                next = obj;
+                            }
+                        }
+                    }
+                    if (!next) break;
+                    chain.push(next);
+                    visited.add(next);
+                    current = next;
+                }
+                return chain;
+            }
+
+            class ZapDragon extends Unit {
+                constructor(x, y, team, level = 1) {
+                    const s = allCards['zapDragon'].stats[level];
+                    super(x, y, 14, team, s.health, s.speed, 110, s.damage, s.hitSpeed, '⚡🐉', true, true, level, allCards['zapDragon'].aggroRange);
+                    this.chainRadius = s.chainRadius;
+                    this.chainLimit = s.chainLimit;
+                }
+                attack() {
+                    if (!this.target || this.cooldownTimer > 0) return;
+                    const chain = buildZapChain(this, this.target);
+                    spawnZapTrail(this, chain, '#7dd3fc', 25);
+                    for (const node of chain) {
+                        applyDamage(node, this.attackDamage);
+                        applyZapFreeze(node, 0.9);
+                        if (node instanceof Tower && node.isKing && !node.isActive) {
+                            node.isActive = true;
+                            node.activationAnimation = 30;
+                        }
+                    }
+                    this.cooldownTimer = this.attackCooldown;
+                }
+            }
+
             class FlameTower extends Building {
                 constructor(x, y, team, level = 1) {
                     super(x, y, team, level, 'flameTower');
@@ -8168,6 +8793,30 @@ class ColdSpirit extends Unit {
                 }
             }
 
+            class ZapWizard extends Unit {
+                constructor(x, y, team, level = 1) {
+                    const s = allCards['zapWizard'].stats[level];
+                    super(x, y, 14, team, s.health, s.speed, 110, s.damage, s.hitSpeed, '🧙⚡', false, true, level, allCards['zapWizard'].aggroRange);
+                    this.chainRadius = s.chainRadius;
+                    this.chainLimit = s.chainLimit;
+                    this.trailColor = '#7dd3fc';
+                }
+                attack() {
+                    if (!this.target || this.cooldownTimer > 0) return;
+                    const chain = buildZapChain(this, this.target);
+                    spawnZapTrail(this, chain, this.trailColor, 25);
+                    for (const node of chain) {
+                        applyDamage(node, this.attackDamage);
+                        applyZapFreeze(node, 0.9);
+                        if (node instanceof Tower && node.isKing && !node.isActive) {
+                            node.isActive = true;
+                            node.activationAnimation = 30;
+                        }
+                    }
+                    this.cooldownTimer = this.attackCooldown;
+                }
+            }
+
             class Bot extends Unit {
                 constructor(x, y, team, level = 1) {
                     const s = allCards['bot'].stats[level];
@@ -8196,7 +8845,6 @@ class ColdSpirit extends Unit {
                     this.spawnDamage = s.spawnDamage;
                     this.spawnRadius = s.spawnRadius;
                     this.hasDealtSpawnDamage = false;
-                    this.zapChain = null; // For drawing
                 }
 
                 update() {
@@ -8261,19 +8909,16 @@ class ColdSpirit extends Unit {
                                     break;
                                 }
                             }
-                            // Deal damage to all in chain
+                            spawnZapTrail(this, chain, '#7dd3fc', 25);
                             for (const obj of chain) {
                                 applyDamage(obj, this.zapDamage);
+                                applyZapFreeze(obj, 0.9);
                             }
-                            this.zapChain = chain; // Store for drawing
-                        } else {
-                            this.zapChain = null; // No targets, no chain
                         }
                     }
-                }
-
-                draw() {
-                    super.draw(); // Draw Giant body and health bar
+                    }
+                    draw() {
+                        super.draw(); // Draw Giant body and health bar
 
                     // Draw electric field aura (subtle pulsing)
                     const pulseAlpha = 0.2 + Math.sin(performance.now() * 0.005) * 0.1; // Pulse between 0.1 and 0.3
@@ -8283,8 +8928,6 @@ class ColdSpirit extends Unit {
                     ctx.arc(this.x, this.y, this.zapRadius + Math.sin(performance.now() * 0.01) * 5, 0, Math.PI * 2); // Subtle size pulse, based on zapRadius
                     ctx.fill();
                     ctx.restore();
-
-                    // Draw zap chains after all objects (handled in main game loop for all ZapSpirit-like units)
                 }
             }
 
@@ -8461,6 +9104,7 @@ class StoneGiant extends Unit {
     update() {
         // IMPORTANT: no spawning here, only handled in cleanup
         if (this.health <= 0) return;
+        if (this.handleZapFreeze()) return;
 
         if (this.cooldownTimer > 0) {
             this.cooldownTimer--;
@@ -8758,6 +9402,37 @@ class StoneGiant extends Unit {
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                     ctx.fill();
+                }
+            }
+
+            class ZapTrailEffect extends GameObject {
+                constructor(points, color = '#7dd3fc', duration = 25) {
+                    super(points[0].x, points[0].y, 4, 'neutral', 1);
+                    this.points = points.map(p => ({ x: p.x, y: p.y }));
+                    this.color = color;
+                    this.duration = duration;
+                    this.lifetime = duration;
+                }
+                update() {
+                    this.lifetime -= deltaTime * 60;
+                    if (this.lifetime <= 0) {
+                        this.health = 0;
+                    }
+                }
+                draw() {
+                    if (!this.points || this.points.length < 2) return;
+                    const alpha = Math.max(0, this.lifetime / this.duration);
+                    ctx.save();
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = 2;
+                    ctx.globalAlpha = alpha;
+                    ctx.beginPath();
+                    ctx.moveTo(this.points[0].x, this.points[0].y);
+                    for (let i = 1; i < this.points.length; i++) {
+                        ctx.lineTo(this.points[i].x, this.points[i].y);
+                    }
+                    ctx.stroke();
+                    ctx.restore();
                 }
             }
 
@@ -9244,9 +9919,9 @@ class StoneGiant extends Unit {
                     'fireDragon': { name: 'Fire Dragon', cost: 4, emoji: '🐲', type: 'Air', unitClass: FireDragon, placementRadius: 14, isFlying: true, arena: 3, targets: 'Air & Ground', aggroRange: 120,
                                 stats: { 1: { health: 800, damage: 100, hitSpeed: 1.0, speed: 0.8, splashRadius: 20 } } },
                     'barbarians': { name: 'Barbarians', cost: 5, emoji: '🧔', type: 'Swarm', unitClass: Barbarians, placementRadius: 10, isFlying: false, arena: 3, targets: 'Ground', aggroRange: 100,
-                                stats: { 1: { count: 5, health: 300, damage: 60, hitSpeed: 1.4, speed: 0.8 } },
+                                stats: { 1: { count: 5, health: 300, damage: 45, hitSpeed: 1.4, speed: 0.8 } },
                                 // Evolution: Each barbarian starts with a shield that blocks two hits.
-                                evo: { cycle: 2, desc: 'Each barbarian gains a shield that blocks two hits from any attack before breaking.', stats: { count: 5, health: 300, damage: 60, hitSpeed: 1.4, speed: 0.8 } } },
+                                evo: { cycle: 2, desc: 'Each barbarian gains a shield that blocks two hits from any attack before breaking.', stats: { count: 5, health: 300, damage: 45, hitSpeed: 1.4, speed: 0.8 } } },
                     'battleRam': { name: 'Battle Ram', cost: 4, emoji: '🌲', type: 'WinCon', unitClass: BattleRam, placementRadius: 10, isFlying: false, arena: 3, targets: 'Buildings', aggroRange: 100,
                                 stats: { 1: { health: 700, damage: 200, chargeSpeed: 2.0, barbLevel: 1, speed: 0.8 } } },
                     'barbarianHut': { name: 'Barbarian House', cost: 7, emoji: '🏘️', type: 'Building', unitClass: BarbarianHut, placementRadius: 20, isFlying: false, arena: 3, targets: '-',
@@ -9279,7 +9954,7 @@ class StoneGiant extends Unit {
                     'spiritLantern': { name: 'Spirit Lantern', cost: 5, emoji: '🏮', type: 'Building', unitClass: SpiritLantern, placementRadius: 18, isFlying: false, arena: 7, targets: '-',
                         stats: { 1: { health: 900, spawn_speed: '6s', lifetime: '24s' } } },
                     'zapSpirit': { name: 'Zap Spirit', cost: 1, emoji: '⚡', type: 'Spirit', unitClass: ZapSpirit, placementRadius: 8, isFlying: false, arena: 6, targets: 'Air & Ground', aggroRange: 200,
-                                stats: { 1: { health: 150, jumpRadius: 100, effectRadius: 80, damage: 100, speed: 1.2 } } },
+                                stats: { 1: { health: 150, jumpRadius: 90, effectRadius: 70, damage: 100, speed: 1.2 } } },
                     'coldSpirit': { name: 'Cold Spirit', cost: 1, emoji: '❄️', type: 'Spirit', unitClass: ColdSpirit, placementRadius: 8, isFlying: false, arena: 6, targets: 'Air & Ground', aggroRange: 200,
                                 stats: { 1: { health: 150, jumpRadius: 100, effectRadius: 60, freezeDuration: 3, speed: 1.2 } } },
                     'lifeSpirit': { name: 'Life Spirit', cost: 1, emoji: '💚', type: 'Spirit', unitClass: LifeSpirit, placementRadius: 8, isFlying: false, arena: 6, targets: '-', aggroRange: 200,
@@ -9333,6 +10008,15 @@ class StoneGiant extends Unit {
                     // Massive ape-like giant with an anger aura
                     'diddyGiant': { name: 'Diddy Giant', cost: 7, emoji: '🐵💪', type: 'Tank', unitClass: DiddyGiant, placementRadius: 18, isFlying: false, arena: 11, targets: 'Buildings', aggroRange: 100,
                         stats: { 1: { health: 1800, damage: 70, hitSpeed: 1.5, speed: 0.5 } } },
+
+                    'horseRider': { name: 'Horse Rider', cost: 6, emoji: '🐎⚔️', type: 'Melee', unitClass: HorseRider, placementRadius: 14, isFlying: false, arena: 12, targets: 'Ground', aggroRange: 120,
+                                stats: { 1: { health: 1250, damage: 100, hitSpeed: 1.3, speed: 1.0, chargeDamage: 150, chargePrep: 3, chargeSpeed: 2.0, riverJumpDelay: 0.5, riverJumpDuration: 40, riverJumpHeight: 45 } } },
+                    'zapDragon': { name: 'Zap Dragon', cost: 5, emoji: '⚡🐉', type: 'Air', unitClass: ZapDragon, placementRadius: 14, isFlying: true, arena: 12, targets: 'Air & Ground', aggroRange: 160,
+                                stats: { 1: { health: 900, damage: 70, hitSpeed: 1.5, speed: 0.8, chainRadius: 90, chainLimit: 10 } } },
+                    'zapWizard': { name: 'Zap Wizard', cost: 5, emoji: '🧙⚡', type: 'Melee', unitClass: ZapWizard, placementRadius: 14, isFlying: false, arena: 12, targets: 'Ground', aggroRange: 150,
+                                stats: { 1: { health: 950, damage: 90, hitSpeed: 1.5, speed: 0.7, chainRadius: 90, chainLimit: 10 } } },
+                    'pigJockey': { name: 'Pig Jockey', cost: 4, emoji: '🐷🏇', type: 'WinCon', unitClass: PigJockey, placementRadius: 12, isFlying: false, arena: 12, targets: 'Buildings', aggroRange: 150,
+                                stats: { 1: { health: 950, damage: 110, hitSpeed: 1.2, speed: 1.2, riverJumpDelay: 0.5, riverJumpDuration: 34, riverJumpHeight: 38 } } },
                     'tower': { name: 'Tower Upgrade', emoji: '👑' }
                 };
                 
@@ -9513,6 +10197,21 @@ class StoneGiant extends Unit {
                     // Track units buffed by this giant to revert them when necessary
                     this.angeredUnits = new Set();
                 }
+                findTarget(forceFindTower = false) {
+                    let closestDist = Infinity;
+                    let buildingTarget = null;
+                    for (const obj of gameObjects) {
+                        if (obj.team !== this.team && (obj instanceof Building || obj instanceof Tower)) {
+                            const dist = getDistance(this, obj);
+                            if (dist < closestDist) {
+                                closestDist = dist;
+                                buildingTarget = obj;
+                            }
+                        }
+                    }
+                    this.target = buildingTarget;
+                    return buildingTarget;
+                }
                 update() {
                     // Call base update for movement/attacks
                     super.update();
@@ -9610,6 +10309,8 @@ class StoneGiant extends Unit {
                     ctx.fillStyle = '#9333ea'; // Purple-600 for chaos
                 } else if (currentArenaTheme === 'arena-9') {
                     ctx.fillStyle = '#1e293b'; // Slate-800 for void
+                } else if (currentArenaTheme === 'arena-12') {
+                    ctx.fillStyle = '#0b1220'; // Mythic river
                 } else {
                     ctx.fillStyle = '#3b82f6'; // Default blue
                 }
@@ -9622,7 +10323,9 @@ class StoneGiant extends Unit {
             }
 
             function getAILevel() {
-                if (trophies >= 2250) return 10;
+                if (trophies >= 2750) return 12;
+                else if (trophies >= 2500) return 11;
+                else if (trophies >= 2250) return 10;
                 else if (trophies >= 2000) return 9;
                 else if (trophies >= 1750) return 8;
                 else if (trophies >= 1500) return 7;
@@ -9767,7 +10470,7 @@ class StoneGiant extends Unit {
                 renderHand();
                 
                 // AI
-                const aiArenaLevel = getAILevel(); // This is 1, 2, 3, 4 or 5
+                const aiArenaLevel = getAILevel(); // This reflects the current arena level (1-12)
                 
                 // AI gets cards from its arena level, NO tower card
                 const aiArenaCards = getUnlockedCards(false, aiArenaLevel);
@@ -9888,6 +10591,10 @@ class StoneGiant extends Unit {
                     currentAiStatLevel = Math.floor(Math.random() * 2) + 6; // 6 or 7
                 } else if (aiArenaLevel === 10) { // Arena 10: 7-8
                     currentAiStatLevel = Math.floor(Math.random() * 2) + 7; // 7 or 8
+                } else if (aiArenaLevel === 11) { // Arena 11: 8-9
+                    currentAiStatLevel = Math.floor(Math.random() * 2) + 8; // 8 or 9
+                } else if (aiArenaLevel === 12) { // Arena 12: 9-10
+                    currentAiStatLevel = Math.floor(Math.random() * 2) + 9; // 9 or 10
                 }
                 
                 const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
@@ -9938,6 +10645,82 @@ class StoneGiant extends Unit {
                 }
             }
 
+            const aiCounterConfig = [
+                {
+                    predicate: unit => unit.isFlying,
+                    cards: ['fireDragon', 'archer', 'arrows'],
+                    defensive: true
+                },
+                {
+                    predicate: unit => unit instanceof Skeleton || unit instanceof SkeletonArmy || unit instanceof Barbarians,
+                    cards: ['poison', 'axeSwinger', 'arrows'],
+                    defensive: true
+                },
+                {
+                    predicate: unit => unit instanceof FlyingSkeleton || unit instanceof FlyingSkeletonGroup || unit instanceof MegaFlyingSkeleton,
+                    cards: ['fireDragon', 'archer', 'arrows'],
+                    defensive: true
+                },
+                {
+                    predicate: unit => unit instanceof Giant || unit instanceof Pigs || unit instanceof HorseRider || unit instanceof PigJockey || unit instanceof StoneGiant || unit instanceof ZapGiant,
+                    cards: ['farmer', 'tinyBot', 'barbarians'],
+                    defensive: true
+                },
+                {
+                    predicate: unit => unit instanceof FireDragon || unit instanceof ZapDragon,
+                    cards: ['archer', 'arrows', 'zapDragon'],
+                    defensive: true
+                },
+                {
+                    predicate: isWinConditionUnit,
+                    cards: ['zapSpirit', 'barbarians', 'goblins'],
+                    defensive: true
+                }
+            ];
+
+            function isWinConditionUnit(unit) {
+                return unit instanceof PigJockey || unit instanceof MegaSmasher || unit instanceof HorseRider || unit instanceof Pigs;
+            }
+
+            function evaluateUnitThreatScore(unit, towers) {
+                if (!unit || unit.health <= 0) return 0;
+                let score = unit.attackDamage || 0;
+                if (unit.isFlying) score += 25;
+                if (isWinConditionUnit(unit)) score += 40;
+                if (unit instanceof Unit && unit.targetsAir === false && unit.attackRange > 0 && !unit.isFlying) {
+                    score += 10;
+                }
+                if (towers.length > 0) {
+                    const closestDist = Math.min(...towers.map(t => getDistance(unit, t)));
+                    score += Math.max(0, 250 - closestDist);
+                }
+                return score;
+            }
+
+            function selectCounterCard(units, towers) {
+                const sortedThreats = units
+                    .map(u => ({ unit: u, score: evaluateUnitThreatScore(u, towers) }))
+                    .filter(entry => entry.score > 0)
+                    .sort((a, b) => b.score - a.score);
+                for (const threat of sortedThreats) {
+                    const counter = findCounterForUnit(threat.unit);
+                    if (counter) return counter;
+                }
+                return null;
+            }
+
+            function findCounterForUnit(unit) {
+                for (const entry of aiCounterConfig) {
+                    if (!entry.predicate(unit)) continue;
+                    for (const cardId of entry.cards) {
+                        if (aiHand.includes(cardId) && aiElixir >= (allCards[cardId]?.cost || Infinity)) {
+                            return { card: cardId, isDefensive: entry.defensive !== undefined ? entry.defensive : true };
+                        }
+                    }
+                }
+                return null;
+            }
+
             function runAI() {
                 const playerUnits = gameObjects.filter(o => o.team === 'player' && o instanceof Unit && o.y < RIVER_Y + 50);
                 const aiTowers = gameObjects.filter(obj => obj.team === 'ai' && obj instanceof Tower && obj.health > 0);
@@ -9959,6 +10742,11 @@ class StoneGiant extends Unit {
                     }
                 }
                 if (playerUnits.length > 0) {
+                    const counterPlay = selectCounterCard(playerUnits, aiTowers);
+                    if (counterPlay) {
+                        spawnAIUnit(counterPlay.card, currentAiStatLevel, counterPlay.isDefensive);
+                        return;
+                    }
                     let bestCardId = null;
                     // --- NEW AI LOGIC ---
                     if (playerUnits.some(u => u instanceof FlyingSkeleton || u instanceof FlyingSkeletonGroup) && aiHand.includes('fireDragon') && aiElixir >= allCards['fireDragon'].cost) {
@@ -10990,24 +11778,6 @@ class StoneGiant extends Unit {
                 ctx.clearRect(0, 0, WIDTH, HEIGHT);
                 drawArena();
                 gameObjects.forEach(obj => obj.draw());
-                // NEW: Draw zap chains after all objects
-                gameObjects.forEach(obj => {
-                    if ((obj instanceof ZapSpirit || obj instanceof ZapGiant) && obj.zapChain && obj.zapChain.length > 1) {
-                        ctx.strokeStyle = '#fbbf24';
-                        ctx.lineWidth = 3;
-                        for (let i = 1; i < obj.zapChain.length; i++) {
-                            const prev = obj.zapChain[i - 1];
-                            const curr = obj.zapChain[i];
-                            if (prev && curr && prev.health > 0 && curr.health > 0) {
-                                ctx.beginPath();
-                                ctx.moveTo(prev.x, prev.y);
-                                ctx.lineTo(curr.x, curr.y);
-                                ctx.stroke();
-                            }
-                        }
-                    }
-                });
-                
                 gameLoopId = requestAnimationFrame(demoGameLoop);
             }
             // ==============================================
