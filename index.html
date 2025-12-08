@@ -2461,6 +2461,7 @@ const firebaseConfig = {
             const BASE_ELIXIR_REGEN_RATE = 0.008;
             const REGULATION_TIME = 120 * 60;
             const OVERTIME_TIME = 120 * 60;
+            const UNIT_SPEED_MULTIPLIER = 0.78; // 22% slower troops for more tactical battles
             
             // NEW: Drag sensitivity
             const DRAG_SENSITIVITY = 10; // Pixels
@@ -6833,7 +6834,7 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                 constructor(x, y, radius, team, health, speed, attackRange, attackDamage, attackCooldown, emoji, isFlying = false, targetsAir = false, level = 1, aggroRange = 100) {
                     super(x, y, radius, team, health);
                     this.level = level; // Store level
-                    this.speed = speed;
+                    this.speed = speed * (typeof UNIT_SPEED_MULTIPLIER !== 'undefined' ? UNIT_SPEED_MULTIPLIER : 1);
                     this.attackRangeBase = attackRange;
                     this.isMeleeUnit = !isFlying && attackRange <= (radius + 20);
                     const meleeAttackBuffer = 10;
