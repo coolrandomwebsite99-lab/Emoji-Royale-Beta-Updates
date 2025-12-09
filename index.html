@@ -13,6 +13,12 @@
             document.documentElement.setAttribute('data-no-debug', '');
         }
     </script>
+    <script>
+        function solveSimpleChallenge() {
+            // Stub to satisfy external challenge hook; no extra logic required.
+            return true;
+        }
+    </script>
     <style>
 :root {
             --bg-dark: #090d1e;
@@ -478,6 +484,145 @@
             border-radius: 8px;
             z-index: 60;
             padding: 1rem;
+        }
+        .announcement-overlay,
+        .vote-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            z-index: 120;
+            backdrop-filter: blur(6px);
+            background: rgba(7, 11, 23, 0.8);
+            justify-content: center;
+            align-items: center;
+            padding: 1rem 0.5rem;
+        }
+        .announcement-panel,
+        .vote-panel {
+            width: min(360px, 100%);
+            background: linear-gradient(180deg, #0b1b3a, #051129);
+            border-radius: 26px;
+            padding: 2rem 2.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 25px 40px rgba(2, 6, 23, 0.8);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 90vh;
+            overflow-y: auto;
+            color: #f9f7ff;
+        }
+        .announcement-panel h2 {
+            font-size: 2.1rem;
+            margin: 0;
+            color: #ffd144;
+            text-align: center;
+        }
+        .announcement-panel p {
+            margin: 0;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        .announcement-panel .announcement-footer {
+            font-style: italic;
+            color: #d0d3ff;
+            font-size: 0.95rem;
+            text-align: right;
+        }
+        #announcementOkBtn {
+            background: linear-gradient(180deg, #3b62f6, #1421b8);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 0.85rem 0;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(20, 37, 110, 0.8);
+        }
+        #voteStatusText {
+            font-size: 0.85rem;
+        }
+        .vote-buttons {
+            display: flex;
+            justify-content: space-evenly;
+            gap: 1rem;
+        }
+        .vote-buttons button {
+            flex: 1;
+        }
+        #musicManiaScreen .music-deck-summary {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            font-weight: 600;
+        }
+        .music-deck-grid {
+            min-height: 90px;
+        }
+        .music-deck-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .music-deck-card button {
+            font-size: 0.65rem;
+            padding: 0.25rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.05);
+            color: #f8fafc;
+            cursor: pointer;
+        }
+        .music-deck-card button:hover {
+            background: rgba(59,130,246,0.4);
+        }
+        #musicCollectionGrid .card-ui {
+            cursor: pointer;
+        }
+        #musicCollectionGrid .music-card-available {
+            position: relative;
+        }
+        #musicCollectionGrid .music-card-available[data-music-evo="true"]::after {
+            content: 'EVO';
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            font-size: 0.55rem;
+            letter-spacing: 0.15em;
+            color: #eef2ff;
+            background: rgba(99, 102, 241, 0.85);
+            padding: 2px 6px;
+            border-radius: 999px;
+            font-weight: 700;
+        }
+        .music-runner-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .music-runner-wrapper canvas {
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            display: block;
+        }
+        .announcement-panel h2,
+        .vote-panel h2 {
+            font-size: 1.5rem;
+            letter-spacing: 0.5px;
+        }
+        .vote-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+        .vote-buttons button {
+            flex: 1;
+        }
+        .vote-results {
+            font-size: 1rem;
+            color: #facc15;
         }
         /* ENHANCED BUTTONS (3D Effect) */
         #messageOverlay button, #chestOpenOverlay button, .login-btn, .debug-btn, #debugPasswordOverlay button,
@@ -1290,10 +1435,11 @@
             <!-- Arena Display -->
             <div id="modeDisplay" class="text-yellow-600 font-bold text-xl mb-2 ui-text-effect">Trophy Road</div>
             <!-- Mode Selector Buttons -->
-            <div class="flex w-11/12 mb-4 bg-gray-800 rounded-lg p-1 gap-1">
+            <div class="flex w-11/12 mb-4 bg-gray-800 rounded-lg p-1 gap-1 flex-wrap">
                 <button id="modeTrophy" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-red-600 text-white shadow-md btn-shine ui-text-effect">Trophy Road</button>
                 <button id="modeParty1v1" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-gray-700 text-gray-400 shadow-md btn-shine ui-text-effect">1v1</button>
                 <button id="mode2v2" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-gray-700 text-gray-400 shadow-md btn-shine ui-text-effect">2v2</button>
+                <button id="modeMusicMania" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-gray-700 text-gray-400 shadow-md btn-shine ui-text-effect">Music Mania</button>
             </div>
             <div class="flex flex-col items-center my-8">
                 <span id="arenaEmoji" class="text-8xl">🏞️</span>
@@ -1304,12 +1450,30 @@
             <button id="battleButton" class="bg-red-600 hover:bg-red-700 text-white w-3/4 py-4 rounded-lg shadow-lg text-3xl font-extrabold transition transform hover:scale-105 btn-shine ui-text-effect">
                 BATTLE!
             </button>
-            
-            <!-- NEW: Arena Button -->
-            <button id="arenaButton" class="arena-btn bg-blue-600 hover:bg-blue-700 mt-4 w-3/4 py-3 text-xl font-bold btn-shine ui-text-effect">
+            <div id="musicRunOptions" class="hidden flex-col items-center gap-2 mt-4 w-3/4 text-center">
+                <div class="flex w-full gap-2 justify-center">
+                    <label class="flex flex-col text-xs uppercase tracking-wider text-gray-400">
+                        Level
+                        <select id="musicLevelSelect" class="rounded-lg bg-gray-900 text-white px-3 py-2 mt-1">
+                            <option value="1">Neon Valley</option>
+                            <option value="2">Crystal Peak</option>
+                            <option value="3">Skyline Rush</option>
+                        </select>
+                    </label>
+                    <label class="flex flex-col text-xs uppercase tracking-wider text-gray-400">
+                        Difficulty
+                        <select id="musicDifficultySelect" class="rounded-lg bg-gray-900 text-white px-3 py-2 mt-1">
+                            <option value="easy">Easy</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </label>
+                </div>
+                <p class="text-[10px] text-gray-500">Each level tweaks obstacle rhythm; difficulty scales speed.</p>
+            </div>
+            <button id="arenaButton" class="arena-btn bg-blue-600 hover:bg-blue-700 mt-3 w-3/4">
                 Arenas
             </button>
-
             <!-- NEW: Star Boxes Button -->
             <!-- Star Boxes Button: now a square 3D-style button with a box icon -->
             <button id="starBoxesButton" class="mt-4 rounded-xl transition transform hover:-translate-y-1 active:translate-y-0 ui-text-effect flex items-center justify-center" 
@@ -1668,6 +1832,45 @@
         </div>
     </div>
 
+    <div id="musicScreen" class="screen flex-col items-center p-4">
+        <div class="flex-grow flex flex-col items-center w-full max-w-md pt-8 pb-24">
+            <h1 class="text-3xl font-bold mb-2 ui-text-effect">Music Mania</h1>
+            <p class="text-sm text-gray-300 text-center mb-6">Build a dedicated deck and take your runner through a rhythm-inspired course where obstacles align with the beat. Evolutions boost your jump and speed.</p>
+
+            <div class="w-full">
+                <h2 class="text-xl font-bold text-gray-200 mb-2">Deck (8 cards)</h2>
+                <div id="musicDeckGrid" class="grid grid-cols-4 gap-2 mb-4"></div>
+                <p class="text-xs text-gray-400 mb-2 text-center">Tap a card to remove it. Evolutions show a glowing badge.</p>
+            </div>
+
+            <div class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 mb-4">
+                <h3 class="text-lg font-bold text-center text-purple-300 mb-2">Runner</h3>
+                <div id="musicRunnerPanel" class="w-full bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900 p-3 rounded-xl shadow-inner">
+                    <canvas id="musicCanvas" width="360" height="200" class="w-full rounded-lg border border-purple-500 mb-3"></canvas>
+                    <div class="flex justify-between text-xs text-gray-300 uppercase tracking-wide mb-2">
+                        <span>Distance: <span id="musicDistance">0</span></span>
+                        <span>Hits: <span id="musicHits">0</span>/3</span>
+                    </div>
+                    <button id="musicJumpButton" class="modal-btn w-full">Jump (Space)</button>
+                    <p id="musicStatusText" class="text-xs text-gray-400 mt-2 text-center">Choose a deck, then press Start.</p>
+                </div>
+            </div>
+
+            <p class="text-xs text-gray-500 text-center mb-2">Start triggers an auto-run inspired by Geometry Dash; avoid crash and rack up distance.</p>
+
+            <div class="w-full grid gap-2">
+                <button id="musicPlayButton" class="modal-btn upgrade w-full">Start Music Mania</button>
+                <button id="musicBackButton" class="modal-btn remove w-full bg-gray-600 hover:bg-gray-700">Back to Menu</button>
+            </div>
+
+            <div class="w-full mt-6">
+                <h2 class="text-xl font-bold text-gray-200 mb-2">Library</h2>
+                <div id="musicLibraryGrid" class="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto"></div>
+                <p class="text-xs text-gray-400 mt-2 text-center">Tap a card to add it to your Music Mania deck. Evolutions grant a jump bonus.</p>
+            </div>
+        </div>
+    </div>
+
     <!-- 
     ========================================================
     CARD INFO MODAL
@@ -1811,6 +2014,39 @@
             <!-- Update log content will be injected by JS -->
         </div>
         <button id="updateLogClose" class="mt-4">Continue</button>
+    </div>
+
+    <div id="announcementOverlay" class="announcement-overlay">
+        <div class="announcement-panel">
+            <h2>📢 Important Announcement Regarding the Future of Emoji Royale</h2>
+            <p>I would like to take a moment to address something important about the future of Emoji Royale. As the developer, I always want to be transparent with everyone who plays and supports the game.</p>
+            <p>Recently, I have been reviewing the direction of Emoji Royale, and I've realized that the game's continuation may depend on the community's interest and feedback. Because of this, I will be holding a vote to help determine whether the game will continue to receive updates or if it will potentially be shut down.</p>
+            <p>I want to make it very clear: no decision has been made yet. The outcome will depend entirely on the results of the vote and the amount of support the game receives from the community. I am giving everyone the chance to voice their opinion because your input truly matters to me, and I want to make the best decision for the game and its players.</p>
+            <p>I appreciate all of you who have been part of Emoji Royale so far. Your feedback, support, and excitement are the reasons the game exists in the first place. Regardless of the results, I want to thank you for being a part of this project.</p>
+            <p>The vote will be available soon. Please take a moment to participate when it goes live—it will directly shape the future of Emoji Royale.</p>
+            <p class="italic text-gray-300">Thank you for your understanding and continued support. — I appreciate every one of you.</p>
+            <button id="announcementOkBtn" class="modal-btn w-full">OK</button>
+        </div>
+    </div>
+
+    <div id="voteOverlay" class="vote-overlay">
+        <div class="vote-panel">
+            <h2>Shutdown Emoji Royale</h2>
+            <p class="text-sm text-gray-200">The community vote is live. Cast your single vote below to let your voice be heard about whether Emoji Royale keeps receiving updates.</p>
+            <div class="vote-buttons">
+                <button id="voteYesButton" class="modal-btn remove">Yes, shut it down</button>
+                <button id="voteNoButton" class="modal-btn add">No, keep it alive</button>
+            </div>
+            <div id="voteStatusText" class="text-xs text-gray-400 text-center">You can only vote once per browser.</div>
+            <button id="voteContinueButton" class="modal-btn mt-4">Continue</button>
+        </div>
+    </div>
+    <div id="musicManiaInfoOverlay" class="vote-overlay" style="display:none;">
+        <div class="vote-panel">
+            <h2>Music Mania Coming Soon</h2>
+            <p class="text-sm text-gray-200">This mode blends the tactical Clash Royale deckbuilding experience with rhythm obstacle courses inspired by Geometry Dash. Arrange your deck, tap Battle, then jump the beats while your cards unleash power!</p>
+            <button id="musicManiaInfoOk" class="modal-btn mt-4">OK</button>
+        </div>
     </div>
 
 
@@ -2202,7 +2438,7 @@ const firebaseConfig = {
         // Track which cards have their evolution unlocked. Keys are card IDs; values are true
         // when the card's evolution has been unlocked. This is saved with the user's data.
         let evoUnlockedCards = {};
-        let matchEvoSlots = { single: [], '2v2': [], party1v1: [] };
+        let matchEvoSlots = { single: [], '2v2': [], 'party1v1': [], 'musicMania': [] };
         let playerDeck = [];
         let playerDeck2v2 = [];
         let playerDeckParty = [];
@@ -2287,10 +2523,53 @@ const firebaseConfig = {
         let isLoading = false; // Flag to prevent double-loads
         let hasShownUpdateLog = false; // Flag to track if update log has been shown this session
         let generateKeyTimeout; // NEW: Timer for save key generation
-        
-        // --- NEW: Demo Mode ---
-        let isDemoMode = false;
-        
+        let isDemoMode = false; // Demo mode flag (set when unauthorized domain detected)
+        const VOTE_TOTALS_KEY = 'emojiRoyaleVoteTotals';
+        const VOTE_FLAG_KEY = 'emojiRoyaleHasVoted';
+        const VOTE_CHOICE_KEY = 'emojiRoyaleVoteChoice';
+        let voteTotals = { yes: 0, no: 0 };
+        let hasVoted = false;
+        let playerVoteChoice = null;
+        let pendingUpdateLogAfterVote = false;
+        let voteScheduled = false;
+        let menuVoteTimer = null;
+        let allowMenuAnnouncements = false;
+        let menuAnnouncementsArmed = false;
+        const MUSIC_BEST_KEY = 'emojiRoyaleMusicBestDistance';
+        const MUSIC_DECK_SIZE = 8;
+        const MUSIC_GRAVITY = 0.45;
+        const MUSIC_JUMP_POWER = -8;
+        const MUSIC_LEVEL_CONFIGS = {
+            1: { name: 'Neon Valley', spacing: 56, heightRange: [32, 58] },
+            2: { name: 'Crystal Peak', spacing: 48, heightRange: [38, 72] },
+            3: { name: 'Skyline Rush', spacing: 40, heightRange: [44, 84] }
+        };
+        const MUSIC_DIFFICULTY_SPEED = { easy: 0.85, medium: 1, hard: 1.2 };
+        let musicDeck = [];
+        let musicBestDistance = 0;
+        let musicRunning = false;
+        let musicAnimationId = null;
+        let musicObstacleTimer = 0;
+        let musicObstacleIndex = 0;
+        let musicObstacles = [];
+        let musicScore = 0;
+        let musicRunnerY = 180;
+        let musicRunnerVy = 0;
+        let musicCanvasEl = null;
+        let musicCtx = null;
+        let musicDeckGridEl;
+        let musicCollectionGridEl;
+        let musicDeckCountEl;
+        let musicBestDistanceEl;
+        let musicStartButtonEl;
+        let musicStatusTextEl;
+        let musicManiaButtonEl;
+        let musicManiaBackButtonEl;
+        let selectedMusicLevel = 1;
+        let selectedMusicDifficulty = 'medium';
+        let musicRunSpeedMultiplier = MUSIC_DIFFICULTY_SPEED[selectedMusicDifficulty];
+        let musicObstacleSpacing = Math.max(20, Math.round(MUSIC_LEVEL_CONFIGS[selectedMusicLevel].spacing / musicRunSpeedMultiplier));
+        let musicObstacleHeightRange = MUSIC_LEVEL_CONFIGS[selectedMusicLevel].heightRange;
         // --- Background Particle System ---
         const bgCanvas = document.getElementById('bgCanvas');
         const bgCtx = bgCanvas.getContext('2d');
@@ -2389,8 +2668,8 @@ const firebaseConfig = {
 
         // --- NEW: Game Mode State ---
         let gameMode = 'trophy'; // 'trophy', 'party1v1', '2v2'
-        function isMaxLevelMatch(mode = gameMode) {
-            return mode === 'party1v1' || mode === '2v2';
+function isMaxLevelMatch(mode = gameMode) {
+            return mode === 'party1v1' || mode === '2v2' || mode === 'musicMania';
         }
         function isRankedMode(mode = gameMode) {
             return mode === 'trophy';
@@ -2509,8 +2788,12 @@ const firebaseConfig = {
             const navButtons = document.querySelectorAll('.nav-btn');
             const persistentNav = document.getElementById('bottomNav');
             const navHighlight = document.getElementById('navHighlight');
-            let lastNavIndex = 0;
-            const logoutBtn = document.getElementById('logoutBtn');
+        let lastNavIndex = 0;
+        let menuReadyForAnnouncements = false;
+        const logoutBtn = document.getElementById('logoutBtn');
+        function enableMenuAnnouncements() {
+            menuReadyForAnnouncements = true;
+        }
             if (logoutBtn) {
                 // Direct assignment to replace any existing listeners
                 logoutBtn.onclick = async (e) => {
@@ -2548,13 +2831,17 @@ const firebaseConfig = {
             const deckScreen = document.getElementById('deckScreen');
             const towerScreen = document.getElementById('towerScreen');
             const arenaScreen = document.getElementById('arenaScreen'); // NEW
+            const arenaButton = document.getElementById('arenaButton');
             const debugScreen = document.getElementById('debugScreen'); // NEW
             const battleButton = document.getElementById('battleButton');
             const modeTrophy = document.getElementById('modeTrophy');
             const modeParty1v1 = document.getElementById('modeParty1v1');
             const mode2v2 = document.getElementById('mode2v2');
+            const modeMusicMania = document.getElementById('modeMusicMania');
             const modeDisplay = document.getElementById('modeDisplay');
-            const arenaButton = document.getElementById('arenaButton'); // NEW
+            const musicRunOptions = document.getElementById('musicRunOptions');
+            const musicLevelSelect = document.getElementById('musicLevelSelect');
+            const musicDifficultySelect = document.getElementById('musicDifficultySelect');
             const arenaBackButton = document.getElementById('arenaBackButton'); // NEW
             const trophyDisplay = document.getElementById('trophyDisplay');
             const goldDisplay = document.getElementById('goldDisplay');
@@ -2774,6 +3061,562 @@ const firebaseConfig = {
             const updateLogOverlay = document.getElementById('updateLogOverlay');
             const updateLogContent = document.getElementById('updateLogContent');
             const updateLogClose = document.getElementById('updateLogClose');
+            const announcementOverlay = document.getElementById('announcementOverlay');
+            const announcementOkBtn = document.getElementById('announcementOkBtn');
+            const voteOverlay = document.getElementById('voteOverlay');
+            const voteYesButton = document.getElementById('voteYesButton');
+            const voteNoButton = document.getElementById('voteNoButton');
+            const voteStatusText = document.getElementById('voteStatusText');
+            const voteResults = document.getElementById('voteResults');
+            const musicManiaInfoOverlay = document.getElementById('musicManiaInfoOverlay');
+            const musicManiaInfoOk = document.getElementById('musicManiaInfoOk');
+            const voteContinueButton = document.getElementById('voteContinueButton');
+            if (announcementOkBtn) {
+                announcementOkBtn.addEventListener('click', () => {
+                    if (announcementOverlay) announcementOverlay.style.display = 'none';
+                    showVoteWorkflow();
+                });
+            }
+            if (voteYesButton) {
+                voteYesButton.addEventListener('click', () => recordVote('yes'));
+            }
+            if (voteNoButton) {
+                voteNoButton.addEventListener('click', () => recordVote('no'));
+            }
+            if (voteContinueButton) {
+                voteContinueButton.addEventListener('click', () => {
+                    if (!hasVoted) return;
+                    if (voteOverlay) voteOverlay.style.display = 'none';
+                    displayUpdateLogContent();
+                    if (updateLogOverlay) updateLogOverlay.style.display = 'flex';
+                    pendingUpdateLogAfterVote = false;
+                });
+            }
+            if (musicManiaInfoOk) {
+                musicManiaInfoOk.addEventListener('click', () => {
+                    if (musicManiaInfoOverlay) musicManiaInfoOverlay.style.display = 'none';
+                });
+            }
+
+            // Vote & update log helpers
+            function showUpdateLog() {
+                pendingUpdateLogAfterVote = true;
+                if (announcementOverlay) {
+                    announcementOverlay.style.display = 'flex';
+                } else {
+                    showVoteWorkflow();
+                }
+            }
+
+            function loadVoteState() {
+                if (typeof localStorage === 'undefined') return;
+                try {
+                    const storedTotals = localStorage.getItem(VOTE_TOTALS_KEY);
+                    if (storedTotals) voteTotals = JSON.parse(storedTotals);
+                    hasVoted = localStorage.getItem(VOTE_FLAG_KEY) === 'true';
+                    const storedChoice = localStorage.getItem(VOTE_CHOICE_KEY);
+                    playerVoteChoice = storedChoice === 'yes' || storedChoice === 'no' ? storedChoice : null;
+                } catch (error) {
+                    console.warn('Vote state load failed', error);
+                }
+            }
+
+            function saveVoteState() {
+                if (typeof localStorage === 'undefined') return;
+                try {
+                    localStorage.setItem(VOTE_TOTALS_KEY, JSON.stringify(voteTotals));
+                    if (hasVoted) {
+                        localStorage.setItem(VOTE_FLAG_KEY, 'true');
+                        if (playerVoteChoice) {
+                            localStorage.setItem(VOTE_CHOICE_KEY, playerVoteChoice);
+                        } else {
+                            localStorage.removeItem(VOTE_CHOICE_KEY);
+                        }
+                    } else {
+                        localStorage.removeItem(VOTE_FLAG_KEY);
+                        localStorage.removeItem(VOTE_CHOICE_KEY);
+                    }
+                } catch (error) {
+                    console.warn('Vote state save failed', error);
+                }
+            }
+
+            function updateVoteDisplay() {
+                if (voteResults) {
+                    voteResults.textContent = `Yes: ${voteTotals.yes} · No: ${voteTotals.no}`;
+                }
+                if (voteStatusText) {
+                    if (hasVoted) {
+                        const label = playerVoteChoice === 'yes'
+                            ? 'Yes'
+                            : playerVoteChoice === 'no'
+                                ? 'No'
+                                : 'your vote';
+                        voteStatusText.textContent = `You already voted ${label}.`;
+                    } else {
+                        voteStatusText.textContent = 'You can only vote once per browser.';
+                    }
+                }
+            }
+
+            function showVoteWorkflow() {
+                updateVoteDisplay();
+                if (voteOverlay) {
+                    voteOverlay.style.display = 'flex';
+                }
+            }
+
+            function scheduleVoteWorkflow() {
+                if (!allowMenuAnnouncements || hasShownUpdateLog || voteScheduled) return;
+                voteScheduled = true;
+                if (menuVoteTimer) clearTimeout(menuVoteTimer);
+                menuVoteTimer = setTimeout(() => {
+                    menuVoteTimer = null;
+                    voteScheduled = false;
+                    const battleReady = battleButton && battleButton.offsetParent !== null && battleButton.style.display !== 'none';
+                    if (!hasShownUpdateLog && currentScreen === 'menu' && battleReady) {
+                        hasShownUpdateLog = true;
+                        showUpdateLog();
+                    } else if (!hasShownUpdateLog) {
+                        scheduleVoteWorkflow();
+                    }
+                }, 1500);
+            }
+
+            function armMenuAnnouncements() {
+                if (menuAnnouncementsArmed) return;
+                menuAnnouncementsArmed = true;
+                triggerMenuAnnouncements();
+            }
+
+            function triggerMenuAnnouncements() {
+                if (!menuAnnouncementsArmed || allowMenuAnnouncements) return;
+                allowMenuAnnouncements = true;
+                scheduleVoteWorkflow();
+            }
+
+            function recordVote(choice) {
+                if (hasVoted) return;
+                if (choice !== 'yes' && choice !== 'no') return;
+                voteTotals[choice]++;
+                hasVoted = true;
+                playerVoteChoice = choice;
+                saveVoteState();
+                updateVoteDisplay();
+                if (voteOverlay) voteOverlay.style.display = 'none';
+                pendingUpdateLogAfterVote = true;
+            }
+
+            if (voteContinueButton) {
+                voteContinueButton.addEventListener('click', () => {
+                    if (!hasVoted) return;
+                    if (voteOverlay) voteOverlay.style.display = 'none';
+                    displayUpdateLogContent();
+                    if (updateLogOverlay) {
+                        updateLogOverlay.style.display = 'flex';
+                    }
+                    pendingUpdateLogAfterVote = false;
+                });
+            }
+
+
+            function displayUpdateLogContent() {
+                const updates = [
+                { date: '12/06/2025', title: 'Mythic Arena Update', items: [
+                        '🐎🐉⚡ Mythic Arena (Arena 12) premieres with a celestial orientation, Mythic trophy goals, and a new visual mood.',
+                        'Horse Rider charges after a 3-second pause, smashes with charge damage, and jumps the river whenever the bridge is too far.',
+                        'Zap Dragon fires a chaining beam that hits up to ten enemies in sequence and can activate King Towers just like Zap Spirit.',
+                        'Pig Jockey leaps over the river and bulldozes straight toward buildings as a win condition that ignores bridges.',
+                        '🧪 Elixir Giant charges Buildings, splitting into smaller shards on death and nudging the opponent\'s elixir bar by 1 / 0.5 / 0.25 instead of showing weird totals.',
+                        'AI levels and chest rewards now stretch into Mythic Arena so the new cards appear in decks and star boxes.'
+                    ]},
+                    { date: '12/05/2025', title: 'Stars & Evolutions Update', items: [
+                        '⭐ Introduced Quarter Stars: earn a star every 2500 trophies with a flashy animation.',
+                        '📦 Added Star Boxes: spend Quarter Stars to open Star Boxes instantly. Future boxes coming soon!',
+                        '🧬 Evolutions Unlocked: Collect Evolution Shards from Star Boxes and play evolved cards in special deck slots.',
+                        '⚔️ Battle & UI: New battle animation on intro/loading screens and dynamic troop icons in the update log.',
+                        '🌀 Collision Overhaul: Units, towers, and buildings now nudge each other so bridges stay clear and troops can walk around obstacles.',
+                        '✨ Chests Sparkle: Enhanced chest opening effects with sparkles.',
+                        '🛠️ Balance Fixes: Added dirt trail and tower targeting for Diddy Miner; Diddy Giant now targets towers only.',
+                        '🏞️ New Arena & Cards: Added Diddy’s Prison arena and new Diddy troops.'
+                    ]},
+                    { date: '11/28/2025', title: 'Tower Power & Arena Update', items: [
+                        '🏰 New Towers! Waffle Maker 🧇, Machine Gun 🔫, Rocketeer 🚀',
+                        '🪦 Added Arena 9: Titan\'s Peak (2000+ trophies)!',
+                        '🦴 New Card: Skeleton Yard - Spell that continuously spawns Skeletons.',
+                        '💀💣 New Card: Huge Skeleton - Tank that drops a giant bomb on death.',
+                        '🥷 New Card: Ninja - Fast melee unit with high burst damage.',
+                        '☄️ New Card: Meteor - Powerful damage spell.',
+                        '🔥 Added Arena 10: Chaos Realm (2250+ trophies)!',
+                        '⚡💪 New Card: Zap Giant - Tank with electric field that zaps nearby enemies.',
+                        '💥 New Card: Mega Smasher - Tank that deals spawn damage and jumps on enemies.',
+                        '🐲🔥 New Card: Flame Dragon - Flying unit that ramps up damage over time.',
+                        '🏯🔥 New Card: Flame Tower - Defensive building with a ramping damage beam.',
+                        '🤖 New Card: Bot - A tanky, hard-hitting mechanical walker.'
+                    ]},
+                    { date: '11/27/2025', title: 'Winter Event', items: [
+                        '🎄 Winter Wonderland Event is Live!',
+                        '☃️ Snowman Challenge: Battle the Snowman King!',
+                        '✨ Visual Updates: New glowing text effects in Events tab'
+                    ]},
+                    { date: '11/25/2025', title: 'Previous Update', items: [
+                        'Added 2v2 Mode: Team up with an AI teammate against two AI opponents',
+                        'New King Tower Visuals: Combined king tower in 2v2 mode shows two crowns',
+                        'AI Improvements: 2v2 AI opponents and teammates now use all available cards',
+                        'UI Updates: Added health text display on all towers',
+                        'Fixed various bugs with card restrictions and deck initialization'
+                    ]},
+                    { date: '11/24/2025', title: 'Previous Update', items: [
+                        'Added Arena 8: Chaos Canyon (1750+ trophies) with custom card classes',
+                        'Added Chaos Elemental card - Melee unit with high damage and speed (👹)',
+                        'Added Shadow Clone card - Ranged unit with moderate damage (👤)',
+                        'Added Void Trap spell - Area damage spell for area control (⚫)',
+                        'Added Stone Giant card - Tank unit with high health (🗿)',
+                        'Added Chaos Orb spell - Damage spell for offense (🌀)',
+                        'Buffed all Spirits: health increased from 50 to 150 (now takes 3 tower hits to kill)',
+                        'Updated AI difficulty scaling per arena: Arena 1 lvl 1, Arena 2 lvl 1-2, Arena 3 lvl 2-3, Arena 4 lvl 2-3, Arena 5 lvl 4-5, Arena 6 lvl 4-5, Arena 7 lvl 5-6, Arena 8 lvl 5-6, Arena 9 lvl 6-7',
+                        'Chests now give more money and cards in higher arenas'
+                    ]},
+                    { date: '11/22/2025', title: 'Previous Update', items: [
+                        'Added Arena 7: Mages Graveyard (1500+ trophies)',
+                        'Added Mage card - Ranged unit with splash damage, attacks ground and air. Every 5 seconds, spawns 4 Skeletons in a square around her.',
+                        'Added Phantom Knight card: Spawns invisible and cannot be seen by enemy troops. Only attacks ground units. When attacking, becomes fully visible and can be targeted by enemy troops. Returns to invisible after 3 seconds of not attacking. Spells still hit invisible Phantom Knights. Spirits cannot see invisible Phantom Knights. Visual effect shows semi-transparent ghost when invisible.',
+                        'Added Spirit Lantern card - Spawns a random spirit (Zap, Cold, or Life Spirit) every 6 seconds.',
+                        'Added Arena 6: Warlock\'s Workshop (1250+ trophies)',
+                        'Added Warlock card - Ranged unit with splash damage, attacks ground and air',
+                        'Added Zap Spirit - Jumps on enemies and chains electricity to up to 10 targets',
+                        'Added Cold Spirit - Jumps and freezes enemies in area for 3 seconds',
+                        'Added Life Spirit - Jumps and creates healing circle for friendly units (3 seconds)',
+                        'Added Bomb Spirit - Jumps and explodes damaging enemies in area',
+                        'Added Spear Goblins card - Spawns 3 spear goblins (unlocks Arena 2)',
+                        'Added Anger spell - Purple pool that gives 2x damage and 1.5x attack speed (5 seconds, persists 3s after leaving)',
+                        'Buffed Skeletons and Skeleton Group: damage increased from 2 to 5'
+                    ]},
+                    { date: 'Previous Updates', title: 'Previous Features', items: [
+                        'Arena system with 5 arenas',
+                        'Card collection and deck building',
+                        'Tower upgrades',
+                        'Chest system',
+                        'Multiple unit types and spells',
+                        'AI opponents',
+                        'Save/load system'
+                    ]}
+                ];
+            let html = '';
+            updates.forEach(update => {
+                    html += `<div class=\"mb-4\"><h3 class=\"font-bold text-lg text-yellow-400 mb-2\">${update.title} - ${update.date}</h3><ul class=\"list-disc list-inside space-y-1\">`;
+                    update.items.forEach(item => {
+                        html += `<li>${item}</li>`;
+                    });
+                    html += `</ul></div>`;
+                });
+                updateLogContent.innerHTML = html;
+                if (updateLogOverlay) updateLogOverlay.style.display = 'flex';
+            }
+
+            if (updateLogClose) updateLogClose.addEventListener('click', () => {
+                if (updateLogOverlay) updateLogOverlay.style.display = 'none';
+            });
+
+            musicManiaButtonEl = document.getElementById('musicManiaButton');
+            musicManiaBackButtonEl = document.getElementById('musicManiaBackButton');
+            musicDeckGridEl = document.getElementById('musicDeckGrid');
+            musicCollectionGridEl = document.getElementById('musicCollectionGrid');
+            musicDeckCountEl = document.getElementById('musicDeckCount');
+            musicBestDistanceEl = document.getElementById('musicBestDistance');
+            musicStartButtonEl = document.getElementById('musicStartButton');
+            musicStatusTextEl = document.getElementById('musicStatusText');
+            musicCanvasEl = document.getElementById('musicCanvas');
+
+            function buildDefaultMusicDeck() {
+                return Object.keys(allCards)
+                    .filter(id => id !== 'tower' && id !== 'miniStoneGiant')
+                    .filter(id => allCards[id].arena === 1)
+                    .slice(0, MUSIC_DECK_SIZE);
+            }
+
+            function loadMusicDeck() {
+                musicDeck = [];
+            }
+
+            function saveMusicDeck() {
+                // No-op. Music Mania deck only saves via save key to avoid automatic persistence.
+            }
+
+            function loadMusicBestDistance() {
+                if (typeof localStorage === 'undefined') return;
+                try {
+                    musicBestDistance = Math.max(0, parseInt(localStorage.getItem(MUSIC_BEST_KEY) || '0', 10) || 0);
+                } catch (error) {
+                    musicBestDistance = 0;
+                }
+            }
+
+            function saveMusicBestDistance() {
+                if (typeof localStorage === 'undefined') return;
+                localStorage.setItem(MUSIC_BEST_KEY, musicBestDistance.toString());
+            }
+
+            function updateMusicStatus(message = '', showBest = true) {
+                if (musicStatusTextEl) {
+                    musicStatusTextEl.textContent = message || 'Add cards to begin.';
+                }
+                if (musicBestDistanceEl && showBest) {
+                    musicBestDistanceEl.textContent = `Best: ${musicBestDistance}`;
+                }
+                if (musicDeckCountEl) {
+                    musicDeckCountEl.textContent = `${musicDeck.length} / ${MUSIC_DECK_SIZE}`;
+                }
+            }
+
+            function addCardToMusicDeck(cardId) {
+                if (musicDeck.length >= MUSIC_DECK_SIZE) return;
+                musicDeck.push(cardId);
+                renderMusicDeckUI();
+            }
+
+            function removeCardFromMusicDeck(index) {
+                if (index < 0 || index >= musicDeck.length) return;
+                musicDeck.splice(index, 1);
+                renderMusicDeckUI();
+            }
+
+            function renderMusicCollectionGrid() {
+                if (!musicCollectionGridEl) return;
+                musicCollectionGridEl.innerHTML = '';
+                const available = Object.keys(allCards)
+                    .filter(id => id !== 'tower' && id !== 'miniStoneGiant')
+                    .sort((a, b) => (allCards[a].arena - allCards[b].arena) || allCards[a].name.localeCompare(allCards[b].name));
+                if (!available.length) {
+                    musicCollectionGridEl.innerHTML = '<p class=\"col-span-4 text-center text-xs text-gray-500\">Unlock cards in the main game to add them here.</p>';
+                    return;
+                }
+                available.forEach(cardId => {
+                    const cardEl = createCardDOM(cardId, true);
+                    cardEl.classList.add('music-card-available');
+                    const hasEvo = allCards[cardId] && allCards[cardId].evo && evoUnlockedCards && evoUnlockedCards[cardId];
+                    cardEl.dataset.musicEvo = hasEvo ? 'true' : 'false';
+                    cardEl.addEventListener('click', () => addCardToMusicDeck(cardId));
+                    musicCollectionGridEl.appendChild(cardEl);
+                });
+            }
+
+            function renderMusicDeckUI() {
+                if (musicDeckGridEl) {
+                    musicDeckGridEl.innerHTML = '';
+                    if (!musicDeck.length) {
+                        musicDeckGridEl.innerHTML = '<p class=\"col-span-4 text-center text-xs text-gray-400\">Build a deck by tapping unlocked cards below.</p>';
+                    } else {
+                        musicDeck.forEach((cardId, idx) => {
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'music-deck-card';
+                            const cardEl = createCardDOM(cardId, true);
+                            wrapper.appendChild(cardEl);
+                            const removeBtn = document.createElement('button');
+                            removeBtn.textContent = 'Remove';
+                            removeBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                removeCardFromMusicDeck(idx);
+                            });
+                            wrapper.appendChild(removeBtn);
+                            musicDeckGridEl.appendChild(wrapper);
+                        });
+                    }
+                }
+                renderMusicCollectionGrid();
+                updateMusicStatus('', true);
+            }
+
+            function spawnMusicObstacle() {
+                if (!musicCanvasEl) return;
+                const width = 30 + Math.random() * 24;
+                const height = 30 + Math.random() * 40;
+                const cardId = musicDeck[musicObstacleIndex % musicDeck.length];
+                const emoji = allCards[cardId]?.emoji || '🎧';
+                musicObstacleIndex++;
+                musicObstacles.push({
+                    x: musicCanvasEl.width + 10,
+                    y: musicCanvasEl.height - 35 - height,
+                    width,
+                    height,
+                    emoji
+                });
+            }
+
+            function drawMusicScene() {
+                if (!musicCanvasEl || !musicCtx) return;
+                musicCtx.fillStyle = '#040b16';
+                musicCtx.fillRect(0, 0, musicCanvasEl.width, musicCanvasEl.height);
+                musicCtx.fillStyle = '#0ea5e9';
+                for (let x = 0; x < musicCanvasEl.width; x += 40) {
+                    musicCtx.fillRect(x, musicCanvasEl.height - 20, 30, 3);
+                }
+                musicObstacles.forEach(obs => {
+                    musicCtx.fillStyle = '#f97316';
+                    musicCtx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                    musicCtx.fillStyle = '#fff';
+                    musicCtx.font = '16px Inter';
+                    musicCtx.textAlign = 'center';
+                    musicCtx.textBaseline = 'middle';
+                    musicCtx.fillText(obs.emoji, obs.x + obs.width / 2, obs.y + obs.height / 2);
+                });
+                musicCtx.fillStyle = '#facc15';
+                musicCtx.beginPath();
+                musicCtx.arc(60, musicRunnerY, 20, 0, Math.PI * 2);
+                musicCtx.fill();
+                musicCtx.fillStyle = '#0f172a';
+                musicCtx.font = '24px Inter';
+                musicCtx.textAlign = 'center';
+                musicCtx.textBaseline = 'middle';
+                musicCtx.fillText('▶', 60, musicRunnerY - 2);
+            }
+
+            function handleMusicJump() {
+                if (!musicRunning) return;
+                if (musicRunnerY <= 40) return;
+                musicRunnerVy = MUSIC_JUMP_POWER;
+            }
+
+            function finishMusicRun(reason) {
+                musicRunning = false;
+                if (musicAnimationId) {
+                    cancelAnimationFrame(musicAnimationId);
+                    musicAnimationId = null;
+                }
+                if (musicStartButtonEl) {
+                    musicStartButtonEl.disabled = false;
+                    musicStartButtonEl.textContent = 'Start Run';
+                }
+                if (musicScore > musicBestDistance) {
+                    musicBestDistance = musicScore;
+                    saveMusicBestDistance();
+                }
+                updateMusicStatus(`You ${reason}! Distance: ${musicScore}`, true);
+            }
+
+            function runMusicLoop() {
+                if (!musicRunning || !musicCanvasEl || !musicCtx) return;
+                musicObstacleTimer++;
+                if (musicObstacleTimer >= 60) {
+                    spawnMusicObstacle();
+                    musicObstacleTimer = 0;
+                }
+                musicRunnerVy += MUSIC_GRAVITY;
+                musicRunnerY += musicRunnerVy;
+                const floor = musicCanvasEl.height - 35;
+                if (musicRunnerY > floor) {
+                    musicRunnerY = floor;
+                    musicRunnerVy = 0;
+                }
+                const speed = 3 + Math.min(2, musicScore / 150);
+                musicObstacles = musicObstacles
+                    .map(obs => ({ ...obs, x: obs.x - speed }))
+                    .filter(obs => obs.x + obs.width > 0);
+                for (const obs of musicObstacles) {
+                    if (musicRunnerY + 30 > obs.y && musicRunnerY < obs.y + obs.height && obs.x < 90 && obs.x + obs.width > 30) {
+                        finishMusicRun('hit an obstacle');
+                        return;
+                    }
+                }
+                musicScore++;
+                updateMusicStatus(`Distance: ${musicScore}`, true);
+                drawMusicScene();
+                musicAnimationId = requestAnimationFrame(runMusicLoop);
+            }
+
+            function startMusicRun() {
+                if (musicRunning) return;
+                if (!musicDeck.length) {
+                    updateMusicStatus('Add cards to your Music deck first!', true);
+                    return;
+                }
+                if (!musicCanvasEl) return;
+                musicRunning = true;
+                musicScore = 0;
+                musicObstacleTimer = 0;
+                musicObstacleIndex = 0;
+                musicObstacles = [];
+                musicRunnerY = musicCanvasEl.height - 45;
+                musicRunnerVy = 0;
+                if (musicStartButtonEl) {
+                    musicStartButtonEl.disabled = true;
+                    musicStartButtonEl.textContent = 'Running...';
+                }
+                updateMusicStatus('Distance: 0', true);
+                drawMusicScene();
+                musicAnimationId = requestAnimationFrame(runMusicLoop);
+            }
+
+        function updateMusicRunOptionsVisibility() {
+            if (!musicRunOptions) return;
+            musicRunOptions.style.display = (gameMode === 'musicMania') ? 'flex' : 'none';
+        }
+
+        function updateMusicRunSettings() {
+            const levelConfig = MUSIC_LEVEL_CONFIGS[selectedMusicLevel] || MUSIC_LEVEL_CONFIGS[1];
+            const difficultySpeed = MUSIC_DIFFICULTY_SPEED[selectedMusicDifficulty] || 1;
+            musicRunSpeedMultiplier = difficultySpeed;
+            musicObstacleSpacing = Math.max(20, Math.round(levelConfig.spacing / difficultySpeed));
+            musicObstacleHeightRange = levelConfig.heightRange;
+            if (musicStatusTextEl && !musicRunning) {
+                const difficultyLabel = selectedMusicDifficulty.charAt(0).toUpperCase() + selectedMusicDifficulty.slice(1);
+                musicStatusTextEl.textContent = `Level ${levelConfig.name} • ${difficultyLabel}`;
+            }
+        }
+
+        function setupMusicMode() {
+            if (musicManiaButtonEl) musicManiaButtonEl.onclick = () => {
+                gameMode = 'musicMania';
+                updateModeUI();
+                renderDeckScreen();
+                updateBattleButtonState();
+            };
+                if (musicManiaBackButtonEl) musicManiaBackButtonEl.onclick = () => showScreen('menu');
+                if (musicStartButtonEl) musicStartButtonEl.addEventListener('click', startMusicRun);
+                if (musicCanvasEl) {
+                    musicCtx = musicCanvasEl.getContext('2d');
+                    musicCanvasEl.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        handleMusicJump();
+                    });
+                    musicCanvasEl.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        handleMusicJump();
+                    }, { passive: false });
+                }
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space') {
+                        handleMusicJump();
+                    }
+                });
+                loadMusicDeck();
+                loadMusicBestDistance();
+                renderMusicDeckUI();
+                updateMusicStatus('Deck ready. Start run when you are ready!', true);
+            }
+
+            function showDebugPassword() {
+                if (!window.isLocalFile) return;
+                debugPasswordInput.value = '';
+                debugPasswordOverlay.style.display = 'flex';
+                debugPasswordInput.focus();
+            }
+            if (debugPasswordSubmit) debugPasswordSubmit.addEventListener('click', () => {
+                if (!window.isLocalFile) return;
+                if (debugPasswordInput && debugPasswordInput.value.toUpperCase() === 'GEOMETRIC') {
+                    if (debugPasswordOverlay) debugPasswordOverlay.style.display = 'none';
+                    document.documentElement.removeAttribute('data-no-debug');
+                    showScreen('debug');
+                } else if (debugPasswordInput) {
+                    debugPasswordInput.value = '';
+                    debugPasswordInput.placeholder = 'Wrong! Try again.';
+                }
+            });
+            if (debugPasswordCancel) debugPasswordCancel.addEventListener('click', () => {
+                if (debugPasswordOverlay) debugPasswordOverlay.style.display = 'none';
+            });
+            loadVoteState();
+            updateVoteDisplay();
 
 
             // --- Game Elements (from gameScreen) ---
@@ -2835,6 +3678,7 @@ const firebaseConfig = {
                             isLoading = false;
                             isDataSaved = false; // Disable saving to prevent overwrite
                             initNewUser(); // Load a blank game locally
+                            enableMenuAnnouncements();
                             showScreen('menu'); // Go to menu
                         }
                     }, 8000); // 8 seconds
@@ -2846,11 +3690,12 @@ const firebaseConfig = {
                         initNewUser(); // If loading fails, start a new game
                     } finally {
                         // This code runs *only if* loading finishes *before* the 8-second timer
-                        if (isLoading) {
-                            clearTimeout(loadTimeout); // Cancel the failsafe timer
-                            isLoading = false;
-                            showScreen('menu'); // Go to menu normally
-                        }
+                    if (isLoading) {
+                        clearTimeout(loadTimeout); // Cancel the failsafe timer
+                        isLoading = false;
+                        enableMenuAnnouncements();
+                        showScreen('menu'); // Go to menu normally
+                    }
                     }
 
                 } else {
@@ -2949,6 +3794,9 @@ const firebaseConfig = {
                     playerDeck2v2 = dataToLoad.playerDeck2v2 || [];
                     playerDeckParty = dataToLoad.playerDeckParty || [];
                     lastClaimDate = dataToLoad.lastClaimDate || "";
+                    musicDeck = dataToLoad.musicDeck || [];
+                    renderMusicDeckUI();
+                    updateMusicStatus('', true);
                     return;
                 }
 
@@ -2956,6 +3804,8 @@ const firebaseConfig = {
                 if (!userDocRef) {
                     // No user doc; just start a new user locally
                     initNewUser();
+                    renderMusicDeckUI();
+                    updateMusicStatus('', true);
                     return;
                 }
 
@@ -3005,7 +3855,7 @@ const firebaseConfig = {
                     playerDeck = data.playerDeck || initNewUserCards(true);
                     playerDeck2v2 = data.playerDeck2v2 || [];
                     playerDeckParty = data.playerDeckParty || [];
-                    lastClaimDate = data.lastClaimDate || "";
+                        lastClaimDate = data.lastClaimDate || "";
                     } else {
                         // First time user: init defaults
                         initNewUser();
@@ -3016,6 +3866,9 @@ const firebaseConfig = {
                     isDataSaved = false;
                     initNewUser();
                 }
+                musicDeck = [];
+                renderMusicDeckUI();
+                updateMusicStatus('', true);
             }
 
             function initNewUserCards(deckOnly = false) {
@@ -3103,7 +3956,10 @@ const firebaseConfig = {
                 initGuestSession(); // Load default data, disable saving
                 showScreen('loading');
                 loadingScreen.querySelector('p').textContent = 'Starting Guest Game...';
-                setTimeout(() => showScreen('menu'), 1000); // Short delay
+                enableMenuAnnouncements();
+                setTimeout(() => {
+                    showScreen('menu');
+                }, 1000); // Short delay
             });
 
             // --- NEW: Save/Load Key Logic ---
@@ -3114,7 +3970,7 @@ const firebaseConfig = {
                 if (saveDataOverlay) saveDataOverlay.style.display = 'flex';
 
                 // Generate key
-                    const dataToSave = {
+                const dataToSave = {
                     trophies,
                     gold,
                     towerLevel,
@@ -3175,9 +4031,14 @@ const firebaseConfig = {
             });
 
             // --- Mode Selector Logic ---
+            function updateArenaButtonVisibility() {
+                if (!arenaButton) return;
+                const showArenaButton = gameMode === 'trophy' && currentScreen === 'menu';
+                arenaButton.style.display = showArenaButton ? 'block' : 'none';
+            }
             function updateModeUI() {
                 // Reset all
-                [modeTrophy, modeParty1v1, mode2v2].forEach(btn => {
+            [modeTrophy, modeParty1v1, mode2v2, modeMusicMania].forEach(btn => {
                     btn.classList.remove('bg-red-600', 'text-white');
                     btn.classList.add('bg-gray-700', 'text-gray-400');
                     btn.classList.remove('active');
@@ -3188,6 +4049,7 @@ const firebaseConfig = {
                 if (gameMode === 'trophy') { activeBtn = modeTrophy; modeText = "Trophy Road"; }
                 else if (gameMode === 'party1v1') { activeBtn = modeParty1v1; modeText = "1v1"; }
                 else if (gameMode === '2v2') { activeBtn = mode2v2; modeText = "2v2"; }
+                else if (gameMode === 'musicMania') { activeBtn = modeMusicMania; modeText = "Music Mania"; }
 
                 if (activeBtn) {
                     activeBtn.classList.remove('bg-gray-700', 'text-gray-400');
@@ -3196,11 +4058,37 @@ const firebaseConfig = {
                 }
                 if (modeDisplay) modeDisplay.textContent = modeText;
                 updateAITeammateUI(); // NEW: Update AI Teammate UI visibility when mode changes
+                updateMusicRunOptionsVisibility();
+                if (gameMode === 'musicMania') {
+                    updateMusicRunSettings();
+                }
+                updateArenaButtonVisibility();
             }
 
             if (modeTrophy) modeTrophy.addEventListener('click', () => { gameMode = 'trophy'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
             if (modeParty1v1) modeParty1v1.addEventListener('click', () => { gameMode = 'party1v1'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
             if (mode2v2) mode2v2.addEventListener('click', () => { gameMode = '2v2'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
+            if (modeMusicMania) modeMusicMania.addEventListener('click', () => {
+                gameMode = 'musicMania';
+                updateModeUI();
+                renderDeckScreen();
+                updateBattleButtonState();
+            });
+
+            if (musicLevelSelect) {
+                musicLevelSelect.value = selectedMusicLevel.toString();
+                musicLevelSelect.addEventListener('change', (e) => {
+                    selectedMusicLevel = parseInt(e.target.value, 10) || 1;
+                    updateMusicRunSettings();
+                });
+            }
+            if (musicDifficultySelect) {
+                musicDifficultySelect.value = selectedMusicDifficulty;
+                musicDifficultySelect.addEventListener('change', (e) => {
+                    selectedMusicDifficulty = e.target.value || 'medium';
+                    updateMusicRunSettings();
+                });
+            }
 
             // Initialize mode UI
             updateModeUI();
@@ -3299,7 +4187,10 @@ const firebaseConfig = {
                     loadDataOverlay.style.display = 'none';
                     showScreen('loading');
                     loadingScreen.querySelector('p').textContent = 'Loading Progress...';
-                    setTimeout(() => showScreen('menu'), 1000);
+                    enableMenuAnnouncements();
+                    setTimeout(() => {
+                        showScreen('menu');
+                    }, 1000);
 
                 } catch (error) {
                     console.error("Failed to load save key:", error);
@@ -3312,15 +4203,14 @@ const firebaseConfig = {
             // ==============================================
             // SCREEN & NAVIGATION LOGIC
             // ==============================================
-                        const navOrder = ['menu', 'deck', 'tower', 'events', 'debug'];
-            function showScreen(screenId) {
-                // Handle Screen Transitions
+            const navOrder = ['menu', 'deck', 'tower', 'events', 'debug'];
+            function showScreen(targetScreenId) {
                 const prevScreenIndex = navOrder.indexOf(currentScreen);
-                const nextScreenIndex = navOrder.indexOf(screenId);
+                const nextScreenIndex = navOrder.indexOf(targetScreenId);
                 const isNavTransition = prevScreenIndex !== -1 && nextScreenIndex !== -1;
 
-                currentScreen = screenId;
-                if (['intro', 'loading'].includes(screenId)) {
+                currentScreen = targetScreenId;
+                if (['intro', 'loading'].includes(targetScreenId)) {
                     startLoadingBattleAnimation();
                 } else {
                     stopLoadingBattleAnimation();
@@ -3328,7 +4218,7 @@ const firebaseConfig = {
 
                 screens.forEach(s => {
                     s.classList.remove('active', 'swipe-left', 'swipe-right', 'fade-in');
-                    if (s.id === screenId + 'Screen') {
+                    if (s.id === targetScreenId + 'Screen') {
                         s.classList.add('active');
                         if (isNavTransition) {
                             if (nextScreenIndex > prevScreenIndex) s.classList.add('swipe-right');
@@ -3338,18 +4228,16 @@ const firebaseConfig = {
                         }
                     }
                 });
-                
-                // Handle Persistent Nav
-                if (['menu', 'deck', 'tower', 'events', 'debug'].includes(screenId)) {
+
+                if (['menu', 'deck', 'tower', 'events', 'debug'].includes(targetScreenId)) {
                     persistentNav.style.display = 'block';
-                    // Slight delay to allow display:block to apply before transform if needed
                     requestAnimationFrame(() => persistentNav.style.transform = 'translate(-50%, 0)');
 
-                    navButtons.forEach((btn, index) => { 
-                        btn.classList.remove('text-yellow-400'); 
-                        btn.classList.add('text-gray-400'); 
+                    navButtons.forEach((btn, index) => {
+                        btn.classList.remove('text-yellow-400');
+                        btn.classList.add('text-gray-400');
 
-                        if (btn.dataset.screen === screenId) {
+                        if (btn.dataset.screen === targetScreenId) {
                             btn.classList.add('text-yellow-400');
                             btn.classList.remove('text-gray-400');
                             const direction = index >= lastNavIndex ? 'right' : 'left';
@@ -3367,150 +4255,27 @@ const firebaseConfig = {
                         }
                     });
                 } else {
-                    // Hide nav for non-main screens (login, game, etc)
                     persistentNav.style.display = 'none';
                 }
-                
-                if (screenId === 'deck') { renderDeckScreen(); }
-                if (screenId === 'tower') { renderTowerScreen(); }
-                if (screenId === 'events') { updateChristmasUI(); }
-                if (screenId === 'menu') { 
-                    updateArena(); 
-                    trophyDisplay.textContent = `🏆 ${trophies}`; 
-                    goldDisplay.textContent = `💰 ${gold}`; 
-                    renderChests(); 
-                    updateBattleButtonState(); 
-                    // Show update log once after loading screen
-                    if (!hasShownUpdateLog) {
+
+                updateArenaButtonVisibility();
+                if (targetScreenId === 'deck') { renderDeckScreen(); }
+                if (targetScreenId === 'tower') { renderTowerScreen(); }
+                if (targetScreenId === 'events') { updateChristmasUI(); }
+                if (targetScreenId === 'musicMania') { renderMusicDeckUI(); }
+                if (targetScreenId === 'menu') {
+                    updateArena();
+                    trophyDisplay.textContent = `🏆 ${trophies}`;
+                    goldDisplay.textContent = `💰 ${gold}`;
+                    renderChests();
+                    updateBattleButtonState();
+                    if (menuReadyForAnnouncements && !hasShownUpdateLog) {
                         hasShownUpdateLog = true;
-                        setTimeout(() => showUpdateLog(), 300); // Small delay to ensure menu is visible
+                        menuReadyForAnnouncements = false;
+                        setTimeout(() => showUpdateLog(), 300);
                     }
                 }
             }
-
-            function showDebugPassword() {
-                if (!window.isLocalFile) return;
-                debugPasswordInput.value = '';
-                debugPasswordOverlay.style.display = 'flex';
-                debugPasswordInput.focus();
-            }
-            if (debugPasswordSubmit) debugPasswordSubmit.addEventListener('click', () => {
-                if (!window.isLocalFile) return;
-                if (debugPasswordInput && debugPasswordInput.value.toUpperCase() === 'GEOMETRIC') {
-                    // Correct password entered: hide overlay, enable debug, show debug screen
-                    if (debugPasswordOverlay) debugPasswordOverlay.style.display = 'none';
-                    document.documentElement.removeAttribute('data-no-debug');
-                    showScreen('debug'); // Show debug screen
-                } else if (debugPasswordInput) { // If input exists and password is wrong
-                    debugPasswordInput.value = '';
-                    debugPasswordInput.placeholder = 'Wrong! Try again.';
-                }
-            });
-            if (debugPasswordCancel) debugPasswordCancel.addEventListener('click', () => {
-                if (debugPasswordOverlay) debugPasswordOverlay.style.display = 'none';
-            });
-
-            // NEW: Show update log function
-            function showUpdateLog() {
-            const updates = [
-                { date: '12/06/2025', title: 'Mythic Arena Update', items: [
-                    '🐎🐉⚡ Mythic Arena (Arena 12) premieres with a celestial orientation, Mythic trophy goals, and a new visual mood.',
-                    'Horse Rider charges after a 3-second pause, smashes with charge damage, and jumps the river whenever the bridge is too far.',
-                    'Zap Dragon fires a chaining beam that hits up to ten enemies in sequence and can activate King Towers just like Zap Spirit.',
-                    'Pig Jockey leaps over the river and bulldozes straight toward buildings as a win condition that ignores bridges.',
-                    '🧪 Elixir Giant charges Buildings, splitting into smaller shards on death and nudging the opponent\'s elixir bar by 1 / 0.5 / 0.25 instead of showing weird totals.',
-                    'AI levels and chest rewards now stretch into Mythic Arena so the new cards appear in decks and star boxes.'
-                ]},
-                { date: '12/05/2025', title: 'Stars & Evolutions Update', items: [
-                    '⭐ Introduced Quarter Stars: earn a star every 2500 trophies with a flashy animation.',
-                    '📦 Added Star Boxes: spend Quarter Stars to open Star Boxes instantly. Future boxes coming soon!',
-                    '🧬 Evolutions Unlocked: Collect Evolution Shards from Star Boxes and play evolved cards in special deck slots.',
-                    '⚔️ Battle & UI: New battle animation on intro/loading screens and dynamic troop icons in the update log.',
-                    '🌀 Collision Overhaul: Units, towers, and buildings now nudge each other so bridges stay clear and troops can walk around obstacles.',
-                    '✨ Chests Sparkle: Enhanced chest opening effects with sparkles.',
-                    '🛠️ Balance Fixes: Added dirt trail and tower targeting for Diddy Miner; Diddy Giant now targets towers only.',
-                    '🏞️ New Arena & Cards: Added Diddy’s Prison arena and new Diddy troops.'
-                ]},
-                { date: '11/28/2025', title: 'Tower Power & Arena Update', items: [
-                    '🏰 New Towers! Waffle Maker 🧇, Machine Gun 🔫, Rocketeer 🚀',
-                    '🪦 Added Arena 9: Titan\'s Peak (2000+ trophies)!',
-                    '🦴 New Card: Skeleton Yard - Spell that continuously spawns Skeletons.',
-                        '💀💣 New Card: Huge Skeleton - Tank that drops a giant bomb on death.',
-                        '🥷 New Card: Ninja - Fast melee unit with high burst damage.',
-                        '☄️ New Card: Meteor - Powerful damage spell.',
-                        '🔥 Added Arena 10: Chaos Realm (2250+ trophies)!',
-                        '⚡💪 New Card: Zap Giant - Tank with electric field that zaps nearby enemies.',
-                        '💥 New Card: Mega Smasher - Tank that deals spawn damage and jumps on enemies.',
-                        '🐲🔥 New Card: Flame Dragon - Flying unit that ramps up damage over time.',
-                        '🏯🔥 New Card: Flame Tower - Defensive building with a ramping damage beam.',
-                        '🤖 New Card: Bot - A tanky, hard-hitting mechanical walker.'
-                    ]},
-                    { date: '11/27/2025', title: 'Latest Update', items: [
-                        '🎄 Winter Wonderland Event is Live!',
-                        '☃️ Snowman Challenge: Battle the Snowman King!',
-                        '✨ Visual Updates: New glowing text effects in Events tab'
-                    ]},
-                    { date: '11/25/2025', title: 'Previous Update', items: [
-                        'Added 2v2 Mode: Team up with an AI teammate against two AI opponents',
-                        'New King Tower Visuals: Combined king tower in 2v2 mode shows two crowns',
-                        'AI Improvements: 2v2 AI opponents and teammates now use all available cards',
-                        'UI Updates: Added health text display on all towers',
-                        'Fixed various bugs with card restrictions and deck initialization'
-                    ]},
-                    { date: '11/24/2025', title: 'Previous Update', items: [
-                        'Added Arena 8: Chaos Canyon (1750+ trophies) with custom card classes',
-                        'Added Chaos Elemental card - Melee unit with high damage and speed (👹)',
-                        'Added Shadow Clone card - Ranged unit with moderate damage (👤)',
-                        'Added Void Trap spell - Area damage spell for area control (⚫)',
-                        'Added Stone Giant card - Tank unit with high health (🗿)',
-                        'Added Chaos Orb spell - Damage spell for offense (🌀)',
-                        'Buffed all Spirits: health increased from 50 to 150 (now takes 3 tower hits to kill)',
-                        'Updated AI difficulty scaling per arena: Arena 1 lvl 1, Arena 2 lvl 1-2, Arena 3 lvl 2-3, Arena 4 lvl 2-3, Arena 5 lvl 4-5, Arena 6 lvl 4-5, Arena 7 lvl 5-6, Arena 8 lvl 5-6, Arena 9 lvl 6-7',
-                        'Chests now give more money and cards in higher arenas'
-                    ]},
-                    { date: '11/22/2025', title: 'Previous Update', items: [
-                        'Added Arena 7: Mages Graveyard (1500+ trophies)',
-                        'Added Mage card - Ranged unit with splash damage, attacks ground and air. Every 5 seconds, spawns 4 Skeletons in a square around her.',
-                        'Added Phantom Knight card: Spawns invisible and cannot be seen by enemy troops. Only attacks ground units. When attacking, becomes fully visible and can be targeted by enemy troops. Returns to invisible after 3 seconds of not attacking. Spells still hit invisible Phantom Knights. Spirits cannot see invisible Phantom Knights. Visual effect shows semi-transparent ghost when invisible.',
-                        'Added Spirit Lantern card - Spawns a random spirit (Zap, Cold, or Life Spirit) every 6 seconds.',
-                        'Added Arena 6: Warlock\'s Workshop (1250+ trophies)',
-                        'Added Warlock card - Ranged unit with splash damage, attacks ground and air',
-                        'Added Zap Spirit - Jumps on enemies and chains electricity to up to 10 targets',
-                        'Added Cold Spirit - Jumps and freezes enemies in area for 3 seconds',
-                        'Added Life Spirit - Jumps and creates healing circle for friendly units (3 seconds)',
-                        'Added Bomb Spirit - Jumps and explodes damaging enemies in area',
-                        'Added Spear Goblins card - Spawns 3 spear goblins (unlocks Arena 2)',
-                        'Added Anger spell - Purple pool that gives 2x damage and 1.5x attack speed (5 seconds, persists 3s after leaving)',
-                        'Buffed Skeletons and Skeleton Group: damage increased from 2 to 5'
-                    ]},
-                    { date: 'Previous Updates', title: 'Previous Features', items: [
-                        'Arena system with 5 arenas',
-                        'Card collection and deck building',
-                        'Tower upgrades',
-                        'Chest system',
-                        'Multiple unit types and spells',
-                        'AI opponents',
-                        'Save/load system'
-                    ]}
-                ];
-                
-                let html = '';
-                updates.forEach(update => {
-                    html += `<div class="mb-4"><h3 class="font-bold text-lg text-yellow-400 mb-2">${update.title} - ${update.date}</h3><ul class="list-disc list-inside space-y-1">`;
-                    update.items.forEach(item => {
-                        html += `<li>${item}</li>`;
-                    });
-                    html += `</ul></div>`;
-                });
-                updateLogContent.innerHTML = html;
-                updateLogOverlay.style.display = 'flex';
-            }
-            
-            if (updateLogClose) updateLogClose.addEventListener('click', () => {
-                if (updateLogOverlay) updateLogOverlay.style.display = 'none';
-            });
-
-
             function updateArena() {
                 // Reset theme first
                 canvas.className = '';
@@ -3871,15 +4636,20 @@ function finalizeChest(index, stars) {
 
     // Determine how many card/tower stacks to award
     const unlockedCards = getUnlockedCards(false);
-    const numCardStacks = Math.max(1, Math.floor(2 + Math.random() * 2));
+    const arenaNumber = getArenaNumberFromFloor(currentArenaFloor);
+    const baseStackCount = Math.min(4, 1 + Math.floor(arenaNumber / 3));
+    const extraStack = Math.random() < 0.35 ? 1 : 0;
+    const numCardStacks = Math.min(5, Math.max(1, baseStackCount + extraStack));
 
     // Build reward objects
     const rewards = [];
     rewards.push({ type: 'gold', count: rewardGold, name: 'Gold' });
 
     for (let i = 0; i < numCardStacks; i++) {
-        const baseCount = 3 + Math.floor(Math.random() * 5);
-        const cardCount = Math.floor(baseCount * totalMult);
+        const baseCount = 1 + Math.floor(Math.random() * 2);
+        const arenaCardMultiplier = 0.6 + arenaNumber * 0.18;
+        const rawCount = Math.round(baseCount * totalMult * arenaCardMultiplier * 0.25);
+        const cardCount = Math.max(1, Math.min(5, rawCount));
 
         // Chance to award tower cards on 3-star chests and above
         const isTowerReward = stars >= 3 && Math.random() < (0.08 + stars * 0.03);
@@ -3897,10 +4667,11 @@ function finalizeChest(index, stars) {
             if (availableTowers.length === 0) availableTowers.push('princess');
 
             const towerId = availableTowers[Math.floor(Math.random() * availableTowers.length)];
+            const towerCardsAwarded = Math.min(5, cardCount);
             rewards.push({
                 type: 'tower',
                 id: towerId,
-                count: cardCount,
+                count: towerCardsAwarded,
                 name: `${towerDefs[towerId].name} Cards`
             });
 
@@ -3909,7 +4680,7 @@ function finalizeChest(index, stars) {
                 towerCollection[towerId] = { level: 1, count: 0, unlocked: false };
             }
             towerCollection[towerId].unlocked = true;
-            towerCollection[towerId].count   += cardCount;
+            towerCollection[towerId].count   += towerCardsAwarded;
         } else {
             // Award normal unit/spell cards
             const cardId = unlockedCards[Math.floor(Math.random() * unlockedCards.length)];
@@ -3922,7 +4693,11 @@ function finalizeChest(index, stars) {
         }
     }
 
-    // NEW: Award evolution shards for high‑star chests (4 stars and above)
+    if (typeof renderMusicDeckUI === 'function') {
+        renderMusicDeckUI();
+    }
+
+    // NEW: Award evolution shards for high-star chests (4 stars and above)
     // Chests with 4 or 5 stars will include a random number of shards between 1 and 6.
     // Higher shard counts are progressively rarer. This reward is separate from card
     // stacks and gold, and is added to the player’s evolution shard total.
@@ -4050,95 +4825,17 @@ if (chestCloseButton) {
                     }
                 };
             });
-            // NEW: Show update log function
-            function showUpdateLog() {
-                const updates = [
-                    { date: '12/05/2025', title: 'Stars & Evolutions Update', items: [
-                        '⭐ Introduced Quarter Stars: earn a star every 2500 trophies with a flashy animation.',
-                        '📦 Added Star Boxes: spend Quarter Stars to open Star Boxes instantly. Future boxes coming soon!',
-                        '🧬 Evolutions Unlocked: Collect Evolution Shards from Star Boxes and play evolved cards in special deck slots.',
-                        '⚔️ Battle & UI: New battle animation on intro/loading screens and dynamic troop icons in the update log.',
-                        '🌀 Collision Overhaul: Units, towers, and buildings now nudge each other so bridges stay clear and troops can walk around obstacles.',
-                        '✨ Chests Sparkle: Enhanced chest opening effects with sparkles.',
-                        '🛠️ Balance Fixes: Added dirt trail and tower targeting for Diddy Miner; Diddy Giant now targets towers only.',
-                        '🏞️ New Arena & Cards: Added Diddy’s Prison arena and new Diddy troops.'
-                    ]},
-                    { date: '11/28/2025', title: 'Tower Power & Arena Update', items: [
-                        '🏰 New Special Towers! (Unlock at Arena 10+)',
-                        '🧇 Waffle Maker: Heals and Levels up friendly troops!',
-                        '🔫 Machine Gun: Rapid fire bursts for high DPS!',
-                        '🚀 Rocketeer: Slow but devastating rocket attacks!',
-                        '👁️ Tower Preview: Test towers in the Tower Menu!',
-                        '🪦 Added Arena 9: Titan\'s Peak (2000+ trophies)',
-                        '🔥 Added Arena 10: Chaos Realm (2250+ trophies)',
-                        '💀 New Cards: Huge Skeleton, Ninja, Meteor, Skeleton Yard',
-                        '⚡ New Cards: Zap Giant, Mega Smasher, Flame Dragon, Bot'
-                    ]},
-                    { date: '11/27/2025', title: 'Winter Event', items: [
-                        '🎄 Winter Wonderland Event is Live!',
-                        '☃️ Snowman Challenge: Battle the Snowman King!',
-                        '✨ Visual Updates: New glowing text effects in Events tab'
-                    ]},
-                    { date: '11/25/2025', title: 'Previous Update', items: [
-                        'Added 2v2 Mode: Team up with an AI teammate against two AI opponents',
-                        'New King Tower Visuals: Combined king tower in 2v2 mode shows two crowns',
-                        'AI Improvements: 2v2 AI opponents and teammates now use all available cards',
-                        'UI Updates: Added health text display on all towers',
-                        'Fixed various bugs with card restrictions and deck initialization'
-                    ]},
-                    { date: '11/24/2025', title: 'Previous Update', items: [
-                        'Added Arena 8: Chaos Canyon (1750+ trophies) with custom card classes',
-                        'Added Chaos Elemental card - Melee unit with high damage and speed (👹)',
-                        'Added Shadow Clone card - Ranged unit with moderate damage (👤)',
-                        'Added Void Trap spell - Area damage spell for area control (⚫)',
-                        'Added Stone Giant card - Tank unit with high health (🗿)',
-                        'Added Chaos Orb spell - Damage spell for offense (🌀)',
-                        'Buffed all Spirits: health increased from 50 to 150 (now takes 3 tower hits to kill)',
-                        'Updated AI difficulty scaling per arena: Arena 1 lvl 1, Arena 2 lvl 1-2, Arena 3 lvl 2-3, Arena 4 lvl 2-3, Arena 5 lvl 4-5, Arena 6 lvl 4-5, Arena 7 lvl 5-6, Arena 8 lvl 5-6',
-                        'Chests now give more money and cards in higher arenas'
-                    ]},
-                    { date: '11/22/2025', title: 'Previous Update', items: [
-                        'Added Arena 7: Mages Graveyard (1500+ trophies)',
-                        'Added Mage card - Ranged unit with splash damage, attacks ground and air. Every 5 seconds, spawns 4 Skeletons in a square around her.',
-                        'Added Phantom Knight card: Spawns invisible and cannot be seen by enemy troops. Only attacks ground units. When attacking, becomes fully visible and can be targeted by enemy troops. Returns to invisible after 3 seconds of not attacking. Spells still hit invisible Phantom Knights. Spirits cannot see invisible Phantom Knights. Visual effect shows semi-transparent ghost when invisible.',
-                        'Added Spirit Lantern card - Spawns a random spirit (Zap, Cold, or Life Spirit) every 6 seconds.',
-                        'Added Arena 6: Warlock\'s Workshop (1250+ trophies)',
-                        'Added Warlock card - Ranged unit with splash damage, attacks ground and air',
-                        'Added Zap Spirit - Jumps on enemies and chains electricity to up to 10 targets',
-                        'Added Cold Spirit - Jumps and freezes enemies in area for 3 seconds',
-                        'Added Life Spirit - Jumps and creates healing circle for friendly units (3 seconds)',
-                        'Added Bomb Spirit - Jumps and explodes damaging enemies in area',
-                        'Added Spear Goblins card - Spawns 3 spear goblins (unlocks Arena 2)',
-                        'Added Anger spell - Purple pool that gives 2x damage and 1.5x attack speed (5 seconds, persists 3s after leaving)',
-                        'Buffed Skeletons and Skeleton Group: damage increased from 2 to 5'
-                    ]},
-                    { date: 'Previous Updates', title: 'Previous Features', items: [
-                        'Arena system with 5 arenas',
-                        'Card collection and deck building',
-                        'Tower upgrades',
-                        'Chest system',
-                        'Multiple unit types and spells',
-                        'AI opponents',
-                        'Save/load system'
-                    ]}
-                ];
-                
-                let html = '';
-                updates.forEach(update => {
-                    html += `<div class="mb-4"><h3 class="font-bold text-lg text-yellow-400 mb-2">${update.title} - ${update.date}</h3><ul class="list-disc list-inside space-y-1">`;
-                    update.items.forEach(item => {
-                        html += `<li>${item}</li>`;
-                    });
-                    html += `</ul></div>`;
-                });
-                updateLogContent.innerHTML = html;
-                updateLogOverlay.style.display = 'flex';
-            }
-            
+
             // updateLogClose event listener handled above
             
             if (battleButton) battleButton.addEventListener('click', () => {
                 if (battleButton.disabled) return;
+                if (gameMode === 'musicMania') {
+                    if (musicManiaInfoOverlay) {
+                        musicManiaInfoOverlay.style.display = 'flex';
+                    }
+                    return;
+                }
                 
                 if (gameMode === 'party1v1') {
                      if (playerDeckParty.length !== 8) {
@@ -4150,18 +4847,18 @@ if (chestCloseButton) {
                      menuScreen.classList.remove('active');
                      loadingScreen.classList.add('active');
                      loadingScreen.querySelector('p').textContent = 'Finding Party Opponent...';
-                     setTimeout(() => {
-                        showScreen('game');
-                        messageText.textContent = 'Get Ready!';
-                        startButton.style.display = 'none';
-                        menuButton.style.display = 'none';
-                        messageOverlay.style.display = 'flex';
-                        setTimeout(() => {
-                            initGame();
-                            lastTime = performance.now();
-                            gameLoopId = requestAnimationFrame(gameLoop);
-                        }, 1500);
-                     }, 1000);
+                setTimeout(() => {
+                    showScreen('game');
+                    messageText.textContent = 'Get Ready!';
+                    startButton.style.display = 'none';
+                    menuButton.style.display = 'none';
+                    messageOverlay.style.display = 'flex';
+                    setTimeout(() => {
+                        initGame();
+                        lastTime = performance.now();
+                        gameLoopId = requestAnimationFrame(gameLoop);
+                    }, 1500);
+                }, 1000);
                      return;
                 }
 
@@ -4193,13 +4890,13 @@ if (chestCloseButton) {
                 }
             });
             // NEW: Arena screen buttons
-            // Use `.onclick` for arenaButton to prevent multiple handlers
             if (arenaButton) {
                 arenaButton.onclick = null;
                 arenaButton.onclick = () => {
                     showScreen('arena');
                 };
             }
+            // Use `.onclick` for arenaBackButton to prevent multiple handlers
             if (arenaBackButton) {
                 arenaBackButton.onclick = null;
                 arenaBackButton.onclick = () => {
@@ -4470,7 +5167,7 @@ if (chestCloseButton) {
                 
                 const cardData = cardCollection[cardId];
                 // In 2v2 or Party mode, treat all cards as unlocked
-                const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
+                const isParty = (gameMode === '2v2' || gameMode === 'party1v1' || gameMode === 'musicMania');
                 const isLocked = isParty ? false : (!inHand && (!cardData || !cardData.unlocked));
                 
                 const cardEl = document.createElement('div');
@@ -4576,8 +5273,16 @@ if (chestCloseButton) {
                 });
             }
 
-            function getUnlockedCards(includeTower = false, aiLevel = 0) {
+            function getUnlockedCards(includeTower = false, aiLevel = 0, mode = gameMode) {
                 const unlocked = [];
+                if (mode === 'musicMania') {
+                    for (const cardId in allCards) {
+                        if (cardId === 'tower' || cardId === 'miniStoneGiant') continue;
+                        unlocked.push(cardId);
+                    }
+                    if (includeTower) unlocked.push('tower');
+                    return unlocked;
+                }
                 // Use AI level if provided, otherwise resolve the arena count from the trophy floor
                 const arenaNum = aiLevel > 0 ? aiLevel : getArenaNumberFromFloor(currentArenaFloor);
                 
@@ -4594,16 +5299,15 @@ if (chestCloseButton) {
             }
 
             function renderDeckScreen() {
+                const isParty = gameMode === '2v2' || gameMode === 'party1v1';
+                const musicMode = gameMode === 'musicMania';
                 deckCardGrid.innerHTML = '';
                 collectionCardGrid.innerHTML = '';
                 lockedCardGrid.innerHTML = ''; 
                 
                 const deckModeKey = getMatchModeKey();
                 ensureMatchEvoSlotsForMode(deckModeKey);
-                let currentDeck;
-                if (gameMode === '2v2') currentDeck = playerDeck2v2;
-                else if (gameMode === 'party1v1') currentDeck = playerDeckParty;
-                else currentDeck = playerDeck;
+                const currentDeck = getDeckForMode(gameMode);
 
                 const deckCountEl = document.getElementById('deckCount');
                 if (deckCountEl) deckCountEl.textContent = `${currentDeck.length} / 8`;
@@ -4669,6 +5373,7 @@ if (chestCloseButton) {
                         let deckRef;
                         if (gameMode === '2v2') deckRef = playerDeck2v2;
                         else if (gameMode === 'party1v1') deckRef = playerDeckParty;
+                        else if (gameMode === 'musicMania') deckRef = musicDeck;
                         else deckRef = playerDeck;
                         const temp = deckRef[toIdx];
                         deckRef[toIdx] = deckRef[fromIdx];
@@ -4687,8 +5392,8 @@ if (chestCloseButton) {
                     if (cardId === 'tower' || cardId === 'miniStoneGiant') continue; 
                     
                     const cardData = cardCollection[cardId];
-                    const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
-                    const isLocked = isParty ? false : (!cardData || !cardData.unlocked);
+                    const specialMode = (gameMode === '2v2' || gameMode === 'party1v1' || gameMode === 'musicMania');
+                    const isLocked = specialMode ? false : (!cardData || !cardData.unlocked);
                     
                     const cardEl = createCardDOM(cardId, true);
                     cardEl.addEventListener('click', () => openCardModal(cardId));
@@ -4910,10 +5615,7 @@ if (chestCloseButton) {
 
 
             function updateBattleButtonState() {
-                let currentDeck;
-                if (gameMode === '2v2') currentDeck = playerDeck2v2;
-                else if (gameMode === 'party1v1') currentDeck = playerDeckParty;
-                else currentDeck = playerDeck;
+                const currentDeck = getDeckForMode(gameMode);
 
                 if (currentDeck.length === 8) {
                     battleButton.disabled = false;
@@ -5126,7 +5828,7 @@ if (chestCloseButton) {
                 const cardData = cardCollection[cardId];
                 if (!card) return;
                 
-                const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
+                const isParty = (gameMode === '2v2' || gameMode === 'party1v1' || gameMode === 'musicMania');
                 const isLocked = isParty ? false : (!cardData || !cardData.unlocked);
                 const useMaxLevel = isMaxLevelMatch();
                 const displayLevel = useMaxLevel ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
@@ -5183,10 +5885,7 @@ if (chestCloseButton) {
                 if (isLocked || !stats) {
                     if(isLocked) cardInfoLevel.textContent = `Unlocks in Arena ${card.arena}`;
                 } else {
-                    let currentDeck;
-                    if (gameMode === '2v2') currentDeck = playerDeck2v2;
-                    else if (gameMode === 'party1v1') currentDeck = playerDeckParty;
-                    else currentDeck = playerDeck;
+                    const currentDeck = getDeckForMode();
 
                     const isInDeck = currentDeck.includes(cardId);
                     let addRemoveBtn = document.createElement('button');
@@ -5892,30 +6591,22 @@ if (chestCloseButton) {
             }
             
             async function addToDeck(cardId) {
-                let currentDeck;
-                if (gameMode === '2v2') currentDeck = playerDeck2v2;
-                else if (gameMode === 'party1v1') currentDeck = playerDeckParty;
-                else currentDeck = playerDeck;
-
+                const currentDeck = getDeckForMode();
                 if (currentDeck.length < 8) {
                     currentDeck.push(cardId);
                     renderDeckScreen();
-                    updateBattleButtonState(); // Update battle button immediately
+                    updateBattleButtonState();
                     openCardModal(cardId);
                     await saveUserData();
                 }
             }
             async function removeFromDeck(cardId) {
-                let currentDeck;
-                if (gameMode === '2v2') currentDeck = playerDeck2v2;
-                else if (gameMode === 'party1v1') currentDeck = playerDeckParty;
-                else currentDeck = playerDeck;
-
+                const currentDeck = getDeckForMode();
                 const index = currentDeck.indexOf(cardId);
                 if (index > -1) {
                     currentDeck.splice(index, 1);
                     renderDeckScreen();
-                    updateBattleButtonState(); // Update battle button immediately
+                    updateBattleButtonState();
                     openCardModal(cardId);
                     await saveUserData();
                 }
@@ -5938,11 +6629,19 @@ if (chestCloseButton) {
                 let shuffled = [...deck]; for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; } return shuffled;
             }
 
-            function getMatchModeKey(mode = gameMode) {
-                if (mode === '2v2') return '2v2';
-                if (mode === 'party1v1') return 'party1v1';
-                return 'single';
-            }
+function getMatchModeKey(mode = gameMode) {
+    if (mode === '2v2') return '2v2';
+    if (mode === 'party1v1') return 'party1v1';
+    if (mode === 'musicMania') return 'musicMania';
+    return 'single';
+}
+
+function getDeckForMode(mode = gameMode) {
+    if (mode === '2v2') return playerDeck2v2;
+    if (mode === 'party1v1') return playerDeckParty;
+    if (mode === 'musicMania') return musicDeck;
+    return playerDeck;
+}
 
 function selectMatchEvoSlots(deck) {
     if (!deck || !deck.length) return [];
@@ -5981,7 +6680,7 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                 } else {
                     // Normal AI Deck Logic
                     const aiArenaLevel = getAILevel(); 
-                    const aiArenaCards = getUnlockedCards(false, aiArenaLevel);
+                    const aiArenaCards = getUnlockedCards(false, aiArenaLevel, gameMode);
                     
                     aiDeck = [];
                     let availableCards = [...aiArenaCards];
@@ -10580,8 +11279,8 @@ class StoneGiant extends Unit {
                 if (!card) return null;
                 
                 const cardData = cardCollection[cardId];
-                // In 2v2 or Party mode, treat all cards as unlocked and level 15
-                const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
+                // In 2v2, party, or Music Mania mode treat all cards as unlocked
+                const isParty = (gameMode === '2v2' || gameMode === 'party1v1' || gameMode === 'musicMania');
                 const isLocked = isParty ? false : (!inHand && (!cardData || !cardData.unlocked));
                 
                 const cardEl = document.createElement('div');
@@ -10667,7 +11366,7 @@ class StoneGiant extends Unit {
             
             function startGameDecks() {
                 // Player
-                const deckToUse = (gameMode === '2v2') ? playerDeck2v2 : (gameMode === 'party1v1' ? playerDeckParty : playerDeck);
+                const deckToUse = getDeckForMode(gameMode);
                 const modeKey = getMatchModeKey();
                 ensureMatchEvoSlotsForMode(modeKey);
                 matchEvoSlots[modeKey] = selectMatchEvoSlots(deckToUse);
@@ -10682,7 +11381,7 @@ class StoneGiant extends Unit {
                 const aiArenaLevel = getAILevel(); // This reflects the current arena level (1-12)
                 
                 // AI gets cards from its arena level, NO tower card
-                const aiArenaCards = getUnlockedCards(false, aiArenaLevel);
+                const aiArenaCards = getUnlockedCards(false, aiArenaLevel, gameMode);
                 
                 // Build a random 8-card deck
                 aiDeck = [];
@@ -11005,6 +11704,26 @@ class StoneGiant extends Unit {
 
             function runAI() {
                 const playerUnits = gameObjects.filter(o => o.team === 'player' && o instanceof Unit);
+                if (aiHand.length === 0) {
+                    if (aiDeck.length === 0 && aiDiscardPile.length > 0) {
+                        aiDeck = shuffleDeck(aiDiscardPile);
+                        aiDiscardPile = [];
+                    }
+                    if (aiDeck.length > 0) {
+                        aiHand.push(aiDeck.pop());
+                    }
+                }
+                if (playerUnits.length >= 3) {
+                    const urgentCard = findStrongestAffordableUnitCard();
+                    if (urgentCard) {
+                        spawnAIUnit(urgentCard, currentAiStatLevel, true);
+                        return;
+                    }
+                    if (aiHand.length > 0) {
+                        spawnAIUnit(aiHand[0], currentAiStatLevel, true);
+                        return;
+                    }
+                }
                 const aiTowers = gameObjects.filter(obj => obj.team === 'ai' && obj instanceof Tower && obj.health > 0);
                 const towerThreats = playerUnits.filter(u => {
                     if (u.target && u.target instanceof Tower && u.target.team === 'ai') {
@@ -11138,14 +11857,16 @@ class StoneGiant extends Unit {
                 
                 if (card.type === 'Spell') {
                     let target = null;
-                    if (cardId === 'fireball') {
+                if (cardId === 'fireball') {
                         target = gameObjects.find(o => o.team === 'player' && o instanceof Tower && o.health > 0 && o.health < 600);
                         if (!target) target = gameObjects.find(o => o.team === 'player' && (o instanceof Barbarian || o instanceof Farmer));
+                        if (!target) target = gameObjects.find(o => o.team === 'player' && o instanceof Unit);
                     } else if (cardId === 'arrows') {
                         target = gameObjects.find(o => o.team === 'player' && (o instanceof Skeleton || o instanceof SkeletonArmy || o instanceof GoblinGang || o instanceof FlyingSkeleton || o instanceof FlyingSkeletonGroup));
                     } else if (cardId === 'poison') { // NEW
                         target = gameObjects.find(o => o.team === 'player' && (o instanceof Tower) && o.health > 0);
                         if (!target) target = gameObjects.find(o => o.team === 'player' && o instanceof Unit && o.y > RIVER_Y - 50);
+                        if (!target) target = gameObjects.find(o => o.team === 'player' && o instanceof Unit);
                     } else if (cardId === 'anger') { // NEW
                         target = gameObjects.find(o => o.team === 'ai' && (o instanceof Unit || o instanceof Tower || o instanceof Building) && o.health > 0);
                     } else if (cardId === 'voidTrap') { // NEW
@@ -12121,6 +12842,7 @@ class StoneGiant extends Unit {
             
             // This MUST be called after all classes are defined
             initCardSystem();
+            setupMusicMode();
 
             // --- BUG FIX: Start demo mode *after* classes and cards are defined ---
             if (isDemoMode) {
@@ -12628,6 +13350,33 @@ class StoneGiant extends Unit {
                 </div>
             </div>
             <button id="starBoxesBackButton" class="bg-gray-600 hover:bg-gray-700 mt-8 px-4 py-2 rounded w-full text-center font-bold">Back</button>
+        </div>
+    </div>
+
+    <!--
+    ========================================================
+    SCREEN: MUSIC MANIA
+    ========================================================
+    -->
+    <div id="musicManiaScreen" class="screen flex-col items-center p-4">
+        <div class="flex-grow flex flex-col items-center w-full max-w-md pt-6 pb-24">
+            <h1 class="text-3xl font-bold mb-2 ui-text-effect">Music Mania</h1>
+            <p class="text-sm text-gray-300 text-center mb-4">
+                Build a dedicated deck and ride the rhythm. Tap Start, jump the obstacles, and clear a Geometry Dash-style run where every obstacle is inspired by the cards you choose.
+            </p>
+            <div class="music-deck-summary text-sm text-gray-400 mb-3">
+                <span id="musicDeckCount">0 / 8</span>
+                <span id="musicBestDistance" class="ml-4">Best: 0</span>
+            </div>
+            <div id="musicDeckGrid" class="music-deck-grid grid grid-cols-4 gap-2 w-full mb-2"></div>
+            <p class="text-xs text-gray-500 mb-3 text-center">Tap deck cards to remove them, then add new cards from the pool below.</p>
+            <div id="musicCollectionGrid" class="grid grid-cols-4 gap-2 w-full"></div>
+            <div class="music-runner-wrapper mt-6 w-full bg-gradient-to-b from-slate-900 to-slate-800 rounded-2xl p-4 shadow-2xl">
+                <canvas id="musicCanvas" width="400" height="220" class="w-full rounded-xl bg-gradient-to-br from-indigo-900 to-slate-900 shadow-inner border border-blue-500"></canvas>
+                <div id="musicStatusText" class="text-center text-gray-200 mt-3">Tap Start and Space to jump.</div>
+                <button id="musicStartButton" class="modal-btn w-full mt-3">Start Run</button>
+                <button id="musicManiaBackButton" class="modal-btn add w-full mt-2">Back to Menu</button>
+            </div>
         </div>
     </div>
 
