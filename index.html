@@ -485,6 +485,30 @@
             z-index: 60;
             padding: 1rem;
         }
+        #emojiDashResultOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 0.35rem;
+            background-color: rgba(3, 7, 18, 0.92);
+            color: white;
+            font-size: 2.25rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 0px #000, 0 0 10px rgba(0,0,0,0.5);
+            text-align: center;
+            border-radius: 12px;
+            z-index: 120;
+            padding: 1.5rem;
+        }
+        #emojiDashResultOverlay span {
+            max-width: min(360px, 95%);
+        }
         .announcement-overlay,
         .vote-overlay {
             position: fixed;
@@ -551,63 +575,6 @@
         .vote-buttons button {
             flex: 1;
         }
-        #musicManiaScreen .music-deck-summary {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            font-weight: 600;
-        }
-        .music-deck-grid {
-            min-height: 90px;
-        }
-        .music-deck-card {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-        .music-deck-card button {
-            font-size: 0.65rem;
-            padding: 0.25rem;
-            border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.3);
-            background: rgba(255,255,255,0.05);
-            color: #f8fafc;
-            cursor: pointer;
-        }
-        .music-deck-card button:hover {
-            background: rgba(59,130,246,0.4);
-        }
-        #musicCollectionGrid .card-ui {
-            cursor: pointer;
-        }
-        #musicCollectionGrid .music-card-available {
-            position: relative;
-        }
-        #musicCollectionGrid .music-card-available[data-music-evo="true"]::after {
-            content: 'EVO';
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            font-size: 0.55rem;
-            letter-spacing: 0.15em;
-            color: #eef2ff;
-            background: rgba(99, 102, 241, 0.85);
-            padding: 2px 6px;
-            border-radius: 999px;
-            font-weight: 700;
-        }
-        .music-runner-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .music-runner-wrapper canvas {
-            max-width: 100%;
-            width: 100%;
-            margin: 0 auto;
-            display: block;
-        }
         .announcement-panel h2,
         .vote-panel h2 {
             font-size: 1.5rem;
@@ -625,7 +592,7 @@
             color: #facc15;
         }
         /* ENHANCED BUTTONS (3D Effect) */
-        #messageOverlay button, #chestOpenOverlay button, .login-btn, .debug-btn, #debugPasswordOverlay button,
+        #messageOverlay button, #emojiDashResultOverlay button, #chestOpenOverlay button, .login-btn, .debug-btn, #debugPasswordOverlay button,
         #saveDataOverlay button, #loadDataOverlay button, #updateLogOverlay button, .arena-btn, .modal-btn, .mode-tab {
             font-size: 1rem;
             font-weight: 800;
@@ -658,6 +625,22 @@
         }
         #messageOverlay button:hover, .login-btn:hover, .arena-btn:hover {
             filter: brightness(1.1);
+        }
+        #messageRewardText {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fde047;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            margin-top: 0.35rem;
+        }
+        #emojiDashResultRewardText {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fde047;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            margin-top: 0.35rem;
         }
 
         .arena-callout, .arena-card {
@@ -777,6 +760,105 @@
             background-color: #4b5563;
             cursor: not-allowed;
             opacity: 0.7;
+        }
+
+        /* Emoji Dash specific styling */
+        #emojiDashScreen {
+            background: linear-gradient(180deg, rgba(2, 6, 23, 0.95), rgba(15, 23, 42, 0.9));
+        }
+        #emojiDashCanvas {
+            background: radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.2), transparent 45%), #020617;
+            min-height: 280px;
+            height: auto;
+            display: block;
+            box-shadow: 0 15px 40px rgba(2, 6, 23, 0.75), inset 0 0 25px rgba(14, 165, 233, 0.25);
+        }
+        .emoji-dash-control {
+            min-width: 190px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .emoji-dash-control:active {
+            transform: translateY(2px);
+        }
+        #emojiDashDeckBar {
+            min-height: 80px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            gap: 0.5rem;
+        }
+        .emoji-dash-deck-card {
+            background: linear-gradient(180deg, rgba(59, 130, 246, 0.35), rgba(15, 23, 42, 0.9));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: #f8fafc;
+            font-weight: 700;
+            padding: 0.4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            gap: 0.2rem;
+        }
+        .emoji-dash-deck-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(14, 165, 233, 0.9);
+        }
+        .emoji-dash-deck-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        .emoji-dash-play-wrapper {
+            width: min(100%, 840px);
+            border-radius: 20px;
+            padding: 0.25rem;
+            background: linear-gradient(180deg, rgba(14, 165, 233, 0.35), rgba(15, 23, 42, 0.65));
+            box-shadow: 0 20px 45px rgba(2, 6, 23, 0.75);
+        }
+        .emoji-dash-elixir-shell {
+            position: relative;
+            height: 28px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            background: rgba(15, 23, 42, 0.8);
+        }
+        .emoji-dash-elixir-fill {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, #a855f7, #f43f5e);
+            width: 100%;
+            transform-origin: left;
+            transform: scaleX(1);
+        }
+        .emoji-dash-elixir-text {
+            position: relative;
+            z-index: 2;
+            font-weight: 700;
+            margin-left: auto;
+            margin-right: 0.75rem;
+            color: #fefefe;
+        }
+        .emoji-dash-controls {
+            display: flex;
+            justify-content: space-between;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+        }
+        #emojiDashLevelPanel {
+            border-radius: 16px;
+            border: 1px solid rgba(226, 232, 240, 0.3);
+            padding: 0.35rem 0.75rem;
+            background: rgba(15, 23, 42, 0.85);
+            gap: 0.75rem;
+        }
+        #emojiDashLevelPanel span {
+            color: #e0f2fe;
+            font-size: 0.75rem;
+            letter-spacing: 0.25em;
         }
 
         html[data-no-debug] [data-screen="debug"],
@@ -1439,7 +1521,7 @@
                 <button id="modeTrophy" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-red-600 text-white shadow-md btn-shine ui-text-effect">Trophy Road</button>
                 <button id="modeParty1v1" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-gray-700 text-gray-400 shadow-md btn-shine ui-text-effect">1v1</button>
                 <button id="mode2v2" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-gray-700 text-gray-400 shadow-md btn-shine ui-text-effect">2v2</button>
-                <button id="modeMusicMania" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-gray-700 text-gray-400 shadow-md btn-shine ui-text-effect">Music Mania</button>
+                <button id="modeEmojiDash" class="mode-tab flex-1 py-2 text-sm rounded-md font-bold transition bg-gray-700 text-gray-400 shadow-md btn-shine ui-text-effect">Emoji Dash</button>
             </div>
             <div class="flex flex-col items-center my-8">
                 <span id="arenaEmoji" class="text-8xl">🏞️</span>
@@ -1450,27 +1532,6 @@
             <button id="battleButton" class="bg-red-600 hover:bg-red-700 text-white w-3/4 py-4 rounded-lg shadow-lg text-3xl font-extrabold transition transform hover:scale-105 btn-shine ui-text-effect">
                 BATTLE!
             </button>
-            <div id="musicRunOptions" class="hidden flex-col items-center gap-2 mt-4 w-3/4 text-center">
-                <div class="flex w-full gap-2 justify-center">
-                    <label class="flex flex-col text-xs uppercase tracking-wider text-gray-400">
-                        Level
-                        <select id="musicLevelSelect" class="rounded-lg bg-gray-900 text-white px-3 py-2 mt-1">
-                            <option value="1">Neon Valley</option>
-                            <option value="2">Crystal Peak</option>
-                            <option value="3">Skyline Rush</option>
-                        </select>
-                    </label>
-                    <label class="flex flex-col text-xs uppercase tracking-wider text-gray-400">
-                        Difficulty
-                        <select id="musicDifficultySelect" class="rounded-lg bg-gray-900 text-white px-3 py-2 mt-1">
-                            <option value="easy">Easy</option>
-                            <option value="medium" selected>Medium</option>
-                            <option value="hard">Hard</option>
-                        </select>
-                    </label>
-                </div>
-                <p class="text-[10px] text-gray-500">Each level tweaks obstacle rhythm; difficulty scales speed.</p>
-            </div>
             <button id="arenaButton" class="arena-btn bg-blue-600 hover:bg-blue-700 mt-3 w-3/4">
                 Arenas
             </button>
@@ -1750,6 +1811,12 @@
             <button id="debugAddShards" class="debug-btn bg-purple-500 hover:bg-purple-600">Get 6 Evo Shards 🧬</button>
             <button id="debugReset" class="debug-btn bg-gray-600 hover:bg-gray-700">Reset Account (New User)</button>
 
+            <div class="flex flex-col gap-2 w-full mt-4">
+                <button id="debugEmojiDashLevel1" class="debug-btn bg-indigo-500 hover:bg-indigo-600">Emoji Dash Level 1</button>
+                <button id="debugEmojiDashLevel2" class="debug-btn bg-sky-500 hover:bg-sky-600">Emoji Dash Level 2</button>
+                <button id="debugEmojiDashLevel3" class="debug-btn bg-rose-500 hover:bg-rose-600">Emoji Dash Level 3</button>
+            </div>
+
         </div>
         
         </div>
@@ -1788,6 +1855,7 @@
             <canvas id="gameCanvas" width="400" height="500"></canvas>
             <div id="messageOverlay">
                 <span id="messageText"></span>
+                <span id="messageRewardText"></span>
                 <button id="startButton">Start Game</button>
                 <button id="menuButton" class="bg-red-600 hover:bg-red-700">Back to Menu</button>
             </div>
@@ -1828,45 +1896,6 @@
                     </div>
                     <div id="cardHand" class="flex justify-center space-x-1 pb-1"></div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="musicScreen" class="screen flex-col items-center p-4">
-        <div class="flex-grow flex flex-col items-center w-full max-w-md pt-8 pb-24">
-            <h1 class="text-3xl font-bold mb-2 ui-text-effect">Music Mania</h1>
-            <p class="text-sm text-gray-300 text-center mb-6">Build a dedicated deck and take your runner through a rhythm-inspired course where obstacles align with the beat. Evolutions boost your jump and speed.</p>
-
-            <div class="w-full">
-                <h2 class="text-xl font-bold text-gray-200 mb-2">Deck (8 cards)</h2>
-                <div id="musicDeckGrid" class="grid grid-cols-4 gap-2 mb-4"></div>
-                <p class="text-xs text-gray-400 mb-2 text-center">Tap a card to remove it. Evolutions show a glowing badge.</p>
-            </div>
-
-            <div class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 mb-4">
-                <h3 class="text-lg font-bold text-center text-purple-300 mb-2">Runner</h3>
-                <div id="musicRunnerPanel" class="w-full bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900 p-3 rounded-xl shadow-inner">
-                    <canvas id="musicCanvas" width="360" height="200" class="w-full rounded-lg border border-purple-500 mb-3"></canvas>
-                    <div class="flex justify-between text-xs text-gray-300 uppercase tracking-wide mb-2">
-                        <span>Distance: <span id="musicDistance">0</span></span>
-                        <span>Hits: <span id="musicHits">0</span>/3</span>
-                    </div>
-                    <button id="musicJumpButton" class="modal-btn w-full">Jump (Space)</button>
-                    <p id="musicStatusText" class="text-xs text-gray-400 mt-2 text-center">Choose a deck, then press Start.</p>
-                </div>
-            </div>
-
-            <p class="text-xs text-gray-500 text-center mb-2">Start triggers an auto-run inspired by Geometry Dash; avoid crash and rack up distance.</p>
-
-            <div class="w-full grid gap-2">
-                <button id="musicPlayButton" class="modal-btn upgrade w-full">Start Music Mania</button>
-                <button id="musicBackButton" class="modal-btn remove w-full bg-gray-600 hover:bg-gray-700">Back to Menu</button>
-            </div>
-
-            <div class="w-full mt-6">
-                <h2 class="text-xl font-bold text-gray-200 mb-2">Library</h2>
-                <div id="musicLibraryGrid" class="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto"></div>
-                <p class="text-xs text-gray-400 mt-2 text-center">Tap a card to add it to your Music Mania deck. Evolutions grant a jump bonus.</p>
             </div>
         </div>
     </div>
@@ -2038,18 +2067,10 @@
                 <button id="voteNoButton" class="modal-btn add">No, keep it alive</button>
             </div>
             <div id="voteStatusText" class="text-xs text-gray-400 text-center">You can only vote once per browser.</div>
+            <div id="voteResults" class="vote-results text-center">Yes: 0 · No: 0</div>
             <button id="voteContinueButton" class="modal-btn mt-4">Continue</button>
         </div>
     </div>
-    <div id="musicManiaInfoOverlay" class="vote-overlay" style="display:none;">
-        <div class="vote-panel">
-            <h2>Music Mania Coming Soon</h2>
-            <p class="text-sm text-gray-200">This mode blends the tactical Clash Royale deckbuilding experience with rhythm obstacle courses inspired by Geometry Dash. Arrange your deck, tap Battle, then jump the beats while your cards unleash power!</p>
-            <button id="musicManiaInfoOk" class="modal-btn mt-4">OK</button>
-        </div>
-    </div>
-
-
     <!-- Persistent Bottom Nav -->
     <div id="bottomNav" class="bg-gray-800 w-full max-w-[400px] rounded-t-lg shadow-inner p-1 btn-shine">
         <div class="relative w-full h-full">
@@ -2438,10 +2459,11 @@ const firebaseConfig = {
         // Track which cards have their evolution unlocked. Keys are card IDs; values are true
         // when the card's evolution has been unlocked. This is saved with the user's data.
         let evoUnlockedCards = {};
-        let matchEvoSlots = { single: [], '2v2': [], 'party1v1': [], 'musicMania': [] };
+        let matchEvoSlots = { single: [], '2v2': [], 'party1v1': [], emojiDash: [] };
         let playerDeck = [];
         let playerDeck2v2 = [];
         let playerDeckParty = [];
+        let playerDeckEmojiDash = [];
         let gameDeck = [];
         let hand = [];
         let nextCard = null;
@@ -2524,6 +2546,191 @@ const firebaseConfig = {
         let hasShownUpdateLog = false; // Flag to track if update log has been shown this session
         let generateKeyTimeout; // NEW: Timer for save key generation
         let isDemoMode = false; // Demo mode flag (set when unauthorized domain detected)
+        const emojiDashConfig = {
+            canvasWidth: 768,
+            canvasHeight: 360,
+            groundHeight: 52,
+            gravity: 2500,
+            moveSpeed: 260,
+            aiSpeed: 180,
+            jumpStrength: 650,
+            spawnCost: 6,
+            maxElixir: 10,
+            regenRate: 3.1,
+            playerDamage: 34,
+            aiDamage: 26,
+            attackCooldown: 0.6,
+            aiAttackCooldown: 1.4,
+            aiSpawnDelay: 3.5,
+            kingTowerHealth: 1400
+        };
+        const emojiDashLevels = [
+            { id: 1, name: 'Level 1', label: 'Starter Run', floor: 0 },
+            { id: 2, name: 'Level 2', label: 'Launch Ridge', floor: 25 },
+            { id: 3, name: 'Level 3', label: 'Skyline Circuit', floor: 50 }
+        ];
+        let emojiDashTrophies = 0;
+        let emojiDashLevelId = emojiDashLevels[0].id;
+
+        function getEmojiDashLevelByTrophies(value = emojiDashTrophies) {
+            return emojiDashLevels.slice().reverse().find(level => value >= level.floor) || emojiDashLevels[0];
+        }
+
+        function getEmojiDashLevelById(id) {
+            return emojiDashLevels.find(level => level.id === id) || emojiDashLevels[0];
+        }
+
+        function updateEmojiDashLevelFromTrophies() {
+            const level = getEmojiDashLevelByTrophies();
+            emojiDashLevelId = level.id;
+            return level;
+        }
+
+        function adjustEmojiDashTrophies(isWin) {
+            const delta = isWin ? 1 : -1;
+            const currentLevel = getEmojiDashLevelByTrophies();
+            let nextValue = emojiDashTrophies + delta;
+            if (!isWin && nextValue < currentLevel.floor) {
+                nextValue = currentLevel.floor;
+            }
+            const nextLevel = getEmojiDashLevelByTrophies(nextValue);
+            emojiDashTrophies = nextValue;
+            emojiDashLevelId = nextLevel.id;
+            if (emojiDashState && emojiDashState.levelId !== nextLevel.id) {
+                applyEmojiDashLevelToState(nextLevel.id);
+            }
+            if (typeof updateEmojiDashHUD === 'function') updateEmojiDashHUD();
+            return nextLevel;
+        }
+
+        function setEmojiDashTrophiesForLevel(levelId) {
+            const level = getEmojiDashLevelById(levelId);
+            if (!level) return;
+            emojiDashTrophies = level.floor;
+            emojiDashLevelId = level.id;
+            if (emojiDashState) {
+                applyEmojiDashLevelToState(level.id);
+            }
+            if (typeof updateEmojiDashHUD === 'function') updateEmojiDashHUD();
+        }
+
+        function applyEmojiDashLevelToState(levelId) {
+            if (!emojiDashState) return;
+            const levelInfo = getEmojiDashLevelById(levelId);
+            emojiDashState.levelId = levelInfo.id;
+            emojiDashState.levelName = levelInfo.name;
+            emojiDashState.levelLabel = levelInfo.label;
+            emojiDashState.spikes = buildEmojiDashSpikes(levelId);
+            emojiDashState.jumpPads = buildEmojiDashJumpPads(levelId);
+            emojiDashState.platforms = buildEmojiDashPlatforms(levelId);
+        }
+
+        function buildEmojiDashSpikes(levelId) {
+            const spikes = [];
+            const limit = emojiDashConfig.canvasWidth - 160;
+            let start = 180;
+            let spacing = 150;
+            let width = 40;
+            let height = 30;
+            if (levelId === 2) {
+                start = 200;
+                spacing = 180;
+                width = 50;
+                height = 36;
+            } else if (levelId === 3) {
+                start = 220;
+                spacing = 140;
+                width = 38;
+                height = 34;
+            }
+            for (let x = start; x < limit; x += spacing) {
+                spikes.push({ x, width, height });
+            }
+            if (levelId === 3) {
+                spikes.push({ x: 90, width: 60, height: 42 });
+            }
+            return spikes;
+        }
+
+        function buildEmojiDashJumpPads(levelId) {
+            if (levelId === 2) {
+                return [
+                    { x: 240, width: 130, boost: -890 },
+                    { x: 520, width: 110, boost: -860 }
+                ];
+            }
+            if (levelId === 3) {
+                return [
+                    { x: 200, width: 120, boost: -930 },
+                    { x: 460, width: 100, boost: -880 }
+                ];
+            }
+            return [];
+        }
+
+        function buildEmojiDashPlatforms(levelId) {
+            const groundLine = emojiDashConfig.canvasHeight - emojiDashConfig.groundHeight;
+            const baseY = groundLine;
+            if (levelId === 1) {
+                return [
+                    { x: 140, y: baseY - 86, width: 180, height: 18 },
+                    { x: 420, y: baseY - 110, width: 160, height: 18 }
+                ];
+            }
+            if (levelId === 2) {
+                return [
+                    { x: 220, y: baseY - 138, width: 200, height: 18 },
+                    { x: 540, y: baseY - 96, width: 140, height: 18 }
+                ];
+            }
+            return [
+                { x: 120, y: baseY - 152, width: 180, height: 18 },
+                { x: 360, y: baseY - 128, width: 200, height: 18 },
+                { x: 600, y: baseY - 102, width: 120, height: 18 }
+            ];
+        }
+
+        function checkEmojiDashJumpPads(entity) {
+            if (!entity || !emojiDashState || !emojiDashState.jumpPads) return false;
+            const groundLimit = emojiDashConfig.canvasHeight - emojiDashConfig.groundHeight - entity.height;
+            if (entity.y < groundLimit - 1 || entity.vy < 0) return false;
+            for (const pad of emojiDashState.jumpPads) {
+                if (entity.x + entity.width > pad.x && entity.x < pad.x + pad.width) {
+                    entity.vy = pad.boost;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function resolveEmojiDashPlatformCollision(entity, previousY) {
+            if (!entity || !emojiDashState || !Array.isArray(emojiDashState.platforms) || emojiDashState.platforms.length === 0) return false;
+            const bottom = entity.y + entity.height;
+            const prevBottom = previousY + entity.height;
+            const descending = bottom >= prevBottom;
+            if (!descending && entity.vy <= 0) return false;
+            for (const platform of emojiDashState.platforms) {
+                const platformTop = platform.y;
+                const platformRight = platform.x + platform.width;
+                const horizontalOverlap = entity.x + entity.width > platform.x && entity.x < platformRight;
+                const cameFromAbove = prevBottom <= platformTop + 2;
+                const overlappingFromEdge = prevBottom > platformTop && previousY < platformTop;
+                const crossingVertically = bottom >= platformTop - 2;
+                if (horizontalOverlap && crossingVertically && (cameFromAbove || overlappingFromEdge)) {
+                    entity.y = platformTop - entity.height;
+                    entity.vy = 0;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        const emojiDashKeys = { left: false, right: false, jump: false };
+        let emojiDashState = null;
+        let emojiDashCtx = null;
+        let emojiDashLoopId = 0;
+        let emojiDashLastTimestamp = 0;
+        let emojiDashActive = false;
         const VOTE_TOTALS_KEY = 'emojiRoyaleVoteTotals';
         const VOTE_FLAG_KEY = 'emojiRoyaleHasVoted';
         const VOTE_CHOICE_KEY = 'emojiRoyaleVoteChoice';
@@ -2533,43 +2740,9 @@ const firebaseConfig = {
         let pendingUpdateLogAfterVote = false;
         let voteScheduled = false;
         let menuVoteTimer = null;
+        const ANNOUNCEMENTS_ENABLED = false;
         let allowMenuAnnouncements = false;
         let menuAnnouncementsArmed = false;
-        const MUSIC_BEST_KEY = 'emojiRoyaleMusicBestDistance';
-        const MUSIC_DECK_SIZE = 8;
-        const MUSIC_GRAVITY = 0.45;
-        const MUSIC_JUMP_POWER = -8;
-        const MUSIC_LEVEL_CONFIGS = {
-            1: { name: 'Neon Valley', spacing: 56, heightRange: [32, 58] },
-            2: { name: 'Crystal Peak', spacing: 48, heightRange: [38, 72] },
-            3: { name: 'Skyline Rush', spacing: 40, heightRange: [44, 84] }
-        };
-        const MUSIC_DIFFICULTY_SPEED = { easy: 0.85, medium: 1, hard: 1.2 };
-        let musicDeck = [];
-        let musicBestDistance = 0;
-        let musicRunning = false;
-        let musicAnimationId = null;
-        let musicObstacleTimer = 0;
-        let musicObstacleIndex = 0;
-        let musicObstacles = [];
-        let musicScore = 0;
-        let musicRunnerY = 180;
-        let musicRunnerVy = 0;
-        let musicCanvasEl = null;
-        let musicCtx = null;
-        let musicDeckGridEl;
-        let musicCollectionGridEl;
-        let musicDeckCountEl;
-        let musicBestDistanceEl;
-        let musicStartButtonEl;
-        let musicStatusTextEl;
-        let musicManiaButtonEl;
-        let musicManiaBackButtonEl;
-        let selectedMusicLevel = 1;
-        let selectedMusicDifficulty = 'medium';
-        let musicRunSpeedMultiplier = MUSIC_DIFFICULTY_SPEED[selectedMusicDifficulty];
-        let musicObstacleSpacing = Math.max(20, Math.round(MUSIC_LEVEL_CONFIGS[selectedMusicLevel].spacing / musicRunSpeedMultiplier));
-        let musicObstacleHeightRange = MUSIC_LEVEL_CONFIGS[selectedMusicLevel].heightRange;
         // --- Background Particle System ---
         const bgCanvas = document.getElementById('bgCanvas');
         const bgCtx = bgCanvas.getContext('2d');
@@ -2668,8 +2841,8 @@ const firebaseConfig = {
 
         // --- NEW: Game Mode State ---
         let gameMode = 'trophy'; // 'trophy', 'party1v1', '2v2'
-function isMaxLevelMatch(mode = gameMode) {
-            return mode === 'party1v1' || mode === '2v2' || mode === 'musicMania';
+        function isMaxLevelMatch(mode = gameMode) {
+            return mode === 'party1v1' || mode === '2v2' || mode === 'emojiDash';
         }
         function isRankedMode(mode = gameMode) {
             return mode === 'trophy';
@@ -2741,7 +2914,6 @@ function isMaxLevelMatch(mode = gameMode) {
             const REGULATION_TIME = 120 * 60;
             const OVERTIME_TIME = 120 * 60;
             const UNIT_SPEED_MULTIPLIER = 0.78; // 22% slower troops for more tactical battles
-            
             // NEW: Drag sensitivity
             const DRAG_SENSITIVITY = 10; // Pixels
             let isDragging = false;
@@ -2834,14 +3006,18 @@ function isMaxLevelMatch(mode = gameMode) {
             const arenaButton = document.getElementById('arenaButton');
             const debugScreen = document.getElementById('debugScreen'); // NEW
             const battleButton = document.getElementById('battleButton');
+            const emojiDashScreen = document.getElementById('emojiDashScreen');
+            const emojiDashCanvas = document.getElementById('emojiDashCanvas');
+            const emojiDashDeckBar = document.getElementById('emojiDashDeckBar');
+            const emojiDashElixirFill = document.getElementById('emojiDashElixirFill');
+            const emojiDashElixirText = document.getElementById('emojiDashElixirText');
+            const emojiDashLevelLabel = document.getElementById('emojiDashLevelLabel');
+            const emojiDashTrophyLabel = document.getElementById('emojiDashTrophyLabel');
             const modeTrophy = document.getElementById('modeTrophy');
             const modeParty1v1 = document.getElementById('modeParty1v1');
             const mode2v2 = document.getElementById('mode2v2');
-            const modeMusicMania = document.getElementById('modeMusicMania');
+            const modeEmojiDash = document.getElementById('modeEmojiDash');
             const modeDisplay = document.getElementById('modeDisplay');
-            const musicRunOptions = document.getElementById('musicRunOptions');
-            const musicLevelSelect = document.getElementById('musicLevelSelect');
-            const musicDifficultySelect = document.getElementById('musicDifficultySelect');
             const arenaBackButton = document.getElementById('arenaBackButton'); // NEW
             const trophyDisplay = document.getElementById('trophyDisplay');
             const goldDisplay = document.getElementById('goldDisplay');
@@ -2877,39 +3053,44 @@ function isMaxLevelMatch(mode = gameMode) {
             const placementIndicator = document.getElementById('placementIndicator');
             const placementOverlay = document.getElementById('placementOverlay'); // NEW
             const menuButton = document.getElementById('menuButton');
-            // Attach a click handler to the in‑game "Back to Menu" button once. When a match
+            const emojiDashResultOverlay = document.getElementById('emojiDashResultOverlay');
+            const emojiDashResultText = document.getElementById('emojiDashResultText');
+            const emojiDashResultRewardText = document.getElementById('emojiDashResultRewardText');
+            const emojiDashResultMenuButton = document.getElementById('emojiDashResultMenuButton');
+            // Attach a click handler to the in-game "Back to Menu" button once. When a match
             // concludes (victory or defeat) the menu button is shown inside the messageOverlay.
             // Without a handler, clicking "Back to Menu" would do nothing. Assigning it via
             // `.onclick` ensures we never accumulate duplicate listeners across games. When
             // clicked, hide the overlay, hide the menu/start buttons, restart the background
-            // animation (if it isn’t already running) and navigate back to the main menu.
+            // animation (if it isn't already running) and navigate back to the main menu.
+            function returnToMenuFromOverlay() {
+                if (messageOverlay) messageOverlay.style.display = 'none';
+                if (emojiDashResultOverlay) emojiDashResultOverlay.style.display = 'none';
+                if (startButton) startButton.style.display = 'none';
+                if (menuButton) menuButton.style.display = 'none';
+                if (typeof gameLoopId !== 'undefined') {
+                    cancelAnimationFrame(gameLoopId);
+                }
+                if (typeof emojiDashLoopId !== 'undefined' && emojiDashLoopId) {
+                    cancelAnimationFrame(emojiDashLoopId);
+                    emojiDashLoopId = 0;
+                }
+                gameRunning = false;
+                if (typeof startBgAnimation === 'function') {
+                    startBgAnimation();
+                }
+                document.querySelectorAll('.screen').forEach(s => s.scrollTop = 0);
+                if (typeof showScreen === 'function') {
+                    showScreen('menu');
+                }
+            }
             if (menuButton) {
                 menuButton.onclick = null;
-                menuButton.onclick = () => {
-                    // Hide the message overlay and buttons if they exist
-                    if (typeof messageOverlay !== 'undefined') {
-                        messageOverlay.style.display = 'none';
-                    }
-                    if (typeof startButton !== 'undefined') {
-                        startButton.style.display = 'none';
-                    }
-                    menuButton.style.display = 'none';
-                    // Stop any running game loop
-                    if (typeof gameLoopId !== 'undefined') {
-                        cancelAnimationFrame(gameLoopId);
-                    }
-                    gameRunning = false;
-                    // Restart background animation when leaving gameplay
-                    if (typeof startBgAnimation === 'function') {
-                        startBgAnimation();
-                    }
-                    // Reset all screens' scroll positions
-                    document.querySelectorAll('.screen').forEach(s => s.scrollTop = 0);
-                    // Navigate back to the menu screen
-                    if (typeof showScreen === 'function') {
-                        showScreen('menu');
-                    }
-                };
+                menuButton.onclick = returnToMenuFromOverlay;
+            }
+            if (emojiDashResultMenuButton) {
+                emojiDashResultMenuButton.onclick = null;
+                emojiDashResultMenuButton.addEventListener('click', returnToMenuFromOverlay);
             }
             const loadingBattleContainers = Array.from(document.querySelectorAll('[data-loading-battle]'));
             const LOADING_CHARGERS_PER_WAVE = 5;
@@ -3041,6 +3222,9 @@ function isMaxLevelMatch(mode = gameMode) {
             const debugGetChest = document.getElementById('debugGetChest');
             const debugAddGold = document.getElementById('debugAddGold');
             const debugReset = document.getElementById('debugReset');
+            const debugEmojiDashLevel1 = document.getElementById('debugEmojiDashLevel1');
+            const debugEmojiDashLevel2 = document.getElementById('debugEmojiDashLevel2');
+            const debugEmojiDashLevel3 = document.getElementById('debugEmojiDashLevel3');
             // Debug Password
             const debugPasswordOverlay = document.getElementById('debugPasswordOverlay');
             const debugPasswordInput = document.getElementById('debugPasswordInput');
@@ -3068,8 +3252,6 @@ function isMaxLevelMatch(mode = gameMode) {
             const voteNoButton = document.getElementById('voteNoButton');
             const voteStatusText = document.getElementById('voteStatusText');
             const voteResults = document.getElementById('voteResults');
-            const musicManiaInfoOverlay = document.getElementById('musicManiaInfoOverlay');
-            const musicManiaInfoOk = document.getElementById('musicManiaInfoOk');
             const voteContinueButton = document.getElementById('voteContinueButton');
             if (announcementOkBtn) {
                 announcementOkBtn.addEventListener('click', () => {
@@ -3092,19 +3274,14 @@ function isMaxLevelMatch(mode = gameMode) {
                     pendingUpdateLogAfterVote = false;
                 });
             }
-            if (musicManiaInfoOk) {
-                musicManiaInfoOk.addEventListener('click', () => {
-                    if (musicManiaInfoOverlay) musicManiaInfoOverlay.style.display = 'none';
-                });
-            }
 
             // Vote & update log helpers
             function showUpdateLog() {
                 pendingUpdateLogAfterVote = true;
-                if (announcementOverlay) {
+                if (ANNOUNCEMENTS_ENABLED && announcementOverlay) {
                     announcementOverlay.style.display = 'flex';
                 } else {
-                    showVoteWorkflow();
+                    displayUpdateLogContent();
                 }
             }
 
@@ -3160,6 +3337,7 @@ function isMaxLevelMatch(mode = gameMode) {
             }
 
             function showVoteWorkflow() {
+                if (!ANNOUNCEMENTS_ENABLED) return;
                 updateVoteDisplay();
                 if (voteOverlay) {
                     voteOverlay.style.display = 'flex';
@@ -3167,6 +3345,7 @@ function isMaxLevelMatch(mode = gameMode) {
             }
 
             function scheduleVoteWorkflow() {
+                if (!ANNOUNCEMENTS_ENABLED) return;
                 if (!allowMenuAnnouncements || hasShownUpdateLog || voteScheduled) return;
                 voteScheduled = true;
                 if (menuVoteTimer) clearTimeout(menuVoteTimer);
@@ -3190,6 +3369,7 @@ function isMaxLevelMatch(mode = gameMode) {
             }
 
             function triggerMenuAnnouncements() {
+                if (!ANNOUNCEMENTS_ENABLED) return;
                 if (!menuAnnouncementsArmed || allowMenuAnnouncements) return;
                 allowMenuAnnouncements = true;
                 scheduleVoteWorkflow();
@@ -3222,6 +3402,13 @@ function isMaxLevelMatch(mode = gameMode) {
 
             function displayUpdateLogContent() {
                 const updates = [
+                    { date: '12/09/2025', title: 'Emoji Dash Expedition', items: [
+                        'Emoji Dash is now listed in the menu as its own platformer run, mirroring the battle button flow and HUD refresh.',
+                        'Deck setup insists on eight unlocked cards at level 15 while blocking spells, swarms, buildings, air swarms, and evolutions, and the save key now remembers your Emoji Dash deck.',
+                        'Each level ships with unique spike, jump pad, and platform layouts plus level-specific trophy floors (0 / 25 / 50) that cap losses while still rewarding +1 trophy for wins.',
+                        'Side-view king towers get health bars, projectiles cannot hurt towers, and the win/lose overlay now shows “You Win!/You Lose!” with +50 gold and a chest just like 1v1.',
+                        'Controls stay limited to D move, space jump, and attack clicks, and both player and AI change facing so they can traverse platforms and spikes reliably.'
+                    ]},
                 { date: '12/06/2025', title: 'Mythic Arena Update', items: [
                         '🐎🐉⚡ Mythic Arena (Arena 12) premieres with a celestial orientation, Mythic trophy goals, and a new visual mood.',
                         'Horse Rider charges after a 3-second pause, smashes with charge damage, and jumps the river whenever the bridge is too far.',
@@ -3318,282 +3505,6 @@ function isMaxLevelMatch(mode = gameMode) {
                 if (updateLogOverlay) updateLogOverlay.style.display = 'none';
             });
 
-            musicManiaButtonEl = document.getElementById('musicManiaButton');
-            musicManiaBackButtonEl = document.getElementById('musicManiaBackButton');
-            musicDeckGridEl = document.getElementById('musicDeckGrid');
-            musicCollectionGridEl = document.getElementById('musicCollectionGrid');
-            musicDeckCountEl = document.getElementById('musicDeckCount');
-            musicBestDistanceEl = document.getElementById('musicBestDistance');
-            musicStartButtonEl = document.getElementById('musicStartButton');
-            musicStatusTextEl = document.getElementById('musicStatusText');
-            musicCanvasEl = document.getElementById('musicCanvas');
-
-            function buildDefaultMusicDeck() {
-                return Object.keys(allCards)
-                    .filter(id => id !== 'tower' && id !== 'miniStoneGiant')
-                    .filter(id => allCards[id].arena === 1)
-                    .slice(0, MUSIC_DECK_SIZE);
-            }
-
-            function loadMusicDeck() {
-                musicDeck = [];
-            }
-
-            function saveMusicDeck() {
-                // No-op. Music Mania deck only saves via save key to avoid automatic persistence.
-            }
-
-            function loadMusicBestDistance() {
-                if (typeof localStorage === 'undefined') return;
-                try {
-                    musicBestDistance = Math.max(0, parseInt(localStorage.getItem(MUSIC_BEST_KEY) || '0', 10) || 0);
-                } catch (error) {
-                    musicBestDistance = 0;
-                }
-            }
-
-            function saveMusicBestDistance() {
-                if (typeof localStorage === 'undefined') return;
-                localStorage.setItem(MUSIC_BEST_KEY, musicBestDistance.toString());
-            }
-
-            function updateMusicStatus(message = '', showBest = true) {
-                if (musicStatusTextEl) {
-                    musicStatusTextEl.textContent = message || 'Add cards to begin.';
-                }
-                if (musicBestDistanceEl && showBest) {
-                    musicBestDistanceEl.textContent = `Best: ${musicBestDistance}`;
-                }
-                if (musicDeckCountEl) {
-                    musicDeckCountEl.textContent = `${musicDeck.length} / ${MUSIC_DECK_SIZE}`;
-                }
-            }
-
-            function addCardToMusicDeck(cardId) {
-                if (musicDeck.length >= MUSIC_DECK_SIZE) return;
-                musicDeck.push(cardId);
-                renderMusicDeckUI();
-            }
-
-            function removeCardFromMusicDeck(index) {
-                if (index < 0 || index >= musicDeck.length) return;
-                musicDeck.splice(index, 1);
-                renderMusicDeckUI();
-            }
-
-            function renderMusicCollectionGrid() {
-                if (!musicCollectionGridEl) return;
-                musicCollectionGridEl.innerHTML = '';
-                const available = Object.keys(allCards)
-                    .filter(id => id !== 'tower' && id !== 'miniStoneGiant')
-                    .sort((a, b) => (allCards[a].arena - allCards[b].arena) || allCards[a].name.localeCompare(allCards[b].name));
-                if (!available.length) {
-                    musicCollectionGridEl.innerHTML = '<p class=\"col-span-4 text-center text-xs text-gray-500\">Unlock cards in the main game to add them here.</p>';
-                    return;
-                }
-                available.forEach(cardId => {
-                    const cardEl = createCardDOM(cardId, true);
-                    cardEl.classList.add('music-card-available');
-                    const hasEvo = allCards[cardId] && allCards[cardId].evo && evoUnlockedCards && evoUnlockedCards[cardId];
-                    cardEl.dataset.musicEvo = hasEvo ? 'true' : 'false';
-                    cardEl.addEventListener('click', () => addCardToMusicDeck(cardId));
-                    musicCollectionGridEl.appendChild(cardEl);
-                });
-            }
-
-            function renderMusicDeckUI() {
-                if (musicDeckGridEl) {
-                    musicDeckGridEl.innerHTML = '';
-                    if (!musicDeck.length) {
-                        musicDeckGridEl.innerHTML = '<p class=\"col-span-4 text-center text-xs text-gray-400\">Build a deck by tapping unlocked cards below.</p>';
-                    } else {
-                        musicDeck.forEach((cardId, idx) => {
-                            const wrapper = document.createElement('div');
-                            wrapper.className = 'music-deck-card';
-                            const cardEl = createCardDOM(cardId, true);
-                            wrapper.appendChild(cardEl);
-                            const removeBtn = document.createElement('button');
-                            removeBtn.textContent = 'Remove';
-                            removeBtn.addEventListener('click', (e) => {
-                                e.stopPropagation();
-                                removeCardFromMusicDeck(idx);
-                            });
-                            wrapper.appendChild(removeBtn);
-                            musicDeckGridEl.appendChild(wrapper);
-                        });
-                    }
-                }
-                renderMusicCollectionGrid();
-                updateMusicStatus('', true);
-            }
-
-            function spawnMusicObstacle() {
-                if (!musicCanvasEl) return;
-                const width = 30 + Math.random() * 24;
-                const height = 30 + Math.random() * 40;
-                const cardId = musicDeck[musicObstacleIndex % musicDeck.length];
-                const emoji = allCards[cardId]?.emoji || '🎧';
-                musicObstacleIndex++;
-                musicObstacles.push({
-                    x: musicCanvasEl.width + 10,
-                    y: musicCanvasEl.height - 35 - height,
-                    width,
-                    height,
-                    emoji
-                });
-            }
-
-            function drawMusicScene() {
-                if (!musicCanvasEl || !musicCtx) return;
-                musicCtx.fillStyle = '#040b16';
-                musicCtx.fillRect(0, 0, musicCanvasEl.width, musicCanvasEl.height);
-                musicCtx.fillStyle = '#0ea5e9';
-                for (let x = 0; x < musicCanvasEl.width; x += 40) {
-                    musicCtx.fillRect(x, musicCanvasEl.height - 20, 30, 3);
-                }
-                musicObstacles.forEach(obs => {
-                    musicCtx.fillStyle = '#f97316';
-                    musicCtx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                    musicCtx.fillStyle = '#fff';
-                    musicCtx.font = '16px Inter';
-                    musicCtx.textAlign = 'center';
-                    musicCtx.textBaseline = 'middle';
-                    musicCtx.fillText(obs.emoji, obs.x + obs.width / 2, obs.y + obs.height / 2);
-                });
-                musicCtx.fillStyle = '#facc15';
-                musicCtx.beginPath();
-                musicCtx.arc(60, musicRunnerY, 20, 0, Math.PI * 2);
-                musicCtx.fill();
-                musicCtx.fillStyle = '#0f172a';
-                musicCtx.font = '24px Inter';
-                musicCtx.textAlign = 'center';
-                musicCtx.textBaseline = 'middle';
-                musicCtx.fillText('▶', 60, musicRunnerY - 2);
-            }
-
-            function handleMusicJump() {
-                if (!musicRunning) return;
-                if (musicRunnerY <= 40) return;
-                musicRunnerVy = MUSIC_JUMP_POWER;
-            }
-
-            function finishMusicRun(reason) {
-                musicRunning = false;
-                if (musicAnimationId) {
-                    cancelAnimationFrame(musicAnimationId);
-                    musicAnimationId = null;
-                }
-                if (musicStartButtonEl) {
-                    musicStartButtonEl.disabled = false;
-                    musicStartButtonEl.textContent = 'Start Run';
-                }
-                if (musicScore > musicBestDistance) {
-                    musicBestDistance = musicScore;
-                    saveMusicBestDistance();
-                }
-                updateMusicStatus(`You ${reason}! Distance: ${musicScore}`, true);
-            }
-
-            function runMusicLoop() {
-                if (!musicRunning || !musicCanvasEl || !musicCtx) return;
-                musicObstacleTimer++;
-                if (musicObstacleTimer >= 60) {
-                    spawnMusicObstacle();
-                    musicObstacleTimer = 0;
-                }
-                musicRunnerVy += MUSIC_GRAVITY;
-                musicRunnerY += musicRunnerVy;
-                const floor = musicCanvasEl.height - 35;
-                if (musicRunnerY > floor) {
-                    musicRunnerY = floor;
-                    musicRunnerVy = 0;
-                }
-                const speed = 3 + Math.min(2, musicScore / 150);
-                musicObstacles = musicObstacles
-                    .map(obs => ({ ...obs, x: obs.x - speed }))
-                    .filter(obs => obs.x + obs.width > 0);
-                for (const obs of musicObstacles) {
-                    if (musicRunnerY + 30 > obs.y && musicRunnerY < obs.y + obs.height && obs.x < 90 && obs.x + obs.width > 30) {
-                        finishMusicRun('hit an obstacle');
-                        return;
-                    }
-                }
-                musicScore++;
-                updateMusicStatus(`Distance: ${musicScore}`, true);
-                drawMusicScene();
-                musicAnimationId = requestAnimationFrame(runMusicLoop);
-            }
-
-            function startMusicRun() {
-                if (musicRunning) return;
-                if (!musicDeck.length) {
-                    updateMusicStatus('Add cards to your Music deck first!', true);
-                    return;
-                }
-                if (!musicCanvasEl) return;
-                musicRunning = true;
-                musicScore = 0;
-                musicObstacleTimer = 0;
-                musicObstacleIndex = 0;
-                musicObstacles = [];
-                musicRunnerY = musicCanvasEl.height - 45;
-                musicRunnerVy = 0;
-                if (musicStartButtonEl) {
-                    musicStartButtonEl.disabled = true;
-                    musicStartButtonEl.textContent = 'Running...';
-                }
-                updateMusicStatus('Distance: 0', true);
-                drawMusicScene();
-                musicAnimationId = requestAnimationFrame(runMusicLoop);
-            }
-
-        function updateMusicRunOptionsVisibility() {
-            if (!musicRunOptions) return;
-            musicRunOptions.style.display = (gameMode === 'musicMania') ? 'flex' : 'none';
-        }
-
-        function updateMusicRunSettings() {
-            const levelConfig = MUSIC_LEVEL_CONFIGS[selectedMusicLevel] || MUSIC_LEVEL_CONFIGS[1];
-            const difficultySpeed = MUSIC_DIFFICULTY_SPEED[selectedMusicDifficulty] || 1;
-            musicRunSpeedMultiplier = difficultySpeed;
-            musicObstacleSpacing = Math.max(20, Math.round(levelConfig.spacing / difficultySpeed));
-            musicObstacleHeightRange = levelConfig.heightRange;
-            if (musicStatusTextEl && !musicRunning) {
-                const difficultyLabel = selectedMusicDifficulty.charAt(0).toUpperCase() + selectedMusicDifficulty.slice(1);
-                musicStatusTextEl.textContent = `Level ${levelConfig.name} • ${difficultyLabel}`;
-            }
-        }
-
-        function setupMusicMode() {
-            if (musicManiaButtonEl) musicManiaButtonEl.onclick = () => {
-                gameMode = 'musicMania';
-                updateModeUI();
-                renderDeckScreen();
-                updateBattleButtonState();
-            };
-                if (musicManiaBackButtonEl) musicManiaBackButtonEl.onclick = () => showScreen('menu');
-                if (musicStartButtonEl) musicStartButtonEl.addEventListener('click', startMusicRun);
-                if (musicCanvasEl) {
-                    musicCtx = musicCanvasEl.getContext('2d');
-                    musicCanvasEl.addEventListener('mousedown', (e) => {
-                        e.preventDefault();
-                        handleMusicJump();
-                    });
-                    musicCanvasEl.addEventListener('touchstart', (e) => {
-                        e.preventDefault();
-                        handleMusicJump();
-                    }, { passive: false });
-                }
-                document.addEventListener('keydown', (e) => {
-                    if (e.code === 'Space') {
-                        handleMusicJump();
-                    }
-                });
-                loadMusicDeck();
-                loadMusicBestDistance();
-                renderMusicDeckUI();
-                updateMusicStatus('Deck ready. Start run when you are ready!', true);
-            }
 
             function showDebugPassword() {
                 if (!window.isLocalFile) return;
@@ -3633,6 +3544,7 @@ function isMaxLevelMatch(mode = gameMode) {
             const elixirText = document.getElementById('elixirText');
             const messageOverlay = document.getElementById('messageOverlay');
             const messageText = document.getElementById('messageText');
+            const messageRewardText = document.getElementById('messageRewardText');
             const startButton = document.getElementById('startButton');
             const timerDisplay = document.getElementById('timerDisplay');
 
@@ -3729,6 +3641,9 @@ function isMaxLevelMatch(mode = gameMode) {
                 playerDeck = initNewUserCards(true);
                 playerDeck2v2 = []; 
                 playerDeckParty = [];
+                playerDeckEmojiDash = [];
+                emojiDashTrophies = 0;
+                emojiDashLevelId = emojiDashLevels[0].id;
                 lastClaimDate = "";
                 // We don't save here, we let the game save after a win/loss
             }
@@ -3793,10 +3708,10 @@ function isMaxLevelMatch(mode = gameMode) {
                     playerDeck = dataToLoad.playerDeck || initNewUserCards(true);
                     playerDeck2v2 = dataToLoad.playerDeck2v2 || [];
                     playerDeckParty = dataToLoad.playerDeckParty || [];
+                    playerDeckEmojiDash = dataToLoad.playerDeckEmojiDash || [];
+                    emojiDashTrophies = dataToLoad.emojiDashTrophies || 0;
+                    updateEmojiDashLevelFromTrophies();
                     lastClaimDate = dataToLoad.lastClaimDate || "";
-                    musicDeck = dataToLoad.musicDeck || [];
-                    renderMusicDeckUI();
-                    updateMusicStatus('', true);
                     return;
                 }
 
@@ -3804,8 +3719,6 @@ function isMaxLevelMatch(mode = gameMode) {
                 if (!userDocRef) {
                     // No user doc; just start a new user locally
                     initNewUser();
-                    renderMusicDeckUI();
-                    updateMusicStatus('', true);
                     return;
                 }
 
@@ -3855,7 +3768,10 @@ function isMaxLevelMatch(mode = gameMode) {
                     playerDeck = data.playerDeck || initNewUserCards(true);
                     playerDeck2v2 = data.playerDeck2v2 || [];
                     playerDeckParty = data.playerDeckParty || [];
-                        lastClaimDate = data.lastClaimDate || "";
+                    playerDeckEmojiDash = data.playerDeckEmojiDash || [];
+                    emojiDashTrophies = data.emojiDashTrophies || 0;
+                    updateEmojiDashLevelFromTrophies();
+                    lastClaimDate = data.lastClaimDate || "";
                     } else {
                         // First time user: init defaults
                         initNewUser();
@@ -3866,9 +3782,6 @@ function isMaxLevelMatch(mode = gameMode) {
                     isDataSaved = false;
                     initNewUser();
                 }
-                musicDeck = [];
-                renderMusicDeckUI();
-                updateMusicStatus('', true);
             }
 
             function initNewUserCards(deckOnly = false) {
@@ -3914,6 +3827,8 @@ function isMaxLevelMatch(mode = gameMode) {
                         playerDeck,
                         playerDeck2v2,
                         playerDeckParty,
+                        playerDeckEmojiDash,
+                        emojiDashTrophies,
                         lastClaimDate,
                         // Persist quarter star and evolution data so progress is saved
                         quarterStars,
@@ -3982,6 +3897,8 @@ function isMaxLevelMatch(mode = gameMode) {
                     playerDeck,
                     playerDeck2v2,
                     playerDeckParty,
+                    playerDeckEmojiDash,
+                    emojiDashTrophies,
                     lastClaimDate,
                     // Include quarter star and evolution data in manual save keys
                     quarterStars,
@@ -4038,7 +3955,7 @@ function isMaxLevelMatch(mode = gameMode) {
             }
             function updateModeUI() {
                 // Reset all
-            [modeTrophy, modeParty1v1, mode2v2, modeMusicMania].forEach(btn => {
+            [modeTrophy, modeParty1v1, mode2v2, modeEmojiDash].forEach(btn => {
                     btn.classList.remove('bg-red-600', 'text-white');
                     btn.classList.add('bg-gray-700', 'text-gray-400');
                     btn.classList.remove('active');
@@ -4049,7 +3966,7 @@ function isMaxLevelMatch(mode = gameMode) {
                 if (gameMode === 'trophy') { activeBtn = modeTrophy; modeText = "Trophy Road"; }
                 else if (gameMode === 'party1v1') { activeBtn = modeParty1v1; modeText = "1v1"; }
                 else if (gameMode === '2v2') { activeBtn = mode2v2; modeText = "2v2"; }
-                else if (gameMode === 'musicMania') { activeBtn = modeMusicMania; modeText = "Music Mania"; }
+                else if (gameMode === 'emojiDash') { activeBtn = modeEmojiDash; modeText = "Emoji Dash"; }
 
                 if (activeBtn) {
                     activeBtn.classList.remove('bg-gray-700', 'text-gray-400');
@@ -4058,38 +3975,13 @@ function isMaxLevelMatch(mode = gameMode) {
                 }
                 if (modeDisplay) modeDisplay.textContent = modeText;
                 updateAITeammateUI(); // NEW: Update AI Teammate UI visibility when mode changes
-                updateMusicRunOptionsVisibility();
-                if (gameMode === 'musicMania') {
-                    updateMusicRunSettings();
-                }
                 updateArenaButtonVisibility();
             }
 
             if (modeTrophy) modeTrophy.addEventListener('click', () => { gameMode = 'trophy'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
             if (modeParty1v1) modeParty1v1.addEventListener('click', () => { gameMode = 'party1v1'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
             if (mode2v2) mode2v2.addEventListener('click', () => { gameMode = '2v2'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
-            if (modeMusicMania) modeMusicMania.addEventListener('click', () => {
-                gameMode = 'musicMania';
-                updateModeUI();
-                renderDeckScreen();
-                updateBattleButtonState();
-            });
-
-            if (musicLevelSelect) {
-                musicLevelSelect.value = selectedMusicLevel.toString();
-                musicLevelSelect.addEventListener('change', (e) => {
-                    selectedMusicLevel = parseInt(e.target.value, 10) || 1;
-                    updateMusicRunSettings();
-                });
-            }
-            if (musicDifficultySelect) {
-                musicDifficultySelect.value = selectedMusicDifficulty;
-                musicDifficultySelect.addEventListener('change', (e) => {
-                    selectedMusicDifficulty = e.target.value || 'medium';
-                    updateMusicRunSettings();
-                });
-            }
-
+            if (modeEmojiDash) modeEmojiDash.addEventListener('click', () => { gameMode = 'emojiDash'; updateModeUI(); renderDeckScreen(); updateBattleButtonState(); });
             // Initialize mode UI
             updateModeUI();
 
@@ -4262,7 +4154,6 @@ function isMaxLevelMatch(mode = gameMode) {
                 if (targetScreenId === 'deck') { renderDeckScreen(); }
                 if (targetScreenId === 'tower') { renderTowerScreen(); }
                 if (targetScreenId === 'events') { updateChristmasUI(); }
-                if (targetScreenId === 'musicMania') { renderMusicDeckUI(); }
                 if (targetScreenId === 'menu') {
                     updateArena();
                     trophyDisplay.textContent = `🏆 ${trophies}`;
@@ -4342,6 +4233,687 @@ function isMaxLevelMatch(mode = gameMode) {
                 }
             }
 
+            function buildEmojiDashSpikes() {
+                const spikes = [];
+                for (let x = 180; x < emojiDashConfig.canvasWidth - 160; x += 150) {
+                    spikes.push({ x, width: 40, height: 30 });
+                }
+                return spikes;
+            }
+
+            function resetEmojiDashState() {
+                const groundLine = emojiDashConfig.canvasHeight - emojiDashConfig.groundHeight;
+                const leftTowerHeight = 140;
+                const rightTowerHeight = 110;
+                const levelInfo = getEmojiDashLevelById(emojiDashLevelId);
+                emojiDashState = {
+                    levelId: levelInfo.id,
+                    levelName: levelInfo.name,
+                    levelLabel: levelInfo.label,
+                    player: null,
+                    ai: null,
+                    projectiles: [],
+                    spikes: buildEmojiDashSpikes(levelInfo.id),
+                    jumpPads: buildEmojiDashJumpPads(levelInfo.id),
+                    platforms: buildEmojiDashPlatforms(levelInfo.id),
+                    elixir: emojiDashConfig.maxElixir,
+                    aiSpawnTimer: 1.5,
+                    status: 'Select a card to dash!',
+                    deckButtons: [],
+                    finished: false,
+                    finishTimeout: null,
+                    aiCardId: null
+                };
+                emojiDashState.leftTower = {
+                    x: 10,
+                    width: 48,
+                    height: leftTowerHeight,
+                    base: groundLine,
+                    y: groundLine - leftTowerHeight,
+                    health: emojiDashConfig.kingTowerHealth,
+                    maxHealth: emojiDashConfig.kingTowerHealth,
+                    healthBarBounce: 0
+                };
+                emojiDashState.rightTower = {
+                    x: emojiDashConfig.canvasWidth - 58,
+                    width: 48,
+                    height: rightTowerHeight,
+                    base: groundLine,
+                    y: groundLine - rightTowerHeight,
+                    health: emojiDashConfig.kingTowerHealth,
+                    maxHealth: emojiDashConfig.kingTowerHealth,
+                    healthBarBounce: 0
+                };
+            }
+
+            function getEmojiDashCardStats(cardId) {
+                const card = allCards[cardId];
+                if (!card) return { damage: emojiDashConfig.playerDamage, health: 140 };
+                const level = 15;
+                let statsRecord = card.stats;
+                if (Array.isArray(statsRecord)) {
+                    statsRecord = statsRecord[level - 1] || statsRecord[statsRecord.length - 1] || statsRecord[0];
+                } else if (statsRecord && typeof statsRecord === 'object') {
+                    statsRecord = statsRecord[String(level)] || statsRecord[String(level - 1)] || Object.values(statsRecord)[level - 1];
+                }
+                statsRecord = statsRecord || {};
+                return {
+                    damage: statsRecord.damage || emojiDashConfig.playerDamage,
+                    health: statsRecord.health || 140
+                };
+            }
+
+            function renderEmojiDashDeckBar() {
+                if (!emojiDashDeckBar || !emojiDashState) return;
+                emojiDashDeckBar.innerHTML = '';
+                const deck = getDeckForMode('emojiDash') || [];
+                emojiDashState.deckButtons = [];
+                if (deck.length !== 8) {
+                    return;
+                }
+                deck.forEach(cardId => {
+                    const card = allCards[cardId];
+                    if (!card) return;
+                    const cost = card.cost || emojiDashConfig.spawnCost;
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'emoji-dash-deck-card';
+                    btn.dataset.cardId = cardId;
+                    btn.dataset.cost = cost;
+                    btn.setAttribute('aria-label', `${card.name} • ${cost} Elixir`);
+                    btn.innerHTML = `<span class="text-3xl -mb-0.5">${card.emoji}</span><span class="text-[10px] text-yellow-300">${cost}</span>`;
+                    btn.addEventListener('click', () => spawnPlayerTroop(cardId));
+                    emojiDashDeckBar.appendChild(btn);
+                    emojiDashState.deckButtons.push(btn);
+                });
+                updateEmojiDashDeckBar();
+            }
+
+            function updateEmojiDashDeckBar() {
+                if (!emojiDashDeckBar || !emojiDashState || !emojiDashState.deckButtons) return;
+                emojiDashState.deckButtons.forEach(btn => {
+                    const cost = parseFloat(btn.dataset.cost) || emojiDashConfig.spawnCost;
+                    const canPlay = !emojiDashState.finished && !emojiDashState.player && emojiDashState.elixir >= cost;
+                    btn.disabled = !canPlay;
+                    btn.classList.toggle('disabled', !canPlay);
+                });
+            }
+
+            function finishEmojiDash({ message, winner }) {
+                if (!emojiDashState || emojiDashState.finished) return;
+                adjustEmojiDashTrophies(winner === 'player');
+                emojiDashState.finished = true;
+                emojiDashState.status = message;
+                updateEmojiDashHUD();
+                if (emojiDashState.finishTimeout) clearTimeout(emojiDashState.finishTimeout);
+                stopEmojiDashMode();
+                showEmojiDashResult(winner === 'player', message);
+            }
+
+            function awardEmojiDashWinRewards() {
+                gold += 50;
+                if (goldDisplay) goldDisplay.textContent = `💰 ${gold}`;
+                normalizeChestSlots();
+                let emptySlotIndex = trophyChests.findIndex((chest, index) => index < 4 && !chest);
+                if (emptySlotIndex === -1) {
+                    normalizeChestSlots();
+                    emptySlotIndex = trophyChests.findIndex((chest, index) => index < 4 && !chest);
+                }
+                if (emptySlotIndex !== -1) {
+                    trophyChests[emptySlotIndex] = { id: 'wood', openTime: Date.now(), clicks: 0, stars: 1 };
+                    renderChests();
+                }
+                if (typeof saveUserData === 'function') saveUserData();
+            }
+
+            function showEmojiDashResult(isWin, detail) {
+                startBgAnimation();
+                const resultText = isWin ? 'You Win!' : 'You Lose!';
+                const detailText = detail ? `${resultText} ${detail}` : resultText;
+                if (gameMode === 'emojiDash' && emojiDashResultOverlay && emojiDashResultText) {
+                    emojiDashResultText.textContent = detailText;
+                    if (emojiDashResultRewardText) emojiDashResultRewardText.textContent = isWin ? '(+50 💰, 📦)' : '';
+                    emojiDashResultOverlay.style.display = 'flex';
+                    if (messageOverlay) messageOverlay.style.display = 'none';
+                    if (menuButton) menuButton.style.display = 'none';
+                } else {
+                    if (!messageOverlay || !messageText) return;
+                    messageText.textContent = detailText;
+                    if (messageRewardText) messageRewardText.textContent = isWin ? '(+50 💰, 📦)' : '';
+                    messageOverlay.style.display = 'flex';
+                    if (startButton) startButton.style.display = 'none';
+                    if (menuButton) menuButton.style.display = 'inline-block';
+                }
+                if (isWin) {
+                    awardEmojiDashWinRewards();
+                }
+            }
+
+            function startEmojiDashMode() {
+                if (!emojiDashCanvas) return;
+                if (!emojiDashCtx) emojiDashCtx = emojiDashCanvas.getContext('2d');
+                if (emojiDashState && emojiDashState.finishTimeout) {
+                    clearTimeout(emojiDashState.finishTimeout);
+                }
+                resetEmojiDashState();
+                if (emojiDashResultOverlay) {
+                    emojiDashResultOverlay.style.display = 'none';
+                }
+                if (emojiDashResultRewardText) {
+                    emojiDashResultRewardText.textContent = '';
+                }
+                renderEmojiDashDeckBar();
+                emojiDashActive = true;
+                emojiDashLastTimestamp = performance.now();
+                if (emojiDashLoopId) cancelAnimationFrame(emojiDashLoopId);
+                emojiDashLoopId = requestAnimationFrame(emojiDashLoop);
+            }
+
+            function stopEmojiDashMode() {
+                emojiDashActive = false;
+                if (emojiDashState && emojiDashState.finishTimeout) {
+                    clearTimeout(emojiDashState.finishTimeout);
+                    emojiDashState.finishTimeout = null;
+                }
+                if (emojiDashLoopId) {
+                    cancelAnimationFrame(emojiDashLoopId);
+                    emojiDashLoopId = 0;
+                }
+                emojiDashKeys.left = false;
+                emojiDashKeys.right = false;
+                emojiDashKeys.jump = false;
+            }
+
+            function spawnPlayerTroop(cardId) {
+                if (!emojiDashState || emojiDashState.finished) return;
+                if (emojiDashState.player) {
+                    emojiDashState.status = 'Only one troop at a time.';
+                    return;
+                }
+                const deck = getDeckForMode('emojiDash') || [];
+                if (deck.length !== 8) {
+                    emojiDashState.status = 'Deck needs 8 cards.';
+                    return;
+                }
+                const selectedCardId = cardId || deck[0];
+                const card = allCards[selectedCardId];
+                if (!card) {
+                    emojiDashState.status = 'Invalid card.';
+                    return;
+                }
+                const cost = card.cost || emojiDashConfig.spawnCost;
+                if (emojiDashState.elixir < cost) {
+                    emojiDashState.status = 'Not enough elixir.';
+                    return;
+                }
+                emojiDashState.elixir -= cost;
+                const stats = getEmojiDashCardStats(selectedCardId);
+                const groundY = emojiDashConfig.canvasHeight - emojiDashConfig.groundHeight - 36;
+                const playerHealth = Math.max(80, stats.health);
+                emojiDashState.player = {
+                    x: 80,
+                    y: groundY,
+                    width: 36,
+                    height: 36,
+                    vx: 0,
+                    vy: 0,
+                    health: playerHealth,
+                    maxHealth: playerHealth,
+                    damage: stats.damage,
+                    emoji: card.emoji || '??',
+                    facing: 1,
+                    attackCooldown: 0
+                };
+                emojiDashState.status = `${card.name} deployed!`;
+                updateEmojiDashDeckBar();
+            }
+
+            function spawnAiTroop() {
+                if (!emojiDashState) return;
+                const deck = getDeckForMode('emojiDash') || [];
+                const cardId = deck.length ? deck[Math.floor(Math.random() * deck.length)] : null;
+                const stats = cardId ? getEmojiDashCardStats(cardId) : { damage: emojiDashConfig.aiDamage, health: 130 };
+                const emojiSymbol = cardId && allCards[cardId] ? allCards[cardId].emoji : '??';
+                const groundY = emojiDashConfig.canvasHeight - emojiDashConfig.groundHeight - 36;
+                const aiHealth = Math.max(90, stats.health);
+                emojiDashState.ai = {
+                    x: emojiDashConfig.canvasWidth - 120,
+                    y: groundY,
+                    width: 36,
+                    height: 36,
+                    vx: 0,
+                    vy: 0,
+                    health: aiHealth,
+                    maxHealth: aiHealth,
+                    damage: stats.damage,
+                    emoji: emojiSymbol,
+                    aiAttackCooldown: emojiDashConfig.aiAttackCooldown,
+                    jumpTimer: 1.2,
+                    facing: -1
+                };
+                emojiDashState.aiCardId = cardId;
+                emojiDashState.aiSpawnTimer = emojiDashConfig.aiSpawnDelay;
+                emojiDashState.status = cardId ? `${allCards[cardId].name} is on the move!` : 'Enemy approaching.';
+            }
+
+            function emojiDashFireAttack() {
+                if (!emojiDashState || !emojiDashState.player) {
+                    if (emojiDashState) emojiDashState.status = 'Deploy a troop first.';
+                    return;
+                }
+                if (emojiDashState.player.attackCooldown > 0) return;
+                emojiDashState.player.attackCooldown = emojiDashConfig.attackCooldown;
+                const player = emojiDashState.player;
+                const facing = player.facing || 1;
+                const spawnX = facing === 1 ? player.x + player.width : player.x;
+                const vx = 420 * facing;
+                emojiDashState.projectiles.push({
+                    owner: 'player',
+                    x: spawnX,
+                    y: player.y + player.height / 2,
+                    vx,
+                    vy: 0,
+                    size: 10,
+                    damage: emojiDashState.player.damage,
+                    life: 1.3
+                });
+                emojiDashState.status = 'Attack fired!';
+            }
+
+            function emojiDashLoop(timestamp) {
+                if (!emojiDashActive) return;
+                const delta = Math.min(0.06, (timestamp - emojiDashLastTimestamp) / 1000);
+                emojiDashLastTimestamp = timestamp;
+                updateEmojiDashEntities(delta);
+                drawEmojiDashScene();
+                updateEmojiDashHUD();
+                emojiDashLoopId = requestAnimationFrame(emojiDashLoop);
+            }
+
+            function updateEmojiDashEntities(delta) {
+                if (!emojiDashState || emojiDashState.finished) return;
+                emojiDashState.elixir = Math.min(emojiDashConfig.maxElixir, emojiDashState.elixir + emojiDashConfig.regenRate * delta);
+                emojiDashState.aiSpawnTimer = Math.max(0, emojiDashState.aiSpawnTimer - delta);
+                if (!emojiDashState.ai && emojiDashState.aiSpawnTimer <= 0) {
+                    spawnAiTroop();
+                }
+                const playerEntity = emojiDashState.player;
+                if (playerEntity) {
+                    updateEmojiDashPlayer(delta);
+                }
+                if (emojiDashState.ai) {
+                    updateEmojiDashAi(delta);
+                }
+                updateEmojiDashProjectiles(delta);
+                tickEmojiDashDamageEffects(delta);
+            }
+            function updateEmojiDashPlayer(delta) {
+                const player = emojiDashState.player;
+                if (!player) return;
+                const groundLimit = emojiDashConfig.canvasHeight - emojiDashConfig.groundHeight - player.height;
+                if (emojiDashKeys.left) {
+                    player.vx = -emojiDashConfig.moveSpeed;
+                    player.facing = -1;
+                } else if (emojiDashKeys.right) {
+                    player.vx = emojiDashConfig.moveSpeed;
+                    player.facing = 1;
+                } else {
+                    player.vx = 0;
+                }
+                if (emojiDashKeys.jump && player.vy === 0 && player.y >= groundLimit - 1) {
+                    player.vy = -emojiDashConfig.jumpStrength;
+                }
+                player.vy += emojiDashConfig.gravity * delta;
+                player.x = Math.max(0, Math.min(emojiDashConfig.canvasWidth - player.width, player.x + player.vx * delta));
+                const prevPlayerY = player.y;
+                player.y += player.vy * delta;
+                const landedOnPlatform = resolveEmojiDashPlatformCollision(player, prevPlayerY);
+                if (player.y >= groundLimit && !landedOnPlatform) {
+                    player.y = groundLimit;
+                    player.vy = 0;
+                    checkEmojiDashJumpPads(player);
+                } else if (landedOnPlatform) {
+                    checkEmojiDashJumpPads(player);
+                }
+                player.attackCooldown = Math.max(0, player.attackCooldown - delta);
+                checkEmojiDashSpikeDamage(player, delta, 'player');
+                if (player.health <= 0) {
+                    emojiDashState.player = null;
+                    emojiDashState.status = 'Troop defeated, spawn another.';
+                }
+            }
+
+            function updateEmojiDashAi(delta) {
+                const ai = emojiDashState.ai;
+                if (!ai) return;
+                const player = emojiDashState.player;
+                const desiredFacing = player ? Math.sign(player.x - ai.x) : -1;
+                ai.facing = desiredFacing || -1;
+                const groundLimit = emojiDashConfig.canvasHeight - emojiDashConfig.groundHeight - ai.height;
+                ai.vy += emojiDashConfig.gravity * delta;
+                const prevAiY = ai.y;
+                ai.y += ai.vy * delta;
+                const aiLandedOnPlatform = resolveEmojiDashPlatformCollision(ai, prevAiY);
+                if (ai.y >= groundLimit && !aiLandedOnPlatform) {
+                    ai.y = groundLimit;
+                    ai.vy = 0;
+                    checkEmojiDashJumpPads(ai);
+                } else if (aiLandedOnPlatform) {
+                    checkEmojiDashJumpPads(ai);
+                }
+                ai.jumpTimer = Math.max(0, ai.jumpTimer - delta);
+                if (ai.jumpTimer <= 0 && Math.random() < 0.35) {
+                    ai.vy = -emojiDashConfig.jumpStrength * 0.65;
+                    ai.jumpTimer = 1.6;
+                }
+                if (ai.y >= groundLimit - 1 && ai.vy === 0) {
+                    const spikeAhead = (emojiDashState.spikes || []).some(spike => ai.x < spike.x + spike.width + 12 && ai.x > spike.x - 12);
+                    if (spikeAhead) {
+                        ai.vy = -emojiDashConfig.jumpStrength * 0.85;
+                        ai.jumpTimer = 1.4;
+                    }
+                }
+                ai.aiAttackCooldown = Math.max(0, ai.aiAttackCooldown - delta);
+                if (ai.aiAttackCooldown <= 0) {
+                    const facing = ai.facing || -1;
+                    const projX = facing === 1 ? ai.x + ai.width : ai.x;
+                    emojiDashState.projectiles.push({
+                        owner: 'ai',
+                        x: projX,
+                        y: ai.y + ai.height / 2,
+                        vx: 360 * facing,
+                        vy: 0,
+                        size: 10,
+                        damage: ai.damage,
+                        life: 1.5
+                    });
+                    ai.aiAttackCooldown = emojiDashConfig.aiAttackCooldown;
+                    emojiDashState.status = 'Enemy fire incoming!';
+                }
+                let blocked = false;
+                if (player && ai.x <= player.x + player.width + 6 && ai.x >= player.x) {
+                    blocked = true;
+                    ai.x = player.x + player.width + 6;
+                    const playerDead = applyEmojiDashDamage(player, delta * 32);
+                    emojiDashState.status = 'Enemy blocked by your troop!';
+                    if (playerDead) {
+                        emojiDashState.player = null;
+                        emojiDashState.status = 'Troop defeated, spawn another.';
+                    }
+                }
+                if (!blocked) {
+                    ai.x += -emojiDashConfig.aiSpeed * delta;
+                }
+                const leftTower = emojiDashState.leftTower;
+                if (leftTower && ai.x <= leftTower.x + leftTower.width + 4) {
+                    const destroyed = applyEmojiDashDamage(leftTower, delta * 160);
+                    if (destroyed) {
+                        finishEmojiDash({ message: 'AI captured your king tower!', winner: 'ai' });
+                        return;
+                    }
+                }
+                checkEmojiDashSpikeDamage(ai, delta, 'ai');
+                if (ai.health <= 0) {
+                    emojiDashState.ai = null;
+                    emojiDashState.aiSpawnTimer = emojiDashConfig.aiSpawnDelay;
+                    emojiDashState.status = 'Enemy down.';
+                }
+            }
+            function checkEmojiDashSpikeDamage(entity, delta, type) {
+                if (!entity || !emojiDashState) return;
+                const bottom = entity.y + entity.height;
+                const spikeLine = emojiDashConfig.canvasHeight - emojiDashConfig.groundHeight;
+                if (bottom < spikeLine - 2) return;
+                for (const spike of emojiDashState.spikes) {
+                    if (entity.x + entity.width > spike.x && entity.x < spike.x + spike.width) {
+                        const died = applyEmojiDashDamage(entity, delta * 40);
+                        if (type === 'player') {
+                            emojiDashState.status = 'Spikes hurt you!';
+                        } else {
+                            emojiDashState.status = 'Enemy stumbled on spikes!';
+                        }
+                        if (died) {
+                            if (type === 'player') {
+                                emojiDashState.player = null;
+                                emojiDashState.status = 'Troop defeated, spawn another.';
+                            } else {
+                                emojiDashState.ai = null;
+                                emojiDashState.aiSpawnTimer = emojiDashConfig.aiSpawnDelay;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+
+            function updateEmojiDashProjectiles(delta) {
+                if (!emojiDashState) return;
+                emojiDashState.projectiles = emojiDashState.projectiles.filter(proj => {
+                    proj.x += proj.vx * delta;
+                    const rightTower = emojiDashState.rightTower;
+                    const leftTower = emojiDashState.leftTower;
+                    if (proj.owner === 'player' && rightTower && proj.vx > 0 && proj.x >= rightTower.x) {
+                        const destroyed = applyEmojiDashDamage(rightTower, proj.damage);
+                        if (destroyed) {
+                            finishEmojiDash({ message: 'You destroyed the enemy king tower!', winner: 'player' });
+                        }
+                        return false;
+                    }
+                    if (proj.owner === 'ai' && leftTower && proj.vx < 0 && proj.x <= leftTower.x + leftTower.width) {
+                        const destroyed = applyEmojiDashDamage(leftTower, proj.damage);
+                        if (destroyed) {
+                            finishEmojiDash({ message: 'AI captured your king tower!', winner: 'ai' });
+                        }
+                        return false;
+                    }
+                    proj.life -= delta;
+                    if (proj.life <= 0 || proj.x < -20 || proj.x > emojiDashConfig.canvasWidth + 20) return false;
+                    if (proj.owner === 'player' && emojiDashState.ai && checkProjectileOverlap(proj, emojiDashState.ai)) {
+                        const aiDead = applyEmojiDashDamage(emojiDashState.ai, proj.damage);
+                        emojiDashState.status = 'Attack landed!';
+                        if (aiDead) {
+                            emojiDashState.ai = null;
+                            emojiDashState.aiSpawnTimer = emojiDashConfig.aiSpawnDelay;
+                            emojiDashState.status = 'Enemy down.';
+                        }
+                        return false;
+                    }
+                    if (proj.owner === 'ai' && emojiDashState.player && checkProjectileOverlap(proj, emojiDashState.player)) {
+                        const playerDead = applyEmojiDashDamage(emojiDashState.player, proj.damage);
+                        emojiDashState.status = 'You were struck!';
+                        if (playerDead) {
+                            emojiDashState.player = null;
+                            emojiDashState.status = 'Troop defeated, spawn another.';
+                        }
+                        return false;
+                    }
+                    return true;
+                });
+                if (emojiDashState.ai && emojiDashState.ai.health <= 0) {
+                    emojiDashState.ai = null;
+                    emojiDashState.aiSpawnTimer = emojiDashConfig.aiSpawnDelay;
+                }
+            }
+
+            function applyEmojiDashDamage(entity, amount) {
+                if (!entity || amount <= 0) return false;
+                entity.health = Math.max(0, entity.health - amount);
+                entity.healthBarBounce = Math.min(20, (entity.healthBarBounce || 0) + 18);
+                return entity.health <= 0;
+            }
+
+            function tickEmojiDashDamageEffects(delta) {
+                if (!emojiDashState) return;
+                const targets = [emojiDashState.player, emojiDashState.ai, emojiDashState.leftTower, emojiDashState.rightTower];
+                targets.forEach(obj => {
+                    if (obj && obj.healthBarBounce > 0) {
+                        obj.healthBarBounce = Math.max(0, obj.healthBarBounce - delta * 60);
+                    }
+                });
+            }
+
+            function checkProjectileOverlap(proj, entity) {
+                if (!entity) return false;
+                return proj.x >= entity.x && proj.x <= entity.x + entity.width &&
+                    proj.y >= entity.y && proj.y <= entity.y + entity.height;
+            }
+
+            function drawEmojiDashScene() {
+                if (!emojiDashCtx || !emojiDashCanvas || !emojiDashState) return;
+                const ctx = emojiDashCtx;
+                const cw = emojiDashCanvas.width;
+                const ch = emojiDashCanvas.height;
+                ctx.clearRect(0, 0, cw, ch);
+                const gradient = ctx.createLinearGradient(0, 0, 0, ch);
+                gradient.addColorStop(0, '#020617');
+                gradient.addColorStop(1, '#050c1c');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, cw, ch);
+                const groundLine = ch - emojiDashConfig.groundHeight;
+                ctx.fillStyle = '#0b1220';
+                ctx.fillRect(0, groundLine, cw, emojiDashConfig.groundHeight);
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.4)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(0, groundLine);
+                ctx.lineTo(cw, groundLine);
+                ctx.stroke();
+                const drawTowerHealthBar = (tower, towerY) => {
+                    if (!tower) return;
+                    const healthPct = Math.max(0, Math.min(1, (tower.health || 0) / Math.max(tower.maxHealth || 1, 1)));
+                    const barWidth = tower.width + 20;
+                    const barX = Math.max(0, Math.min(cw - barWidth, tower.x - 10));
+                    const bounce = tower.healthBarBounce || 0;
+                    const barY = towerY - 14 + bounce;
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+                    ctx.fillRect(barX, barY, barWidth, 6);
+                    ctx.fillStyle = '#34d399';
+                    ctx.fillRect(barX, barY, barWidth * healthPct, 6);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(barX, barY, barWidth, 6);
+                };
+
+                const drawKingTower = (tower, hue) => {
+                    if (!tower) return;
+                    const towerY = typeof tower.y === 'number' ? tower.y : tower.base - tower.height;
+                    ctx.fillStyle = hue;
+                    ctx.fillRect(tower.x, towerY, tower.width, tower.height);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(tower.x, towerY, tower.width, tower.height);
+                    ctx.fillStyle = '#fef3c7';
+                    ctx.fillRect(tower.x + 6, towerY - 6, tower.width - 12, 5);
+                    drawTowerHealthBar(tower, towerY);
+                };
+                drawKingTower(emojiDashState.leftTower, '#38bdf8');
+                drawKingTower(emojiDashState.rightTower, '#fb7185');
+                emojiDashState.platforms.forEach(platform => {
+                    ctx.fillStyle = 'rgba(59, 130, 246, 0.15)';
+                    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                    ctx.strokeStyle = 'rgba(59, 130, 246, 0.5)';
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeRect(platform.x, platform.y, platform.width, platform.height);
+                });
+                emojiDashState.spikes.forEach(spike => {
+                    ctx.fillStyle = '#f87171';
+                    ctx.beginPath();
+                    ctx.moveTo(spike.x, groundLine);
+                    ctx.lineTo(spike.x + spike.width / 2, groundLine - spike.height);
+                    ctx.lineTo(spike.x + spike.width, groundLine);
+                    ctx.closePath();
+                    ctx.fill();
+                });
+                emojiDashState.jumpPads.forEach(pad => {
+                    ctx.fillStyle = 'rgba(99, 102, 241, 0.8)';
+                    ctx.fillRect(pad.x, groundLine - 12, pad.width, 12);
+                    ctx.fillStyle = 'rgba(165, 180, 252, 0.9)';
+                    ctx.fillRect(pad.x + 6, groundLine - 10, pad.width - 12, 8);
+                });
+                if (emojiDashState.player) {
+                    drawEmojiDashEntity(ctx, emojiDashState.player, '#34d399');
+                }
+                if (emojiDashState.ai) {
+                    drawEmojiDashEntity(ctx, emojiDashState.ai, '#f472b6');
+                }
+                emojiDashState.projectiles.forEach(proj => {
+                    ctx.beginPath();
+                    ctx.arc(proj.x, proj.y, proj.size, 0, Math.PI * 2);
+                    ctx.fillStyle = proj.owner === 'player' ? '#34d399' : '#f97316';
+                    ctx.fill();
+                });
+            }
+
+            function drawEmojiDashEntity(ctx, entity, tint) {
+                ctx.save();
+                ctx.font = '32px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = tint;
+                ctx.fillText(entity.emoji || '??', entity.x + entity.width / 2, entity.y + entity.height / 2);
+                ctx.restore();
+                const maxHealth = entity.maxHealth && entity.maxHealth > 0 ? entity.maxHealth : 150;
+                const healthPct = Math.max(0, Math.min(1, (entity.health || 0) / maxHealth));
+                const totalWidth = entity.width + 12;
+                const barX = Math.max(0, Math.min(emojiDashCanvas.width - totalWidth, entity.x - 6));
+                const bounce = entity.healthBarBounce || 0;
+                const barY = entity.y - 18 + bounce;
+                ctx.fillStyle = '#0b1220';
+                ctx.fillRect(barX, barY, totalWidth, 6);
+                ctx.fillStyle = '#34d399';
+                ctx.fillRect(barX, barY, totalWidth * healthPct, 6);
+                ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(barX, barY, totalWidth, 6);
+            }
+
+            function updateEmojiDashHUD() {
+                const levelInfo = getEmojiDashLevelByTrophies();
+                emojiDashLevelId = levelInfo.id;
+                if (emojiDashLevelLabel) {
+                    emojiDashLevelLabel.textContent = `${levelInfo.name} • ${levelInfo.label}`;
+                }
+                if (emojiDashTrophyLabel) {
+                    emojiDashTrophyLabel.textContent = `${emojiDashTrophies} trophies`;
+                }
+                if (!emojiDashState) return;
+                if (emojiDashElixirFill) {
+                    const percent = Math.max(0, Math.min(1, emojiDashState.elixir / emojiDashConfig.maxElixir));
+                    emojiDashElixirFill.style.width = `${percent * 100}%`;
+                }
+                if (emojiDashElixirText) {
+                    emojiDashElixirText.textContent = `${Math.floor(emojiDashState.elixir)}`;
+                }
+                updateEmojiDashDeckBar();
+            }
+            function normalizeEmojiDashKey(event) {
+                const rawKey = (event.key || '');
+                let normalized = rawKey === ' ' ? 'space' : rawKey.toLowerCase();
+                if (normalized === 'spacebar') normalized = 'space';
+                return normalized;
+            }
+
+            function emojiDashHandleKeyDown(event) {
+                if (!emojiDashActive) return;
+                const key = normalizeEmojiDashKey(event);
+                if (key === 'a') {
+                    emojiDashKeys.left = true;
+                    event.preventDefault();
+                } else if (key === 'd') {
+                    emojiDashKeys.right = true;
+                    event.preventDefault();
+                } else if (key === 'w' || key === 'space') {
+                    emojiDashKeys.jump = true;
+                    event.preventDefault();
+                }
+            }
+
+            function emojiDashHandleKeyUp(event) {
+                const key = normalizeEmojiDashKey(event);
+                if (key === 'a') emojiDashKeys.left = false;
+                if (key === 'd') emojiDashKeys.right = false;
+                if (key === 'w' || key === 'space') emojiDashKeys.jump = false;
+            }
             // ==============================
             // Star and Quarter Star Helpers
             // ==============================
@@ -4828,25 +5400,10 @@ if (chestCloseButton) {
 
             // updateLogClose event listener handled above
             
-            if (battleButton) battleButton.addEventListener('click', () => {
-                if (battleButton.disabled) return;
-                if (gameMode === 'musicMania') {
-                    if (musicManiaInfoOverlay) {
-                        musicManiaInfoOverlay.style.display = 'flex';
-                    }
-                    return;
-                }
-                
-                if (gameMode === 'party1v1') {
-                     if (playerDeckParty.length !== 8) {
-                        alert('Add 8 cards to your 1v1 Party deck first!');
-                        showScreen('deck');
-                        return;
-                     }
-                     // Start 1v1 Party directly
-                     menuScreen.classList.remove('active');
-                     loadingScreen.classList.add('active');
-                     loadingScreen.querySelector('p').textContent = 'Finding Party Opponent...';
+            function beginStandardBattle(loadingText = 'Finding Opponent...') {
+                menuScreen.classList.remove('active');
+                loadingScreen.classList.add('active');
+                loadingScreen.querySelector('p').textContent = loadingText;
                 setTimeout(() => {
                     showScreen('game');
                     messageText.textContent = 'Get Ready!';
@@ -4859,6 +5416,22 @@ if (chestCloseButton) {
                         gameLoopId = requestAnimationFrame(gameLoop);
                     }, 1500);
                 }, 1000);
+            }
+
+            if (battleButton) battleButton.addEventListener('click', () => {
+                if (battleButton.disabled) return;
+                if (gameMode === 'emojiDash') {
+                    showScreen('emojiDash');
+                    startEmojiDashMode();
+                    return;
+                }
+                if (gameMode === 'party1v1') {
+                     if (playerDeckParty.length !== 8) {
+                        alert('Add 8 cards to your 1v1 Party deck first!');
+                        showScreen('deck');
+                        return;
+                     }
+                     beginStandardBattle('Finding Party Opponent...');
                      return;
                 }
 
@@ -4871,22 +5444,7 @@ if (chestCloseButton) {
                     // Show teammate choice modal
                     show2v2TeammateChoice();
                 } else {
-                    // Normal flow
-                    menuScreen.classList.remove('active');
-                    loadingScreen.classList.add('active');
-                    loadingScreen.querySelector('p').textContent = 'Finding Opponent...';
-                    setTimeout(() => {
-                        showScreen('game');
-                        messageText.textContent = 'Get Ready!';
-                        startButton.style.display = 'none';
-                        menuButton.style.display = 'none';
-                        messageOverlay.style.display = 'flex';
-                        setTimeout(() => {
-                            initGame();
-                            lastTime = performance.now();
-                            gameLoopId = requestAnimationFrame(gameLoop);
-                        }, 1500);
-                    }, 1000);
+                    beginStandardBattle();
                 }
             });
             // NEW: Arena screen buttons
@@ -4903,6 +5461,12 @@ if (chestCloseButton) {
                     showScreen('menu');
                 };
             }
+
+            if (emojiDashCanvas) {
+                emojiDashCanvas.addEventListener('click', emojiDashFireAttack);
+            }
+            window.addEventListener('keydown', emojiDashHandleKeyDown);
+            window.addEventListener('keyup', emojiDashHandleKeyUp);
 
             // ==============================================
 
@@ -5098,6 +5662,27 @@ if (chestCloseButton) {
                         console.log('Added 6 evolution shards via debug');
                     };
                 }
+                if (debugEmojiDashLevel1) {
+                    debugEmojiDashLevel1.onclick = null;
+                    debugEmojiDashLevel1.onclick = () => {
+                        setEmojiDashTrophiesForLevel(1);
+                        console.log('Emoji Dash Level 1 selected');
+                    };
+                }
+                if (debugEmojiDashLevel2) {
+                    debugEmojiDashLevel2.onclick = null;
+                    debugEmojiDashLevel2.onclick = () => {
+                        setEmojiDashTrophiesForLevel(2);
+                        console.log('Emoji Dash Level 2 selected');
+                    };
+                }
+                if (debugEmojiDashLevel3) {
+                    debugEmojiDashLevel3.onclick = null;
+                    debugEmojiDashLevel3.onclick = () => {
+                        setEmojiDashTrophiesForLevel(3);
+                        console.log('Emoji Dash Level 3 selected');
+                    };
+                }
             }
 
 
@@ -5161,14 +5746,25 @@ if (chestCloseButton) {
             // CARD & DECK LOGIC
             // ==============================================
 
+            function isEmojiDashRestrictedCard(card) {
+                if (!card) return false;
+                const typeLabel = (card.type || '').toLowerCase();
+                const isSwarm = typeLabel.includes('swarm');
+                const isBuilding = typeLabel === 'building';
+                const isSpell = typeLabel === 'spell';
+                return isSwarm || isBuilding || isSpell;
+            }
+
             function createCardDOM(cardId, isSmall = false, inHand = false) {
                 const card = allCards[cardId];
                 if (!card) return null;
                 
                 const cardData = cardCollection[cardId];
-                // In 2v2 or Party mode, treat all cards as unlocked
-                const isParty = (gameMode === '2v2' || gameMode === 'party1v1' || gameMode === 'musicMania');
-                const isLocked = isParty ? false : (!inHand && (!cardData || !cardData.unlocked));
+                const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
+                const isEmojiDashMode = (gameMode === 'emojiDash');
+                const emojiDashRestricted = isEmojiDashMode && isEmojiDashRestrictedCard(card);
+                const generalLocked = !inHand && (!cardData || !cardData.unlocked);
+                const isLocked = emojiDashRestricted || (!isEmojiDashMode && !isParty && generalLocked);
                 
                 const cardEl = document.createElement('div');
                 // Added btn-shine to cards
@@ -5178,8 +5774,9 @@ if (chestCloseButton) {
                 if (isLocked) { 
                     cardEl.classList.add('card-ui-locked');
                     let lockedText = ``;
-                    // Only show "Unlocks in Arena X" if it's NOT Arena 1
-                    if (card.arena !== 1) {
+                    if (emojiDashRestricted) {
+                        lockedText = `<div class="card-ui-locked-arena">Not available in Emoji Dash</div>`;
+                    } else if (!inHand && card.arena !== 1) {
                         lockedText = `<div class="card-ui-locked-arena">Unlocks in Arena ${card.arena}</div>`;
                     }
                     cardEl.innerHTML = `
@@ -5275,14 +5872,6 @@ if (chestCloseButton) {
 
             function getUnlockedCards(includeTower = false, aiLevel = 0, mode = gameMode) {
                 const unlocked = [];
-                if (mode === 'musicMania') {
-                    for (const cardId in allCards) {
-                        if (cardId === 'tower' || cardId === 'miniStoneGiant') continue;
-                        unlocked.push(cardId);
-                    }
-                    if (includeTower) unlocked.push('tower');
-                    return unlocked;
-                }
                 // Use AI level if provided, otherwise resolve the arena count from the trophy floor
                 const arenaNum = aiLevel > 0 ? aiLevel : getArenaNumberFromFloor(currentArenaFloor);
                 
@@ -5299,8 +5888,7 @@ if (chestCloseButton) {
             }
 
             function renderDeckScreen() {
-                const isParty = gameMode === '2v2' || gameMode === 'party1v1';
-                const musicMode = gameMode === 'musicMania';
+                const isParty = gameMode === '2v2' || gameMode === 'party1v1' || gameMode === 'emojiDash';
                 deckCardGrid.innerHTML = '';
                 collectionCardGrid.innerHTML = '';
                 lockedCardGrid.innerHTML = ''; 
@@ -5308,6 +5896,7 @@ if (chestCloseButton) {
                 const deckModeKey = getMatchModeKey();
                 ensureMatchEvoSlotsForMode(deckModeKey);
                 const currentDeck = getDeckForMode(gameMode);
+                const isEmojiDashMode = (gameMode === 'emojiDash');
 
                 const deckCountEl = document.getElementById('deckCount');
                 if (deckCountEl) deckCountEl.textContent = `${currentDeck.length} / 8`;
@@ -5324,7 +5913,7 @@ if (chestCloseButton) {
                     const cardEl = createCardDOM(cardId, false); 
                     cardEl.addEventListener('click', () => openCardModal(cardId));
                     // Highlight the first two slots when evolutions are unlocked
-                    if (evolutionsUnlocked) {
+                    if (!isEmojiDashMode && evolutionsUnlocked) {
                         if (idx < 2) {
                             // This is an evolution slot
                             if (evoUnlockedCards && evoUnlockedCards[cardId]) {
@@ -5341,7 +5930,14 @@ if (chestCloseButton) {
                     deckCardGrid.appendChild(cardEl);
                 });
 
-            refreshCardEvoIndicators();
+                if (!isEmojiDashMode) {
+                    refreshCardEvoIndicators();
+                } else {
+                    const deckCards = deckCardGrid.querySelectorAll('.card-ui');
+                    deckCards.forEach(el => {
+                        el.style.outline = 'none';
+                    });
+                }
 
                 // --- Enable Drag-and-Drop Reordering of Deck Cards ---
                 // After rendering deck cards, attach HTML5 drag and drop handlers to allow
@@ -5373,13 +5969,14 @@ if (chestCloseButton) {
                         let deckRef;
                         if (gameMode === '2v2') deckRef = playerDeck2v2;
                         else if (gameMode === 'party1v1') deckRef = playerDeckParty;
-                        else if (gameMode === 'musicMania') deckRef = musicDeck;
+                        else if (gameMode === 'emojiDash') deckRef = playerDeckEmojiDash;
                         else deckRef = playerDeck;
                         const temp = deckRef[toIdx];
                         deckRef[toIdx] = deckRef[fromIdx];
                         deckRef[fromIdx] = temp;
                         if (gameMode === '2v2') playerDeck2v2 = [...deckRef];
                         else if (gameMode === 'party1v1') playerDeckParty = [...deckRef];
+                        else if (gameMode === 'emojiDash') playerDeckEmojiDash = [...deckRef];
                         else playerDeck = [...deckRef];
                         draggedIdx = null;
                         if (typeof saveUserData === 'function') saveUserData();
@@ -5392,7 +5989,7 @@ if (chestCloseButton) {
                     if (cardId === 'tower' || cardId === 'miniStoneGiant') continue; 
                     
                     const cardData = cardCollection[cardId];
-                    const specialMode = (gameMode === '2v2' || gameMode === 'party1v1' || gameMode === 'musicMania');
+                    const specialMode = (gameMode === '2v2' || gameMode === 'party1v1' || gameMode === 'emojiDash');
                     const isLocked = specialMode ? false : (!cardData || !cardData.unlocked);
                     
                     const cardEl = createCardDOM(cardId, true);
@@ -5828,8 +6425,11 @@ if (chestCloseButton) {
                 const cardData = cardCollection[cardId];
                 if (!card) return;
                 
-                const isParty = (gameMode === '2v2' || gameMode === 'party1v1' || gameMode === 'musicMania');
-                const isLocked = isParty ? false : (!cardData || !cardData.unlocked);
+                const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
+                const isEmojiDashMode = (gameMode === 'emojiDash');
+                const emojiDashRestricted = isEmojiDashMode && isEmojiDashRestrictedCard(card);
+                const generalLocked = (!cardData || !cardData.unlocked);
+                const isLocked = emojiDashRestricted || (!isEmojiDashMode && !isParty && generalLocked);
                 const useMaxLevel = isMaxLevelMatch();
                 const displayLevel = useMaxLevel ? 15 : ((cardData && cardData.level) ? cardData.level : 1);
                 const stats = card.stats ? card.stats[displayLevel] : null;
@@ -5842,7 +6442,8 @@ if (chestCloseButton) {
                 cardInfoDisplay.appendChild(createCardDOM(cardId, false));
                 cardInfoName.textContent = card.name;
                 cardInfoType.textContent = card.type || 'Special';
-                cardInfoLevel.textContent = isLocked ? "Not Unlocked" : `Level ${displayLevel}`;
+                const unlockText = card.arena ? `Unlocks in Arena ${card.arena}` : 'Locked';
+                cardInfoLevel.textContent = emojiDashRestricted ? 'Not available in Emoji Dash' : (isLocked ? unlockText : `Level ${displayLevel}`);
 
                 // --- Reset Tabs ---
                 switchTab('stats');
@@ -5882,9 +6483,7 @@ if (chestCloseButton) {
                 cardInfoProgressContainer.style.display = 'none';
                 cardInfoButton.style.display = 'none';
 
-                if (isLocked || !stats) {
-                    if(isLocked) cardInfoLevel.textContent = `Unlocks in Arena ${card.arena}`;
-                } else {
+                if (!isLocked && stats) {
                     const currentDeck = getDeckForMode();
 
                     const isInDeck = currentDeck.includes(cardId);
@@ -6592,6 +7191,11 @@ if (chestCloseButton) {
             
             async function addToDeck(cardId) {
                 const currentDeck = getDeckForMode();
+                const card = allCards[cardId];
+                if (gameMode === 'emojiDash' && isEmojiDashRestrictedCard(card)) {
+                    alert('Emoji Dash cannot use swarms, air swarms, spell cards, or buildings.');
+                    return;
+                }
                 if (currentDeck.length < 8) {
                     currentDeck.push(cardId);
                     renderDeckScreen();
@@ -6632,14 +7236,14 @@ if (chestCloseButton) {
 function getMatchModeKey(mode = gameMode) {
     if (mode === '2v2') return '2v2';
     if (mode === 'party1v1') return 'party1v1';
-    if (mode === 'musicMania') return 'musicMania';
+    if (mode === 'emojiDash') return 'emojiDash';
     return 'single';
 }
 
 function getDeckForMode(mode = gameMode) {
     if (mode === '2v2') return playerDeck2v2;
     if (mode === 'party1v1') return playerDeckParty;
-    if (mode === 'musicMania') return musicDeck;
+    if (mode === 'emojiDash') return playerDeckEmojiDash;
     return playerDeck;
 }
 
@@ -6655,6 +7259,7 @@ function ensureMatchEvoSlotsForMode(modeKey) {
     let deckToUse = playerDeck;
     if (modeKey === '2v2') deckToUse = playerDeck2v2;
     else if (modeKey === 'party1v1') deckToUse = playerDeckParty;
+    else if (modeKey === 'emojiDash') deckToUse = playerDeckEmojiDash;
     if (!deckToUse || deckToUse.length === 0) return;
     matchEvoSlots[modeKey] = selectMatchEvoSlots(deckToUse);
 }
@@ -7663,6 +8268,20 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                     this.x += Math.cos(angle) * this.speed * (deltaTime * 60); /* Scale movement by delta time */
                     this.y += Math.sin(angle) * this.speed * (deltaTime * 60);
                 }
+                findClosestEnemyInRange(range = 200) {
+                    let best = null;
+                    let shortest = range;
+                    for (const obj of gameObjects) {
+                        if (obj.team === this.team || obj.health <= 0) continue;
+                        if (!(obj instanceof Unit) && !(obj instanceof Tower) && !(obj instanceof Building)) continue;
+                        const dist = getDistance(this, obj);
+                        if (dist < shortest) {
+                            shortest = dist;
+                            best = obj;
+                        }
+                    }
+                    return best;
+                }
                 attack() { 
                     // Only attack when cooldown is ready and a valid target exists
                     if (this.target && this.cooldownTimer <= 0) { 
@@ -7745,7 +8364,6 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                     if (this.cooldownTimer > 0) { this.cooldownTimer -= deltaTime * 60; } /* Scale cooldown by delta time */
                     // NEW: Don't update if frozen
                     if (this.frozen) return;
-                    
                     // --- AGGRO FIX ---
                     // 1. If we have a target and are in attack range, just attack. DO NOT look for new targets.
                     if (this.target && this.target.health > 0 && getDistance(this, this.target) <= this.attackRange) {
@@ -10795,9 +11413,9 @@ class StoneGiant extends Unit {
                                 // Evolution: Damage increases by 25% after each hit until they die.
                                 evo: { cycle: 2, desc: 'Damage increases by 25% after each hit until the goblin dies.', stats: { count: 3, health: 100, damage: 25, hitSpeed: 1, speed: 1.0 } } },
                     'skeletons': { name: 'Skeletons', cost: 1, emoji: '💀', type: 'Swarm', unitClass: Skeletons, placementRadius: 10, isFlying: false, arena: 1, targets: 'Ground', aggroRange: 100,
-                                stats: { 1: { count: 3, health: 10, damage: 5, hitSpeed: 1.2, speed: 1.2 } },
+                                stats: { 1: { count: 3, health: 14, damage: 11, hitSpeed: 1.2, speed: 1.2 } },
                                 // Evolution: Each skeleton clones itself on each attack up to a max of 10 skeletons.
-                                evo: { cycle: 1, desc: 'On each attack, clones itself up to a maximum of 10 skeletons at a time.', stats: { count: 4, health: 10, damage: 5, hitSpeed: 1.2, speed: 1.2 } } },
+                                evo: { cycle: 1, desc: 'On each attack, clones itself up to a maximum of 10 skeletons at a time.', stats: { count: 4, health: 14, damage: 11, hitSpeed: 1.2, speed: 1.2 } } },
                     'tinyBot': { name: 'Tiny Bot', cost: 4, emoji: '🤖', type: 'Melee', unitClass: TinyBot, placementRadius: 10, isFlying: false, arena: 1, targets: 'Ground', aggroRange: 100,
                                 stats: { 1: { health: 700, damage: 250, hitSpeed: 1.8, speed: 0.7 } } },
                     'fireball': { name: 'Fireball', cost: 4, emoji: '🔥', type: 'Spell', radius: 50, placementRadius: 50, arena: 1, targets: 'Air & Ground',
@@ -10810,7 +11428,7 @@ class StoneGiant extends Unit {
                     'hut': { name: 'Goblin House', cost: 5, emoji: '🏠', type: 'Building', unitClass: GoblinHut, placementRadius: 20, isFlying: false, arena: 2, targets: '-',
                                 stats: { 1: { health: 800, spawn_speed: '5s', lifetime: '30s' } } },
                     'skeletonArmy': { name: 'Skeleton Group', cost: 3, emoji: '☠️', type: 'Swarm', unitClass: SkeletonArmy, placementRadius: 10, isFlying: false, arena: 2, targets: 'Ground', aggroRange: 100,
-                                stats: { 1: { count: 15, health: 10, damage: 5, hitSpeed: 1.2, speed: 1.4 } } }, // Speed 1.6 -> 1.4, damage buffed to 5
+                                stats: { 1: { count: 20, health: 22, damage: 20, hitSpeed: 1.2, speed: 1.4 } } }, // Speed 1.6 -> 1.4, stats buffed so it can chew through bots
                     'goblinGang': { name: 'Goblin Group', cost: 3, emoji: '👨‍👩‍👧‍👦', type: 'Swarm', unitClass: GoblinGang, placementRadius: 10, isFlying: false, arena: 2, targets: 'Air & Ground', aggroRange: 100,
                                 stats: { 1: { count: 3, health: 100, damage: 20, hitSpeed: 1, speed: 1.0, spear_count: 3, spear_health: 60, spear_damage: 25, spear_hitSpeed: 1.2, spear_speed: 1.0 } } },
                     'spearGoblins': { name: 'Spear Goblins', cost: 2, emoji: '🎯', type: 'Swarm', unitClass: SpearGoblins, placementRadius: 10, isFlying: false, arena: 2, targets: 'Air & Ground', aggroRange: 100,
@@ -10823,14 +11441,14 @@ class StoneGiant extends Unit {
                                 // Evolution: Each barbarian starts with a shield that blocks two hits.
                                 evo: { cycle: 2, desc: 'Each barbarian gains a shield that blocks two hits from any attack before breaking.', stats: { count: 5, health: 300, damage: 45, hitSpeed: 1.4, speed: 0.8 } } },
                     'battleRam': { name: 'Battle Ram', cost: 4, emoji: '🌲', type: 'WinCon', unitClass: BattleRam, placementRadius: 10, isFlying: false, arena: 3, targets: 'Buildings', aggroRange: 100,
-                                stats: { 1: { health: 700, damage: 200, chargeSpeed: 2.0, barbLevel: 1, speed: 0.8 } } },
+                                stats: { 1: { health: 250, damage: 200, chargeSpeed: 2.0, barbLevel: 1, speed: 0.8 } } },
                     'barbarianHut': { name: 'Barbarian House', cost: 7, emoji: '🏘️', type: 'Building', unitClass: BarbarianHut, placementRadius: 20, isFlying: false, arena: 3, targets: '-',
                                 stats: { 1: { health: 1000, spawn_speed: '10s', lifetime: '40s', barbLevel: 1 } } },
                     'axeSwinger': { name: 'Axe Swinger', cost: 4, emoji: '🪓', type: 'Melee', unitClass: AxeSwinger, placementRadius: 12, isFlying: false, arena: 3, targets: 'Ground', aggroRange: 100,
                                 stats: { 1: { health: 700, damage: 100, hitSpeed: 1.5, splashRadius: 24, speed: 0.8 } } },
                     // Arena 4 (NEW CARDS)
                     'pigs': { name: 'Pigs', cost: 4, emoji: '🐷', type: 'WinCon', unitClass: Pigs, placementRadius: 10, isFlying: false, arena: 4, targets: 'Buildings', aggroRange: 100,
-                                stats: { 1: { count: 4, health: 300, damage: 50, hitSpeed: 1.1, speed: 1.2 } } },
+                                stats: { 1: { count: 4, health: 220, damage: 35, hitSpeed: 1.1, speed: 1.2 } } },
                     'farmer': { name: 'Farmer', cost: 3, emoji: '👨‍🌾', type: 'Melee', unitClass: Farmer, placementRadius: 12, isFlying: false, arena: 4, targets: 'Ground', aggroRange: 100,
                                 stats: { 1: { health: 600, damage: 70, hitSpeed: 1.4, attackWidth: 30, attackHeight: 40, speed: 0.8 } } },
                     'poison': { name: 'Poison', cost: 4, emoji: '🤢', type: 'Spell', radius: 60, placementRadius: 60, arena: 4, targets: 'Air & Ground',
@@ -10898,7 +11516,7 @@ class StoneGiant extends Unit {
                     'flameTower': { name: 'Flame Tower', cost: 5, emoji: '🏯🔥', type: 'Building', unitClass: FlameTower, placementRadius: 20, isFlying: false, arena: 10, targets: 'Air & Ground',
                                 stats: { 1: { health: 1400, damage: 20, hitSpeed: 1.0, lifetime: '40s', spawn_speed: '0s', rampMultiplier: 1.3, maxDamage: 250 } } },
                     'bot': { name: 'Bot', cost: 7, emoji: '🤖', type: 'Melee', unitClass: Bot, placementRadius: 15, isFlying: false, arena: 10, targets: 'Ground', aggroRange: 100,
-                                stats: { 1: { health: 1800, damage: 350, hitSpeed: 2.0, speed: 0.3 } } },
+                                stats: { 1: { health: 1200, damage: 350, hitSpeed: 2.0, speed: 0.3 } } },
 
                     // === Arena 11: Diddy's Prison ===
                     // New building that spawns a Diddy Goblin when it expires or dies
@@ -11279,9 +11897,11 @@ class StoneGiant extends Unit {
                 if (!card) return null;
                 
                 const cardData = cardCollection[cardId];
-                // In 2v2, party, or Music Mania mode treat all cards as unlocked
-                const isParty = (gameMode === '2v2' || gameMode === 'party1v1' || gameMode === 'musicMania');
-                const isLocked = isParty ? false : (!inHand && (!cardData || !cardData.unlocked));
+                const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
+                const isEmojiDashMode = (gameMode === 'emojiDash');
+                const emojiDashRestricted = isEmojiDashMode && isEmojiDashRestrictedCard(card);
+                const generalLocked = !inHand && (!cardData || !cardData.unlocked);
+                const isLocked = emojiDashRestricted || (!isEmojiDashMode && !isParty && generalLocked);
                 
                 const cardEl = document.createElement('div');
                 cardEl.className = `card-ui btn-shine ${isSmall ? 'card-ui-small' : ''}`;
@@ -11290,7 +11910,9 @@ class StoneGiant extends Unit {
                 if (isLocked) { // Removed !inHand check, it's now at the top
                     cardEl.classList.add('card-ui-locked');
                     let lockedText = ``;
-                    if (card.arena !== 1) {
+                    if (emojiDashRestricted) {
+                        lockedText = `<div class="card-ui-locked-arena">Not available in Emoji Dash</div>`;
+                    } else if (!inHand && card.arena !== 1) {
                         lockedText = `<div class="card-ui-locked-arena">Unlocks in Arena ${card.arena}</div>`;
                     }
                     cardEl.innerHTML = `
@@ -12561,6 +13183,7 @@ class StoneGiant extends Unit {
                 else msg += ' (+50 💰, 📦)';
                 
                 messageText.textContent = msg;
+                if (messageRewardText) messageRewardText.textContent = '';
                 messageOverlay.style.display = 'flex';
                 startButton.style.display = 'none';
                 menuButton.style.display = 'inline-block';
@@ -12627,6 +13250,7 @@ class StoneGiant extends Unit {
                 } else {
                      messageText.textContent = message;
                 }
+                if (messageRewardText) messageRewardText.textContent = '';
                 messageOverlay.style.display = 'flex';
                 startButton.style.display = 'none';
                 menuButton.style.display = 'inline-block';
@@ -12692,6 +13316,8 @@ class StoneGiant extends Unit {
                         newGameObjects.push(obj);
                         continue;
                     }
+                    if (obj instanceof Unit && obj.isControlledHero) {
+                    }
 
                     // Handle units/projectiles/spells
                     if (obj instanceof Unit || obj instanceof Projectile || obj instanceof Spell || obj instanceof PoisonSpell || obj instanceof AngerSpell || obj instanceof FreezeEffect || obj instanceof HealEffect || obj instanceof ExplosionEffect || obj instanceof VoidTrapEffect || obj instanceof ChaosOrbEffect || obj instanceof ParticleExplosion || obj instanceof DeathEffect || obj instanceof GiantBomb) {
@@ -12749,7 +13375,7 @@ class StoneGiant extends Unit {
                     // Everything else dead is dropped
                 }
                 gameObjects = newGameObjects;
-                
+
                 updateCardUI();
                 if (gameTimer <= 0) {
                     if (isOvertime) { startTieBreaker(); }
@@ -12842,7 +13468,6 @@ class StoneGiant extends Unit {
             
             // This MUST be called after all classes are defined
             initCardSystem();
-            setupMusicMode();
 
             // --- BUG FIX: Start demo mode *after* classes and cards are defined ---
             if (isDemoMode) {
@@ -12946,6 +13571,7 @@ class StoneGiant extends Unit {
                 placementIndicator.style.left = `${clampedX}px`;
                 placementIndicator.style.top = `${clampedY}px`;
                 
+                const worldX = clampedX;
                 if (isSpawningSpell) {
                     canPlace = true; // Spells can be placed anywhere
                     placementIndicator.classList.remove('cant-place');
@@ -12953,7 +13579,7 @@ class StoneGiant extends Unit {
                         // Diddy miner has no placement restriction beyond spells
                     }
                 } else {
-                    canPlace = checkPlacement(clampedX, clampedY, placementRadius, selectedSpawningUnit.type);
+                    canPlace = checkPlacement(worldX, clampedY, placementRadius, selectedSpawningUnit.type);
                     placementIndicator.classList.toggle('cant-place', !canPlace);
                 }
             }
@@ -13123,6 +13749,8 @@ class StoneGiant extends Unit {
             // Use mouseup/touchend on the *window* to catch drags released off-canvas
             window.addEventListener('mouseup', handleDragEnd);
             window.addEventListener('touchend', handleDragEnd, { passive: false });
+
+
 
             // --- CLICK-TO-PLACE FIX: This listener is now removed ---
             // canvas.addEventListener('click', (e) => {
@@ -13355,31 +13983,36 @@ class StoneGiant extends Unit {
 
     <!--
     ========================================================
-    SCREEN: MUSIC MANIA
+    SCREEN: EMOJI DASH
     ========================================================
     -->
-    <div id="musicManiaScreen" class="screen flex-col items-center p-4">
-        <div class="flex-grow flex flex-col items-center w-full max-w-md pt-6 pb-24">
-            <h1 class="text-3xl font-bold mb-2 ui-text-effect">Music Mania</h1>
-            <p class="text-sm text-gray-300 text-center mb-4">
-                Build a dedicated deck and ride the rhythm. Tap Start, jump the obstacles, and clear a Geometry Dash-style run where every obstacle is inspired by the cards you choose.
-            </p>
-            <div class="music-deck-summary text-sm text-gray-400 mb-3">
-                <span id="musicDeckCount">0 / 8</span>
-                <span id="musicBestDistance" class="ml-4">Best: 0</span>
+    <div id="emojiDashScreen" class="screen flex-col items-center p-4">
+        <div class="flex-grow flex flex-col items-center w-full max-w-4xl pt-8 pb-24 gap-4">
+            <div class="w-full flex justify-center">
+                <div class="emoji-dash-play-wrapper">
+                    <canvas id="emojiDashCanvas" width="768" height="360" class="w-full rounded-xl border border-white/20 shadow-2xl"></canvas>
+                </div>
             </div>
-            <div id="musicDeckGrid" class="music-deck-grid grid grid-cols-4 gap-2 w-full mb-2"></div>
-            <p class="text-xs text-gray-500 mb-3 text-center">Tap deck cards to remove them, then add new cards from the pool below.</p>
-            <div id="musicCollectionGrid" class="grid grid-cols-4 gap-2 w-full"></div>
-            <div class="music-runner-wrapper mt-6 w-full bg-gradient-to-b from-slate-900 to-slate-800 rounded-2xl p-4 shadow-2xl">
-                <canvas id="musicCanvas" width="400" height="220" class="w-full rounded-xl bg-gradient-to-br from-indigo-900 to-slate-900 shadow-inner border border-blue-500"></canvas>
-                <div id="musicStatusText" class="text-center text-gray-200 mt-3">Tap Start and Space to jump.</div>
-                <button id="musicStartButton" class="modal-btn w-full mt-3">Start Run</button>
-                <button id="musicManiaBackButton" class="modal-btn add w-full mt-2">Back to Menu</button>
+            <div id="emojiDashElixirBar" class="emoji-dash-elixir-shell w-full max-w-2xl">
+                <div id="emojiDashElixirFill" class="emoji-dash-elixir-fill"></div>
+                <span id="emojiDashElixirText" class="emoji-dash-elixir-text">10</span>
+            </div>
+            <div id="emojiDashLevelPanel" class="emoji-dash-level-panel w-full max-w-2xl flex justify-between items-center text-xs font-semibold uppercase tracking-[0.3em]">
+                <span id="emojiDashLevelLabel">Level 1 • Starter Run</span>
+                <span id="emojiDashTrophyLabel">0 trophies</span>
+            </div>
+            <div class="emoji-dash-controls w-full max-w-2xl text-white text-sm flex justify-between">
+                <span>D Move</span>
+                <span>Space Jump</span>
+            </div>
+            <div id="emojiDashDeckBar" class="w-full max-w-4xl grid grid-cols-4 gap-2"></div>
+            <div id="emojiDashResultOverlay">
+                <span id="emojiDashResultText"></span>
+                <span id="emojiDashResultRewardText"></span>
+                <button id="emojiDashResultMenuButton" class="bg-red-600 hover:bg-red-700">Back to Menu</button>
             </div>
         </div>
     </div>
-
     <!--
     ========================================================
     OVERLAY: QUARTER STAR AWARD
