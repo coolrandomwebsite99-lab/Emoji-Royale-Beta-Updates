@@ -447,6 +447,13 @@
                 radial-gradient(circle at 50% 40%, rgba(148, 163, 184, 0.25), transparent 60%),
                 linear-gradient(135deg, #0f172a 0%, #020617 70%, #0b1220 100%);
         }
+        canvas.arena-16 {
+            background-color: #020617;
+            background-image:
+                radial-gradient(circle at 50% 40%, rgba(14, 165, 233, 0.35), transparent 50%),
+                radial-gradient(circle at 15% 80%, rgba(59, 130, 246, 0.2), transparent 55%),
+                linear-gradient(135deg, #0f172a 0%, #020617 60%, #0ea5e9 100%);
+        }
 
         /*
          * Slight 3D effect for the battlefield. Tilting the canvas and adding a box shadow
@@ -1123,6 +1130,18 @@
             box-shadow: 0 0 5px rgba(0,0,0,0.5);
             z-index: 3;
         }
+        .card-ui-mirror-preview {
+            position: absolute;
+            bottom: 28px;
+            right: 6px;
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+            text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+            color: #f472b6;
+            z-index: 4;
+        }
         .card-ui-level {
             position: absolute;
             bottom: 4px;
@@ -1379,6 +1398,19 @@
             border: 4px dashed white;
             background: rgba(255, 255, 255, 0.2);
         }
+        #placementIndicator.mirror-preview {
+            border-color: #f472b6;
+            background: rgba(244, 114, 182, 0.35);
+            box-shadow: 0 0 20px rgba(244, 114, 182, 0.45);
+        }
+        #placementIndicator.mirror-preview-emoji {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            font-size: 2.3rem;
+        }
         #placementIndicator.cant-place {
             background: rgba(220, 38, 38, 0.4);
             border-color: #dc2626;
@@ -1624,9 +1656,10 @@
             </div>
 
             <!-- Collection Header -->
-            <div class="w-full flex items-center mb-4 px-2">
-                <h2 class="text-xl font-bold text-gray-300 flex-grow">Collection</h2>
-                <div class="h-px bg-gray-700 flex-grow ml-4"></div>
+            <div class="w-full flex flex-wrap items-center mb-4 px-2 gap-3">
+                <h2 class="text-xl font-bold text-gray-300">Collection</h2>
+                <input id="collectionSearch" type="text" placeholder="Search cards" class="bg-gray-700 text-sm text-white px-3 py-1 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 transition flex-grow max-w-sm" />
+                <div class="h-px bg-gray-700 flex-grow"></div>
             </div>
 
             <div id="collectionCardGrid" class="grid grid-cols-4 gap-2 mb-8 justify-items-center w-full">
@@ -1634,9 +1667,10 @@
             </div>
 
             <!-- Locked Header -->
-            <div class="w-full flex items-center mb-4 px-2">
-                <h2 class="text-xl font-bold text-gray-500 flex-grow">Locked</h2>
-                <div class="h-px bg-gray-800 flex-grow ml-4"></div>
+            <div class="w-full flex flex-wrap items-center mb-4 px-2 gap-3">
+                <h2 class="text-xl font-bold text-gray-500">Locked</h2>
+                <input id="lockedSearch" type="text" placeholder="Search locked cards" class="bg-gray-700 text-sm text-white px-3 py-1 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 transition flex-grow max-w-sm" />
+                <div class="h-px bg-gray-800 flex-grow"></div>
             </div>
 
             <div id="lockedCardGrid" class="grid grid-cols-4 gap-2 mb-4 justify-items-center w-full">
@@ -1798,6 +1832,13 @@
                             <p class="text-yellow-300">3500+ Trophies 🏆</p>
                         </div>
                     </div>
+                    <div class="arena-card" style="--arena-card-gradient: linear-gradient(135deg, #0f172a, #0ea5e9);">
+                        <span class="arena-emoji">🪞</span>
+                        <div>
+                            <h2 class="text-xl font-bold">Arena 16: Mirror Plateau</h2>
+                            <p class="text-yellow-300">3750+ Trophies 🏆</p>
+                        </div>
+                    </div>
                 </div>
             </div>
             <button id="arenaBackButton" class="arena-btn bg-gray-600 hover:bg-gray-700 mt-8 w-3/4">
@@ -1852,6 +1893,7 @@
             <button id="debugArena13" class="debug-btn bg-cyan-600 hover:bg-cyan-500">Jump to Arena 13 (3000 🏆)</button>
             <button id="debugArena14" class="debug-btn bg-emerald-900 hover:bg-emerald-800">Jump to Arena 14 (3250 🏆)</button>
             <button id="debugArena15" class="debug-btn bg-slate-900 hover:bg-slate-800">Jump to Arena 15 (3500 🏆)</button>
+            <button id="debugArena16" class="debug-btn bg-slate-900 hover:bg-slate-800">Jump to Arena 16 (3750 🏆)</button>
             <button id="debugUnlockAll" class="debug-btn bg-blue-600 hover:bg-blue-700">Unlock All Cards</button>
             <button id="debugUpgradeAll" class="debug-btn bg-purple-600 hover:bg-purple-700">Upgrade All Cards +1 Lvl</button>
             <button id="debugGetChest" class="debug-btn bg-yellow-600 hover:bg-yellow-700">Get a Free Chest 📦</button>
@@ -2083,11 +2125,11 @@
     <div id="updateLogOverlay">
         <!-- Animated header with battle scene and update icons -->
         <div class="flex justify-center items-center space-x-2 text-3xl mb-2">
-            <span class="animate-bounce">🪨</span>
-            <span class="animate-ping">⚰️</span>
-            <span class="animate-spin">🌊</span>
+            <span class="animate-bounce">✨</span>
+            <span class="animate-ping">🪞</span>
+            <span class="animate-spin">🧬</span>
         </div>
-        <h2 class="text-3xl font-bold mb-4">🪨 Update Log</h2>
+        <h2 class="text-3xl font-bold mb-4">📰 Update Log</h2>
 <div id="updateLogContent" class="text-left text-sm max-h-96 overflow-y-auto w-full max-w-md px-4 space-y-3">
             <!-- Update log content will be injected by JS -->
         </div>
@@ -2499,6 +2541,7 @@ const firebaseConfig = {
         // will spawn the evolved version and reset the counter.  These counters reset at the start of each match.
         let playerEvoCycleCounts = {};
         let aiEvoCycleCounts = {};
+        let ai2EvoCycleCounts = {};
 
         // --- Evolution Preview & Deck Control ---
         // When viewing a card in the modal, the player can toggle to see the evolved version
@@ -2509,6 +2552,21 @@ const firebaseConfig = {
         // when the card's evolution has been unlocked. This is saved with the user's data.
         let evoUnlockedCards = {};
         let matchEvoSlots = { single: [], '2v2': [], 'party1v1': [], emojiDash: [] };
+        function shouldSpawnAiEvolution(cardId, cardDef, cycleStore, allowEvolution = false) {
+            if (!allowEvolution || !cardId || !cardDef || !cardDef.evo || !cycleStore) return false;
+            try {
+                const requiredCycles = Math.max(1, cardDef.evo.cycle || 1);
+                const currentCount = cycleStore[cardId] || 0;
+                if (currentCount >= requiredCycles) {
+                    cycleStore[cardId] = 0;
+                    return true;
+                }
+                cycleStore[cardId] = currentCount + 1;
+            } catch (err) {
+                console.warn('AI evolution counter error', err);
+            }
+            return false;
+        }
         let playerDeck = [];
         let playerDeck2v2 = [];
         let playerDeckParty = [];
@@ -2516,11 +2574,16 @@ const firebaseConfig = {
         let gameDeck = [];
         let hand = [];
         let nextCard = null;
+        let collectionSearchTerm = '';
+        let lockedSearchTerm = '';
         let discardPile = [];
         let aiDeck = [];
         let aiHand = [];
         let aiNextCard = null;
         let aiDiscardPile = [];
+        let aiDeckArena = 1;
+        let aiCanUseEvo = false;
+        let ai2CanUseEvo = false;
         let towerLevel = 1;
         let towerCardCount = 0;
         let selectedTower = 'princess';
@@ -2568,7 +2631,7 @@ const firebaseConfig = {
          * Diddy's Prison is Arena 11 (2500 trophies), Mythic Arena is Arena 12 (2750 trophies),
          * and the new Aqua Arena unlocks at 3000 trophies.
          */
-        const arenaFloors = { 0: "Arena 1: Emoji Valley", 250: "Arena 2: Laughing Village", 500: "Arena 3: Lava Town", 750: "Arena 4: The Farm", 1000: "Arena 5: Skull Kingdom", 1250: "Arena 6: Warlock's Workshop", 1500: "Arena 7: Mages Graveyard", 1750: "Arena 8: Chaos Canyon", 2000: "Arena 9: Titan's Peak", 2250: "Arena 10: Chaos Realm", 2500: "Arena 11: Diddy's Prison", 2750: "Arena 12: Mythic Arena", 3000: "Arena 13: Aqua Arena", 3250: "Arena 14: Forsaken Lands", 3500: "Arena 15: Buried Kingdom" };
+        const arenaFloors = { 0: "Arena 1: Emoji Valley", 250: "Arena 2: Laughing Village", 500: "Arena 3: Lava Town", 750: "Arena 4: The Farm", 1000: "Arena 5: Skull Kingdom", 1250: "Arena 6: Warlock's Workshop", 1500: "Arena 7: Mages Graveyard", 1750: "Arena 8: Chaos Canyon", 2000: "Arena 9: Titan's Peak", 2250: "Arena 10: Chaos Realm", 2500: "Arena 11: Diddy's Prison", 2750: "Arena 12: Mythic Arena", 3000: "Arena 13: Aqua Arena", 3250: "Arena 14: Forsaken Lands", 3500: "Arena 15: Buried Kingdom", 3750: "Arena 16: Mirror Plateau" };
         const sortedArenaFloors = Object.keys(arenaFloors).map(Number).sort((a, b) => a - b);
         function getArenaNumberFromFloor(floor = 0) {
             for (let i = sortedArenaFloors.length - 1; i >= 0; i--) {
@@ -3007,6 +3070,7 @@ const firebaseConfig = {
             let gameObjects = [];
             let playerElixir = 7; // Start with 7 elixir instead of 3
             let gameRunning = false;
+            const lastPlayedCardByTeam = { player: null, ai: null };
 
             // --- DOM Elements ---
             const screens = document.querySelectorAll('.screen');
@@ -3285,6 +3349,7 @@ const firebaseConfig = {
             const debugArena13 = document.getElementById('debugArena13');
             const debugArena14 = document.getElementById('debugArena14');
             const debugArena15 = document.getElementById('debugArena15');
+            const debugArena16 = document.getElementById('debugArena16');
             const debugUnlockAll = document.getElementById('debugUnlockAll');
             const debugUpgradeAll = document.getElementById('debugUpgradeAll');
             const debugGetChest = document.getElementById('debugGetChest');
@@ -3470,6 +3535,12 @@ const firebaseConfig = {
 
             function displayUpdateLogContent() {
             const updates = [
+                    { date: '12/11/2025', title: 'Mirror Plateau Launch', items: [
+                        '💎 Arena 16: Mirror Plateau opens with a crystal floor so the final arena finally has its own horizon.',
+                        '🪄 Clone (Spell) duplicates every friendly troop inside the circle into 1 HP impostors with a distinctive aura so they are easy to spot and cannot be cloned again.',
+                        '🪞 Mirror (Spell) immediately replays the last non-Mirror card for +1 elixir and +1 level while skipping evolutions so it always mirrors the base form, and it cannot be cast before another card.',
+                        '🧿 Goblin Hex (Spell) lays a cursed ring that slowly damages trapped enemies, then turns anything that dies inside it into a Goblin even if the kill came from another source.'
+                    ]},
                     { date: '12/10/2025', title: 'Buried Kingdom Chronicle', items: [
                         '🪨 Arena 15: Buried Kingdom (3500 trophies) unveils buried stone floors, a debug jump button on the arenas screen, and lighting that matches every new card.',
                         '🌍 Earth Spirit (3 elixir) spans a 60px circle that freezes every troop once, slows them by 25% (air included), and disappears without a health bar after the effect ends.',
@@ -4354,6 +4425,9 @@ const firebaseConfig = {
                 } else if (arenaDisplayName.includes("Buried Kingdom")) {
                     emoji = "🗿";
                     currentArenaTheme = 'arena-15';
+                } else if (arenaDisplayName.includes("Mirror Plateau")) {
+                    emoji = "🪞";
+                    currentArenaTheme = 'arena-16';
                 } else if (arenaDisplayName.includes("Aqua Arena")) {
                     emoji = "🌊";
                     currentArenaTheme = 'arena-13';
@@ -5746,6 +5820,15 @@ if (chestCloseButton) {
                         showScreen('menu');
                     };
                 }
+                if (debugArena16) {
+                    debugArena16.onclick = null;
+                    debugArena16.onclick = () => {
+                        trophies = 3750;
+                        updateArena();
+                        saveUserData();
+                        showScreen('menu');
+                    };
+                }
                 if (debugUnlockAll) {
                     debugUnlockAll.onclick = null;
                     debugUnlockAll.onclick = () => {
@@ -5941,6 +6024,14 @@ if (chestCloseButton) {
                 const cardData = cardCollection[cardId] || { level: 1, count: 0, unlocked: false };
                 const isParty = (gameMode === '2v2' || gameMode === 'party1v1');
                 const isEmojiDashMode = (gameMode === 'emojiDash');
+                const collectionSearchInput = document.getElementById('collectionSearch');
+                if (collectionSearchInput) {
+                    collectionSearchInput.value = collectionSearchTerm;
+                }
+                const lockedSearchInput = document.getElementById('lockedSearch');
+                if (lockedSearchInput) {
+                    lockedSearchInput.value = lockedSearchTerm;
+                }
                 const emojiDashRestricted = isEmojiDashMode && isEmojiDashRestrictedCard(card);
                 const generalLocked = !inHand && (!cardData || !cardData.unlocked);
                 const isLocked = emojiDashRestricted || (!isEmojiDashMode && !isParty && generalLocked);
@@ -6166,31 +6257,67 @@ if (chestCloseButton) {
                 });
                 
                 // Render Collection & Locked Cards (SMALL CARDS, isSmall=true)
-                for (const cardId in allCards) {
-                    if (cardId === 'tower' || cardId === 'miniStoneGiant') continue; 
-                    
+                const sortedCardIds = Object.keys(allCards)
+                    .filter(cardId => cardId !== 'tower' && cardId !== 'miniStoneGiant')
+                    .sort((a, b) => {
+                        const arenaA = (allCards[a] && typeof allCards[a].arena === 'number') ? allCards[a].arena : Infinity;
+                        const arenaB = (allCards[b] && typeof allCards[b].arena === 'number') ? allCards[b].arena : Infinity;
+                        if (arenaA !== arenaB) return arenaA - arenaB;
+                        return a.localeCompare(b);
+                    });
+                const collectionFilterLower = (collectionSearchTerm || '').toLowerCase();
+                const lockedFilterLower = (lockedSearchTerm || '').toLowerCase();
+                for (const cardId of sortedCardIds) {
                     const cardData = cardCollection[cardId];
                     const specialMode = (gameMode === '2v2' || gameMode === 'party1v1' || gameMode === 'emojiDash');
                     const isLocked = specialMode ? false : (!cardData || !cardData.unlocked);
-                    
                     const cardEl = createCardDOM(cardId, true);
                     if (!cardEl) continue;
                     cardEl.addEventListener('click', () => openCardModal(cardId));
-                    
+                    const cardName = (allCards[cardId] && allCards[cardId].name) ? allCards[cardId].name.toLowerCase() : cardId.toLowerCase();
+                    const normalizedText = `${cardName} ${cardId.toLowerCase()}`;
+                    const matchesCollection = !collectionFilterLower || normalizedText.includes(collectionFilterLower);
+                    const matchesLocked = !lockedFilterLower || normalizedText.includes(lockedFilterLower);
+
                     if (isParty) {
-                        // In party modes, all cards go to collection and visually look unlocked
-                        collectionCardGrid.appendChild(cardEl);
+                        if (matchesCollection) {
+                            collectionCardGrid.appendChild(cardEl);
+                        }
                     } else {
-                        // Normal mode: respect locks
                         if (isLocked) {
-                            lockedCardGrid.appendChild(cardEl);
-                        } else {
+                            if (matchesLocked) {
+                                lockedCardGrid.appendChild(cardEl);
+                            }
+                        } else if (matchesCollection) {
                             collectionCardGrid.appendChild(cardEl);
                         }
                     }
                 }
                 
                 updateBattleButtonState();
+            }
+
+            function attachDeckSearchHandlers() {
+                const collectionSearchInput = document.getElementById('collectionSearch');
+                if (collectionSearchInput) {
+                    collectionSearchInput.addEventListener('input', (e) => {
+                        collectionSearchTerm = e.target.value || '';
+                        renderDeckScreen();
+                    });
+                }
+                const lockedSearchInput = document.getElementById('lockedSearch');
+                if (lockedSearchInput) {
+                    lockedSearchInput.addEventListener('input', (e) => {
+                        lockedSearchTerm = e.target.value || '';
+                        renderDeckScreen();
+                    });
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', attachDeckSearchHandlers);
+            } else {
+                attachDeckSearchHandlers();
             }
             
             function renderTowerScreen() {
@@ -7495,15 +7622,13 @@ function getDeckForMode(mode = gameMode) {
     return playerDeck;
 }
 
-function selectMatchEvoSlots(deck) {
+            function selectMatchEvoSlots(deck) {
     if (!deck || !deck.length) return [];
-    const shuffled = shuffleDeck([...deck]);
-    return shuffled.slice(0, Math.min(2, shuffled.length));
+    return deck.slice(0, Math.min(2, deck.length));
 }
 
-function ensureMatchEvoSlotsForMode(modeKey) {
+            function ensureMatchEvoSlotsForMode(modeKey) {
     if (!modeKey) return;
-    if (matchEvoSlots[modeKey] && matchEvoSlots[modeKey].length > 0) return;
     let deckToUse = playerDeck;
     if (modeKey === '2v2') deckToUse = playerDeck2v2;
     else if (modeKey === 'party1v1') deckToUse = playerDeckParty;
@@ -7589,7 +7714,23 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                 e.preventDefault(); // Prevent scrolling/other actions
                 if (!gameRunning) return;
                 const card = allCards[cardId];
-                if (card.cost > playerElixir) { console.log("Not enough elixir!"); return; }
+                const isMirror = cardId === 'mirror';
+                const mirrorCost = isMirror ? getMirrorRequiredCost() : null;
+                let requiredCost = card.cost;
+                if (isMirror) {
+                    if (mirrorCost === null) {
+                        console.log('Mirror cannot replay spells or there is no previous card.');
+                        return;
+                    }
+                    requiredCost = mirrorCost;
+                }
+                if (requiredCost > playerElixir) {
+                    console.log(isMirror ? 'Not enough elixir for Mirror replay.' : 'Not enough elixir!');
+                    return;
+                }
+                if (selectedSpawningUnit && selectedSpawningUnit.cardCostEl) {
+                    resetMirrorCostDisplay(selectedSpawningUnit);
+                }
                 
                 // Deselect if already selected
                 if (selectedSpawningUnit && selectedSpawningUnit.id === cardId) {
@@ -7621,13 +7762,32 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                     isSpawningSpell = true;
                     spellRadius = card.radius;
                     placementIndicator.className = 'spell';
-                    placementIndicator.style.width = `${card.radius * 2}px`;
-                    placementIndicator.style.height = `${card.radius * 2}px`;
+                    const indicatorDiameter = Math.max(70, (card.radius || 32) * 2);
+                    placementIndicator.style.width = `${indicatorDiameter}px`;
+                    placementIndicator.style.height = `${indicatorDiameter}px`;
+                    placementIndicator.innerHTML = '';
+                    placementIndicator.classList.remove('mirror-preview');
+                    selectedSpawningUnit.mirrorCost = undefined;
+                    selectedSpawningUnit.cardCostEl = undefined;
+                    selectedSpawningUnit.originalCostText = undefined;
+                    if (cardId === 'mirror') {
+                        selectedSpawningUnit.cost = mirrorCost;
+                        selectedSpawningUnit.mirrorCost = mirrorCost;
+                        selectedSpawningUnit.cardCostEl = cardEl.querySelector('.card-ui-cost');
+                        selectedSpawningUnit.originalCostText = selectedSpawningUnit.cardCostEl ? selectedSpawningUnit.cardCostEl.textContent : null;
+                        if (selectedSpawningUnit.cardCostEl) {
+                            selectedSpawningUnit.cardCostEl.textContent = mirrorCost;
+                        }
+                        placementIndicator.classList.add('mirror-preview');
+                        const previousCard = lastPlayedCardByTeam.player ? allCards[lastPlayedCardByTeam.player.cardId] : null;
+                        const mirrorEmoji = (previousCard && previousCard.emoji) ? previousCard.emoji : '??';
+                        placementIndicator.innerHTML = `<span class="mirror-preview-emoji">${mirrorEmoji}</span>`;
+                    }
                     if (cardId === 'poison') { // NEW: Poison color
                         placementIndicator.style.background = 'rgba(234, 179, 8, 0.2)';
                         placementIndicator.style.borderColor = '#eab308';
                     } else if (cardId === 'anger') { // NEW: Anger color
-                        placementIndicator.style.background = 'rgba(147, 51, 234, 0.2)';
+                        placementIndicator.style.background = 'rgba(147, 51, 234, 0.1)';
                         placementIndicator.style.borderColor = '#9333ea';
                     }
                 } else if (card.type === 'Spirit') { // NEW: Handle spirits
@@ -7654,20 +7814,31 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                 movePlacementIndicator(initialPos);
             }
             
+            function resetMirrorCostDisplay(unit) {
+                if (!unit || !unit.cardCostEl) return;
+                const baseCost = allCards[unit.id]?.cost ?? unit.cost ?? '1';
+                unit.cardCostEl.textContent = unit.originalCostText ?? baseCost;
+                unit.cardCostEl = null;
+                unit.originalCostText = null;
+                unit.mirrorCost = undefined;
+            }
+
             function cancelPlacement() {
                 isSpawningSpell = false;
                 placementIndicator.style.display = 'none';
                 placementIndicator.style.background = 'rgba(255, 255, 255, 0.2)'; // NEW: Reset poison/anger color
                 placementIndicator.style.borderColor = 'white';
                 placementOverlay.style.display = 'none'; // Hide red overlay
+                resetMirrorCostDisplay(selectedSpawningUnit);
                 selectedSpawningUnit = null;
                 isDragging = false; // NEW
                 document.querySelectorAll('#cardHand .card-ui.selected').forEach(c => c.classList.remove('selected'));
                 updateCardUI();
             }
 
-            function playCard(cardId, handIndex) {
-                playerElixir -= allCards[cardId].cost;
+            function playCard(cardId, handIndex, costOverride) {
+                const costToUse = typeof costOverride === 'number' ? costOverride : allCards[cardId].cost;
+                playerElixir -= costToUse;
                 discardPile.push(cardId);
                 hand.splice(handIndex, 1);
                 hand.push(nextCard);
@@ -7838,11 +8009,159 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                     ctx.restore(); // Restore scale/translate
 
                     this.drawHealthBar(level); 
-                }
-                update() {}
             }
+            update() {}
+        }
 
-            class DeathEffect extends GameObject {
+        class CloneSpell extends GameObject {
+            constructor(x, y, team, radius) {
+                super(x, y, radius, team, 1);
+                this.duration = 45;
+                this.lifetime = this.duration;
+                this.spawned = false;
+            }
+            spawnClones() {
+                for (const obj of gameObjects) {
+                    if (obj === this) continue;
+                    if (!(obj instanceof Unit)) continue;
+                    if (obj.team !== this.team) continue;
+                    if (obj.health <= 0) continue;
+                    if (obj.isSpellClone) continue;
+                    if (getDistance(this, obj) > this.radius + (obj.radius || 0)) continue;
+                    try {
+                        const clone = new obj.constructor(obj.x + (Math.random() - 0.5) * 10, obj.y + (Math.random() - 0.5) * 10, this.team, obj.level);
+                        if (clone instanceof GameObject) {
+                            clone.isSpellClone = true;
+                            clone.maxHealth = 1;
+                            clone.health = 1;
+                            clone._cloneOrigin = obj.constructor.name;
+                            gameObjects.push(clone);
+                        }
+                    } catch (err) {
+                        console.warn('Clone spawn failed', err);
+                    }
+                }
+            }
+            update() {
+                if (!this.spawned) {
+                    this.spawned = true;
+                    this.spawnClones();
+                }
+                this.lifetime -= deltaTime * 60;
+                if (this.lifetime <= 0) {
+                    this.health = 0;
+                }
+            }
+            draw() {
+                const alpha = Math.sin((this.lifetime / this.duration) * Math.PI) * 0.4;
+                ctx.save();
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                gradient.addColorStop(0, `rgba(14, 165, 233, ${alpha})`);
+                gradient.addColorStop(1, 'rgba(14, 165, 233, 0)');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = `rgba(236, 72, 153, ${alpha})`;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        class GoblinHexEffect extends GameObject {
+            constructor(x, y, team, radius, duration, damagePerSecond) {
+                super(x, y, radius, team, 1);
+                this.duration = (duration || 6) * 60;
+                this.lifetime = this.duration;
+                this.damagePerSecond = damagePerSecond || 30;
+                this.tickInterval = 15;
+                this.tickTimer = this.tickInterval;
+                this.trackedTargets = new Set();
+            }
+            update() {
+                const frameDelta = Math.max(1, deltaTime * 60);
+                this.lifetime -= frameDelta;
+                if (this.lifetime <= 0) {
+                    this.cleanup();
+                    this.health = 0;
+                    return;
+                }
+                this.tickTimer -= frameDelta;
+                if (this.tickTimer <= 0) {
+                    this.tickTimer = this.tickInterval;
+                    const tickDamage = Math.max(1, Math.round(this.damagePerSecond * (this.tickInterval / 60)));
+                    for (const obj of gameObjects) {
+                        if (!obj || obj.team === this.team) continue;
+                        if (!(obj instanceof Unit) && !(obj instanceof Building) && !(obj instanceof Tower)) continue;
+                        const dist = getDistance(this, obj);
+                        const threshold = this.radius + (obj.radius || 0);
+                        if (dist <= threshold) {
+                            applyDamage(obj, tickDamage);
+                            obj._goblinHexSource = this;
+                            obj._goblinHexInside = true;
+                            obj._goblinHexSpawned = obj._goblinHexSpawned || false;
+                            this.trackedTargets.add(obj);
+                        } else if (obj._goblinHexSource === this) {
+                            obj._goblinHexInside = false;
+                            obj._goblinHexSource = null;
+                            obj._goblinHexSpawned = false;
+                            this.trackedTargets.delete(obj);
+                        }
+                    }
+                }
+            }
+            spawnGoblinFrom(target) {
+                if (!target) return;
+                this.trackedTargets.delete(target);
+                target._goblinHexSource = null;
+                target._goblinHexInside = false;
+                target._goblinHexSpawned = true;
+                const x = target.x;
+                const y = target.y;
+                const level = Math.min(15, Math.max(1, (target.level || 1)));
+                const spawnPerUnit = 1;
+                for (let i = 0; i < spawnPerUnit; i++) {
+                    const offsetX = (Math.random() - 0.5) * 18;
+                    const offsetY = (Math.random() - 0.5) * 18;
+                    const goblin = new Goblin(x + offsetX, y + offsetY, this.team, level);
+                    if (goblin instanceof GameObject) {
+                        gameObjects.push(goblin);
+                    }
+                }
+            }
+            cleanup() {
+                this.trackedTargets.forEach(obj => {
+                    if (obj) {
+                        obj._goblinHexInside = false;
+                        if (obj._goblinHexSource === this) obj._goblinHexSource = null;
+                    }
+                });
+                this.trackedTargets.clear();
+            }
+            draw() {
+                const progress = Math.max(0, Math.min(1, this.lifetime / this.duration));
+                const alpha = Math.sin(progress * Math.PI) * 0.35;
+                ctx.save();
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                gradient.addColorStop(0, `rgba(16, 185, 129, ${alpha * 0.8})`);
+                gradient.addColorStop(1, 'rgba(5, 150, 105, 0)');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = `rgba(5, 150, 105, ${alpha})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        class DeathEffect extends GameObject {
                 constructor(x, y, emoji) {
                     super(x, y, 0, 'neutral', 1);
                     this.emoji = emoji;
@@ -7982,6 +8301,12 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                     target.health -= amount;
                     if (amount > 0) {
                         gameObjects.push(new DamageText(target.x, target.y - (target.radius || 10), amount));
+                    }
+                    if (target.health <= 0) {
+                        const hexSource = target._goblinHexSource;
+                        if (hexSource && target._goblinHexInside && !target._goblinHexSpawned) {
+                            hexSource.spawnGoblinFrom(target);
+                        }
                     }
                 }
             }
@@ -8788,14 +9113,23 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                     if (this._zombieMark) {
                         ctx.save();
                         const auraColor = this._zombieMark.type === 'necromancer' ? 'rgba(16, 185, 129, 0.85)' : 'rgba(34, 197, 94, 0.7)';
-                        ctx.strokeStyle = auraColor;
-                        ctx.lineWidth = 3;
-                        ctx.beginPath();
-                        ctx.arc(this.x, this.y, this.radius + 8, 0, Math.PI * 2);
-                        ctx.stroke();
-                        ctx.restore();
-                    }
+                    ctx.strokeStyle = auraColor;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius + 8, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
                 }
+                if (this.isSpellClone) {
+                    ctx.save();
+                    ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius + 5, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
             }
 
             function tryRiverJump(unit, jumpDelay = 1, jumpDuration = 20, jumpHeight = 45) {
@@ -9955,12 +10289,6 @@ function ensureMatchEvoSlotsForMode(modeKey) {
                         // Create splash projectile
                         gameObjects.push(new FireballProjectile(this.x, this.y, this.target, this.team, this.attackDamage, this.splashRadius));
                         this.cooldownTimer = this.attackCooldown;
-                        markUnitAsZombie(this.target, this.team, 'necromancer', {
-                            level: this.level,
-                            nerf: true,
-                            templateCard: 'necromancerZombie',
-                            variant: 'necromancer'
-                        });
                     }
                 }
             }
@@ -12212,7 +12540,7 @@ class StoneGiant extends Unit {
                                 // Evolution: Each skeleton clones itself on each attack up to a max of 10 skeletons.
                                 evo: { cycle: 1, desc: 'On each attack, clones itself up to a maximum of 10 skeletons at a time.', stats: { count: 4, health: 14, damage: 11, hitSpeed: 1.2, speed: 1.2 } } },
                     'tinyBot': { name: 'Tiny Bot', cost: 4, emoji: '🤖', type: 'Melee', unitClass: TinyBot, placementRadius: 10, isFlying: false, arena: 1, targets: 'Ground', aggroRange: 100,
-                                stats: { 1: { health: 700, damage: 250, hitSpeed: 1.8, speed: 0.7 } } },
+                                stats: { 1: { health: 630, damage: 220, hitSpeed: 1.9, speed: 0.68 } } },
                     'fireball': { name: 'Fireball', cost: 4, emoji: '🔥', type: 'Spell', radius: 50, placementRadius: 50, arena: 1, targets: 'Air & Ground',
                                 stats: { 1: { damage: 250 } },
                                 // Evolution: Leaves a lingering fire that deals additional damage in an area.
@@ -12232,15 +12560,15 @@ class StoneGiant extends Unit {
                     'fireDragon': { name: 'Fire Dragon', cost: 4, emoji: '🐲', type: 'Air', unitClass: FireDragon, placementRadius: 14, isFlying: true, arena: 3, targets: 'Air & Ground', aggroRange: 120,
                                 stats: { 1: { health: 800, damage: 100, hitSpeed: 1.0, speed: 0.8, splashRadius: 20 } } },
                     'barbarians': { name: 'Barbarians', cost: 5, emoji: '🧔', type: 'Swarm', unitClass: Barbarians, placementRadius: 10, isFlying: false, arena: 3, targets: 'Ground', aggroRange: 100,
-                                stats: { 1: { count: 5, health: 300, damage: 45, hitSpeed: 1.4, speed: 0.8 } },
+                                stats: { 1: { count: 5, health: 330, damage: 48, hitSpeed: 1.3, speed: 0.85 } },
                                 // Evolution: Each barbarian starts with a shield that blocks two hits.
-                                evo: { cycle: 2, desc: 'Each barbarian gains a shield that blocks two hits from any attack before breaking.', stats: { count: 5, health: 300, damage: 45, hitSpeed: 1.4, speed: 0.8 } } },
+                                evo: { cycle: 2, desc: 'Each barbarian gains a shield that blocks two hits from any attack before breaking.', stats: { count: 5, health: 330, damage: 48, hitSpeed: 1.3, speed: 0.85 } } },
                     'battleRam': { name: 'Battle Ram', cost: 4, emoji: '🌲', type: 'WinCon', unitClass: BattleRam, placementRadius: 10, isFlying: false, arena: 3, targets: 'Buildings', aggroRange: 100,
                                 stats: { 1: { health: 250, damage: 200, chargeSpeed: 2.0, barbLevel: 1, speed: 0.8 } } },
                     'barbarianHut': { name: 'Barbarian House', cost: 7, emoji: '🏘️', type: 'Building', unitClass: BarbarianHut, placementRadius: 20, isFlying: false, arena: 3, targets: '-',
                                 stats: { 1: { health: 1000, spawn_speed: '10s', lifetime: '40s', barbLevel: 1 } } },
                     'axeSwinger': { name: 'Axe Swinger', cost: 4, emoji: '🪓', type: 'Melee', unitClass: AxeSwinger, placementRadius: 12, isFlying: false, arena: 3, targets: 'Ground', aggroRange: 100,
-                                stats: { 1: { health: 700, damage: 100, hitSpeed: 1.5, splashRadius: 24, speed: 0.8 } } },
+                                stats: { 1: { health: 700, damage: 100, hitSpeed: 1.5, splashRadius: 32, speed: 0.8 } } },
                     // Arena 4 (NEW CARDS)
                     'pigs': { name: 'Pigs', cost: 4, emoji: '🐷', type: 'WinCon', unitClass: Pigs, placementRadius: 10, isFlying: false, arena: 4, targets: 'Buildings', aggroRange: 100,
                                 stats: { 1: { count: 4, health: 220, damage: 35, hitSpeed: 1.1, speed: 1.2 } } },
@@ -12370,6 +12698,13 @@ class StoneGiant extends Unit {
                                 stats: { 1: { health: 950, damage: 40, hitSpeed: 1.5, speed: 0.7, chainRadius: 90, chainLimit: 10 } } },
                     'pigJockey': { name: 'Pig Jockey', cost: 4, emoji: '🐷🏇', type: 'WinCon', unitClass: PigJockey, placementRadius: 12, isFlying: false, arena: 12, targets: 'Buildings', aggroRange: 150,
                                 stats: { 1: { health: 950, damage: 110, hitSpeed: 1.2, speed: 1.2, riverJumpDelay: 0.5, riverJumpDuration: 34, riverJumpHeight: 38 } } },
+                    'clone': { name: 'Clone', cost: 5, emoji: '🪄', type: 'Spell', radius: 85, placementRadius: 90, arena: 16, targets: 'Ground & Air',
+                                stats: { 1: { duration: 1, cloneRadius: 85 } } },
+                    'mirror': { name: 'Mirror', cost: 1, emoji: '🪞', type: 'Spell', radius: 0, placementRadius: 0, arena: 16, targets: '-',
+                                stats: { 1: {} } },
+                    'goblinHex': { name: 'Goblin Hex', cost: 5, emoji: '🧿', type: 'Spell', radius: 90, placementRadius: 90, arena: 16, targets: 'Air & Ground',
+                                stats: { 1: { duration: 6, damagePerSecond: 35 } } },
+
                     'tower': { name: 'Tower Upgrade', emoji: '👑' }
                 };
                 
@@ -12804,6 +13139,8 @@ class StoneGiant extends Unit {
                 constructor(x, y, team, level = 1) {
                     const s = allCards['diddyGiant'].stats[level];
                     super(x, y, 18, team, s.health, s.speed, 30, s.damage, s.hitSpeed, '🐵💪', false, false, level, allCards['diddyGiant'].aggroRange || 100);
+                    this.isWinCondition = true;
+                    this.ignoresTroops = true;
                     // Radius of the anger aura
                     this.auraRadius = 80;
                     // Track units buffed by this giant to revert them when necessary
@@ -13046,18 +13383,43 @@ class StoneGiant extends Unit {
                     } else { progress = 100; } // Max level
                     progressBarHTML = `<div class="card-ui-progress-bar"><div class="card-ui-progress ${canUpgrade ? 'can-upgrade' : ''}" style="width: ${Math.min(100, progress)}%;"></div></div>`;
                 } else { levelTextHTML = ''; }
-                cardEl.innerHTML = `<div class="card-ui-cost">${card.cost}</div><span class="card-ui-name">${card.name}</span><span class="card-ui-emoji">${card.emoji}</span><span class="card-ui-type">${card.type}</span>${levelTextHTML}${progressBarHTML}`;
+                const mirrorPreviewHTML = (cardId === 'mirror') ? '<span class="card-ui-mirror-preview"></span>' : '';
+                cardEl.innerHTML = `<div class="card-ui-cost">${card.cost}</div><span class="card-ui-name">${card.name}</span><span class="card-ui-emoji">${card.emoji}</span><span class="card-ui-type">${card.type}</span>${levelTextHTML}${progressBarHTML}${mirrorPreviewHTML}`;
                 return cardEl;
             }
 
             function updateCardUI() {
                 const elixirInt = Math.floor(playerElixir);
+                const mirrorRequirement = getMirrorRequiredCost();
+                const mirrorCardDef = allCards['mirror'];
+                const mirrorBaseCost = (mirrorCardDef && typeof mirrorCardDef.cost === 'number') ? mirrorCardDef.cost : 1;
+                const lastPlayerCard = lastPlayedCardByTeam.player ? allCards[lastPlayedCardByTeam.player.cardId] : null;
                 elixirBar.style.width = `${(playerElixir / MAX_ELIXIR) * 100}%`;
                 elixirText.textContent = elixirInt;
                 document.querySelectorAll('#cardHand .card-ui').forEach(cardEl => {
-                    const cost = parseInt(cardEl.dataset.cost);
-                    if (cost > elixirInt) { cardEl.classList.add('disabled'); }
-                    else { cardEl.classList.remove('disabled'); }
+                    const costEl = cardEl.querySelector('.card-ui-cost');
+                    if (!costEl) return;
+                    let costValue = parseInt(cardEl.dataset.cost, 10) || 0;
+                    if (cardEl.dataset.unit === 'mirror') {
+                        const dynamicCost = mirrorRequirement || mirrorBaseCost;
+                        costValue = dynamicCost;
+                        costEl.textContent = dynamicCost;
+                        cardEl.dataset.cost = dynamicCost;
+                        const previewEl = cardEl.querySelector('.card-ui-mirror-preview');
+                        if (previewEl) {
+                            const shouldShowPreview = mirrorRequirement && lastPlayerCard;
+                            const mirrorEmoji = shouldShowPreview ? (lastPlayerCard.emoji || '') : '';
+                            previewEl.textContent = mirrorEmoji;
+                            previewEl.style.opacity = mirrorEmoji ? '1' : '0';
+                        }
+                    }
+                    let disabled = costValue > elixirInt;
+                    if (cardEl.dataset.unit === 'mirror') {
+                        if (!mirrorRequirement || mirrorRequirement > elixirInt) {
+                            disabled = true;
+                        }
+                    }
+                    cardEl.classList.toggle('disabled', disabled);
                 });
             }
 
@@ -13091,7 +13453,6 @@ class StoneGiant extends Unit {
                 const deckToUse = getDeckForMode(gameMode);
                 const modeKey = getMatchModeKey();
                 ensureMatchEvoSlotsForMode(modeKey);
-                matchEvoSlots[modeKey] = selectMatchEvoSlots(deckToUse);
                 gameDeck = shuffleDeck(deckToUse);
                 hand = [];
                 discardPile = [];
@@ -13101,9 +13462,13 @@ class StoneGiant extends Unit {
                 
                 // AI
                 const aiArenaLevel = getAILevel(); // This reflects the current arena level (1-12)
+                const floorArenaNumber = Math.max(1, Math.min(13, getArenaNumberFromFloor(currentArenaFloor)));
+                aiDeckArena = floorArenaNumber || Math.max(1, Math.min(13, aiArenaLevel));
+                aiCanUseEvo = aiDeckArena >= 11;
+                ai2CanUseEvo = aiCanUseEvo;
                 
-                // AI gets cards from its arena level, NO tower card
-                const aiArenaCards = getUnlockedCards(false, aiArenaLevel, gameMode);
+                // AI gets cards from its arena pool, NO tower card
+                const aiArenaCards = getUnlockedCards(false, aiDeckArena, gameMode);
                 
                 // Build a random 8-card deck
                 aiDeck = [];
@@ -13141,8 +13506,9 @@ class StoneGiant extends Unit {
                 }
             }
 
-            function playCard(cardId, handIndex) {
-                playerElixir -= allCards[cardId].cost;
+            function playCard(cardId, handIndex, costOverride) {
+                const costToUse = typeof costOverride === 'number' ? costOverride : allCards[cardId].cost;
+                playerElixir -= costToUse;
                 discardPile.push(cardId);
                 hand.splice(handIndex, 1);
                 hand.push(nextCard);
@@ -13194,6 +13560,7 @@ class StoneGiant extends Unit {
                 // These counters track how many times each card has been played since the last evolved placement.
                 playerEvoCycleCounts = {};
                 aiEvoCycleCounts = {};
+                ai2EvoCycleCounts = {};
                 
                 messageOverlay.style.display = 'none';
                 startButton.style.display = 'none';
@@ -13725,23 +14092,96 @@ class StoneGiant extends Unit {
             ctx.restore();
         }
     }
+            function getMirrorRequiredCost() {
+                const previous = lastPlayedCardByTeam.player;
+                if (!previous) return null;
+                const prevCard = allCards[previous.cardId];
+                if (prevCard && prevCard.type === 'Spell') return null;
+                const baseCost = previous.cost || prevCard?.cost || 0;
+                return Math.max(1, baseCost + 1);
+            }
+
+            function recordLastCardPlay(team, cardId, level, isEvo, cost) {
+                if (!team || !cardId || cardId === 'mirror') return;
+        const normalizedLevel = Math.min(15, Math.max(1, level || 1));
+        lastPlayedCardByTeam[team] = {
+            cardId,
+            level: normalizedLevel,
+            isEvo: !!isEvo,
+            cost: typeof cost === 'number' ? cost : (allCards[cardId]?.cost || 0)
+        };
+    }
+
+    function spawnSpellForCard(cardId, team, level, x, y, isEvo = false) {
+        const card = allCards[cardId];
+        if (!card) return false;
+        const stats = card.stats[level] || card.stats[1] || {};
+        if (cardId === 'poison') {
+            gameObjects.push(new PoisonSpell(x, y, team, stats.damagePerSecond, card.radius, stats.duration));
+            return true;
+        }
+        if (cardId === 'anger') {
+            gameObjects.push(new AngerSpell(x, y, team, card.radius, stats.duration, stats.damage));
+            return true;
+        }
+        if (cardId === 'voidTrap') {
+            const damage = stats.damage || 0;
+            gameObjects.push(new VoidTrapEffect(x, y, team, card.radius, damage));
+            return true;
+        }
+        if (cardId === 'chaosOrb') {
+            const damage = stats.damage || 0;
+            gameObjects.push(new ChaosOrbEffect(x, y, team, card.radius, damage));
+            return true;
+        }
+        if (cardId === 'skeletonYard') {
+            gameObjects.push(new SkeletonYard(x, y, team, stats.duration || 6, card.radius, level));
+            return true;
+        }
+        if (cardId === 'tornado') {
+            gameObjects.push(new TornadoSpell(x, y, team, card.radius, stats.duration, stats.pullStrength, stats.damagePerSecond, card.emoji));
+            return true;
+        }
+        if (cardId === 'meteor') {
+            const damage = stats.damage || 0;
+            gameObjects.push(new Projectile(x, y - 200, { x, y, health: 1 }, team, damage, card.radius));
+            gameObjects.push(new Spell(x, y, team, damage, card.radius, card.emoji, isEvo));
+            return true;
+        }
+        if (cardId === 'diddyMiner') {
+            const miner = new DiddyMiner(x, y, team, level);
+            if (miner instanceof GameObject) {
+                gameObjects.push(miner);
+            }
+            return true;
+        }
+        const damage = stats.damage || stats.damagePerSecond || 0;
+        gameObjects.push(new Spell(x, y, team, damage, card.radius, card.emoji, isEvo));
+        return true;
+    }
+
+    function spawnMirroredCardAt(cardId, team, level, x, y) {
+        const card = allCards[cardId];
+        if (!card) return false;
+        const normalizedLevel = Math.min(15, Math.max(1, level || 1));
+        if (card.type === 'Spell') {
+            return spawnSpellForCard(cardId, team, normalizedLevel, x, y, false);
+        }
+        if (card.unitClass && typeof card.unitClass === 'function') {
+            const newUnit = new card.unitClass(x, y, team, normalizedLevel);
+            if (newUnit instanceof GameObject) {
+                gameObjects.push(newUnit);
+            }
+            return true; // Swarm/unit constructors manage their own pushes, so treat as success
+        }
+        return false;
+    }
+
     function spawnAIUnit(cardId, level, isDefensive = false) {
                 const card = allCards[cardId];
                 if (!card || card.cost > aiElixir) return;
 
-                let aiEvoSpawn = false;
-                if (evolutionsUnlocked && evoUnlockedCards && evoUnlockedCards[cardId]) {
-                    try {
-                        const requiredCycles = Math.max(1, (card && card.evo && card.evo.cycle) ? card.evo.cycle : 1);
-                        const nextCount = (aiEvoCycleCounts[cardId] || 0) + 1;
-                        if (nextCount >= requiredCycles) {
-                            aiEvoSpawn = true;
-                            aiEvoCycleCounts[cardId] = 0;
-                        } else {
-                            aiEvoCycleCounts[cardId] = nextCount;
-                        }
-                    } catch (err) {}
-                }
+                let aiEvoSpawn = shouldSpawnAiEvolution(cardId, card, aiEvoCycleCounts, aiCanUseEvo);
                 
                 // Get AI's level for this card (force 15 in 2v2 or Party 1v1)
                 const cardLevel = isMaxLevelMatch() ? 15 : level;
@@ -13784,6 +14224,7 @@ class StoneGiant extends Unit {
                             const damage = card.stats[cardLevel].damage;
                             gameObjects.push(new Spell(target.x, target.y, 'ai', damage, card.radius, card.emoji, aiEvoSpawn));
                         }
+                        recordLastCardPlay('ai', cardId, cardLevel, aiEvoSpawn, card.cost);
                         aiPlayCard(cardId);
                     }
                     return;
@@ -13802,6 +14243,7 @@ class StoneGiant extends Unit {
                     if (newUnit instanceof GameObject) {
                         gameObjects.push(newUnit);
                     }
+                    recordLastCardPlay('ai', cardId, cardLevel, aiEvoSpawn, card.cost);
                     aiPlayCard(cardId);
                     return;
                 }
@@ -13859,6 +14301,7 @@ class StoneGiant extends Unit {
                             newUnit.shieldTimer = 5;
                         }
                         gameObjects.push(newUnit);
+                        recordLastCardPlay('ai', cardId, cardLevel, aiEvoSpawn, card.cost);
                     }
                     // Reset global evo flags after spawning AI unit
                     if (aiEvoSpawn) {
@@ -14035,12 +14478,11 @@ class StoneGiant extends Unit {
                                 if (newBuilding instanceof GameObject) gameObjects.push(newBuilding);
                             } else {
                                 // Determine if the AI should spawn an evolved unit for this card (ai2)
-                                let ai2EvoSpawn = false;
-                                if (evolutionsUnlocked && evoUnlockedCards && evoUnlockedCards[bestCardId]) {
+                                const ai2EvoSpawn = shouldSpawnAiEvolution(bestCardId, card, ai2EvoCycleCounts, ai2CanUseEvo);
+                                if (ai2EvoSpawn) {
                                     try {
                                         window.pendingEvoSpawn = true;
                                         window.currentSpawnCardHasEvo = true;
-                                        ai2EvoSpawn = true;
                                     } catch(err) {}
                                 }
                                 const newUnit = new card.unitClass(spawnX, spawnY, 'ai', level);
@@ -14977,58 +15419,66 @@ class StoneGiant extends Unit {
                 }
                 refreshCardEvoIndicators();
 
+                let customPlayCost;
                 if (card.type === 'Spell') {
-                    if (selectedSpawningUnit.id === 'poison') { // NEW
-                        const s = card.stats[level];
-                        gameObjects.push(new PoisonSpell(clampedX, clampedY, 'player', s.damagePerSecond, card.radius, s.duration));
-                    } else if (selectedSpawningUnit.id === 'anger') { // NEW
-                        const s = card.stats[level];
-                        gameObjects.push(new AngerSpell(clampedX, clampedY, 'player', card.radius, s.duration, s.damage));
-                    } else if (selectedSpawningUnit.id === 'voidTrap') { // NEW
-                        const damage = card.stats[level].damage;
-                        gameObjects.push(new VoidTrapEffect(clampedX, clampedY, 'player', card.radius, damage));
-                    } else if (selectedSpawningUnit.id === 'chaosOrb') { // NEW
-                        const damage = card.stats[level].damage;
-                        gameObjects.push(new ChaosOrbEffect(clampedX, clampedY, 'player', card.radius, damage));
-                    } else if (selectedSpawningUnit.id === 'skeletonYard') { // NEW
-                        const duration = card.stats[level].duration;
-                        gameObjects.push(new SkeletonYard(clampedX, clampedY, 'player', duration, card.radius, level));
-                    } else if (selectedSpawningUnit.id === 'tornado') {
-                        const s = card.stats[level];
-                        gameObjects.push(new TornadoSpell(clampedX, clampedY, 'player', card.radius, s.duration, s.pullStrength, s.damagePerSecond, card.emoji));
-                    } else if (selectedSpawningUnit.id === 'meteor') {
-                         // Meteor spawns a projectile that takes time to land (simulated by slow projectile or effect)
-                         const damage = card.stats[level].damage;
-                         gameObjects.push(new Projectile(clampedX, clampedY - 200, {x: clampedX, y: clampedY, health: 1}, 'player', damage, card.radius));
-                         gameObjects.push(new Spell(clampedX, clampedY, 'player', damage, card.radius, card.emoji, evoSpawnThisUnit));
-                    } else if (selectedSpawningUnit.id === 'diddyMiner') {
-                        // Spawn a DiddyMiner at the selected location. Because diddyMiner is treated
-                        // as a spell, we handle it explicitly here.
-                        const newMiner = new DiddyMiner(clampedX, clampedY, 'player', level);
-                        if (newMiner instanceof GameObject) {
-                            gameObjects.push(newMiner);
-                        }
-                    } else {
-                        const damage = card.stats[level].damage;
-                        gameObjects.push(new Spell(clampedX, clampedY, 'player', damage, card.radius, card.emoji, evoSpawnThisUnit));
+                    const spellId = cardId;
+                if (spellId === 'mirror') {
+                    const previous = lastPlayedCardByTeam.player;
+                    const previousCardDef = previous ? allCards[previous.cardId] : null;
+                    if (!previous || !previousCardDef || previousCardDef.type === 'Spell') {
+                        cancelPlacement();
+                        return;
                     }
-                } else if (card.type === 'Spirit') { // NEW: Handle spirits
+                    const baseCost = previous.cost || previousCardDef?.cost || 0;
+                    const mirrorCost = Math.max(1, baseCost + 1);
+                    const mirrorLevel = Math.min(15, (previous.level || 1) + 1);
+                    let spawned = spawnMirroredCardAt(previous.cardId, 'player', mirrorLevel, clampedX, clampedY);
+                    if (!spawned) {
+                        // Mirror fallback for spells
+                        const previousCard = allCards[previous.cardId];
+                        if (previousCard && previousCard.type === 'Spell') {
+                            spawned = spawnSpellForCard(previous.cardId, 'player', mirrorLevel, clampedX, clampedY, false);
+                        }
+                    }
+                    if (!spawned) {
+                        cancelPlacement();
+                        return;
+                    }
+                    lastPlayedCardByTeam.player = null;
+                    customPlayCost = mirrorCost;
+                } else {
+                        let spawned = false;
+                        if (spellId === 'clone') {
+                            gameObjects.push(new CloneSpell(clampedX, clampedY, 'player', card.radius || 90));
+                            spawned = true;
+                        } else if (spellId === 'goblinHex') {
+                            const s = card.stats[level] || card.stats[1] || {};
+                            const duration = s.duration || 6;
+                            const damagePerSecond = s.damagePerSecond || 35;
+                            gameObjects.push(new GoblinHexEffect(clampedX, clampedY, 'player', card.radius || 90, duration, damagePerSecond));
+                            spawned = true;
+                        } else {
+                            spawned = spawnSpellForCard(spellId, 'player', level, clampedX, clampedY, evoSpawnThisUnit);
+                        }
+                        if (spawned) {
+                            recordLastCardPlay('player', spellId, level, evoSpawnThisUnit, card.cost);
+                        }
+                    }
+                } else if (card.type === 'Spirit') {
                     const newUnit = new card.unitClass(clampedX, clampedY, 'player', level);
                     if (newUnit instanceof GameObject) {
                         gameObjects.push(newUnit);
+                        recordLastCardPlay('player', cardId, level, evoSpawnThisUnit, card.cost);
                     }
                 } else {
                     const newUnit = new card.unitClass(clampedX, clampedY, 'player', level);
-                    // --- TYPEERROR FIX ---
-                    // Check if the returned object is an actual game object (for single units/buildings)
-                    // If it's a spawner, it's not a GameObject and shouldn't be pushed.
                     if (newUnit instanceof GameObject) {
-                        // If this is an evolved Knight, grant a 5 second shield timer
-                        if (evoSpawnThisUnit && selectedSpawningUnit.id === 'knight') {
+                        if (evoSpawnThisUnit && cardId === 'knight') {
                             newUnit.shieldTimer = 5;
                         }
                         gameObjects.push(newUnit);
                     }
+                    recordLastCardPlay('player', cardId, level, evoSpawnThisUnit, card.cost);
                 }
 
                 // After spawning a unit or spell, reset evolution flags if they were set
@@ -15039,7 +15489,7 @@ class StoneGiant extends Unit {
                     } catch(err) {}
                 }
                 
-                playCard(selectedSpawningUnit.id, selectedSpawningUnit.handIndex);
+                playCard(selectedSpawningUnit.id, selectedSpawningUnit.handIndex, customPlayCost);
                 cancelPlacement();
 
                 // After playing a card, re-render the deck screen to update evolution cycle indicators
@@ -15365,5 +15815,3 @@ class StoneGiant extends Unit {
 
 </body>
 </html>
-
-
