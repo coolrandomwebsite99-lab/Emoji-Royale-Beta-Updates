@@ -2552,20 +2552,37 @@ const firebaseConfig = {
         // when the card's evolution has been unlocked. This is saved with the user's data.
         let evoUnlockedCards = {};
         let matchEvoSlots = { single: [], '2v2': [], 'party1v1': [], emojiDash: [] };
-        function shouldSpawnAiEvolution(cardId, cardDef, cycleStore, allowEvolution = false) {
+        function shouldSpawnAiEvolution(cardId, cardDef, cycleStore, allowEvolution = false, budgetStore = null) {
             if (!allowEvolution || !cardId || !cardDef || !cardDef.evo || !cycleStore) return false;
             try {
                 const requiredCycles = Math.max(1, cardDef.evo.cycle || 1);
                 const currentCount = cycleStore[cardId] || 0;
-                if (currentCount >= requiredCycles) {
-                    cycleStore[cardId] = 0;
-                    return true;
+                const nextCount = currentCount + 1;
+                const ready = nextCount >= requiredCycles;
+                cycleStore[cardId] = ready ? requiredCycles : nextCount;
+                if (!ready) return false;
+                const remaining = (budgetStore && typeof budgetStore.remaining === 'number') ? budgetStore.remaining : Infinity;
+                if (remaining <= 0) return false;
+                cycleStore[cardId] = 0;
+                if (budgetStore && typeof budgetStore.remaining === 'number') {
+                    budgetStore.remaining = Math.max(0, budgetStore.remaining - 1);
                 }
-                cycleStore[cardId] = currentCount + 1;
+                return true;
             } catch (err) {
                 console.warn('AI evolution counter error', err);
             }
             return false;
+        }
+
+        function configureAiEvolutionBudgets() {
+            let allocation = 0;
+            if (aiDeckArena >= 11) {
+                const roll = Math.random();
+                if (roll < 0.25) allocation = 2;
+                else if (roll < 0.75) allocation = 1;
+            }
+            aiEvoBudget.remaining = allocation;
+            ai2EvoBudget.remaining = allocation;
         }
         let playerDeck = [];
         let playerDeck2v2 = [];
@@ -2577,13 +2594,15 @@ const firebaseConfig = {
         let collectionSearchTerm = '';
         let lockedSearchTerm = '';
         let discardPile = [];
-        let aiDeck = [];
-        let aiHand = [];
-        let aiNextCard = null;
-        let aiDiscardPile = [];
-        let aiDeckArena = 1;
-        let aiCanUseEvo = false;
-        let ai2CanUseEvo = false;
+                let aiDeck = [];
+                let aiHand = [];
+                let aiNextCard = null;
+                let aiDiscardPile = [];
+                let aiDeckArena = 1;
+                let aiCanUseEvo = false;
+                let ai2CanUseEvo = false;
+                let aiEvoBudget = { remaining: 0 };
+                let ai2EvoBudget = { remaining: 0 };
         let towerLevel = 1;
         let towerCardCount = 0;
         let selectedTower = 'princess';
@@ -2640,6 +2659,15 @@ const firebaseConfig = {
                 }
             }
             return 1;
+        }
+        function getArenaStrategyProfile() {
+            const arenaNumber = Math.max(1, getArenaNumberFromFloor(currentArenaFloor));
+            return {
+                arenaNumber,
+                earlyArena: arenaNumber <= 3,
+                smartArena: arenaNumber >= 6,
+                preferSpells: arenaNumber >= 7
+            };
         }
         let currentArenaFloor = 0;
         let currentArenaTheme = 'arena-1'; // For canvas styling
@@ -6013,8 +6041,7 @@ if (chestCloseButton) {
                 const typeLabel = (card.type || '').toLowerCase();
                 const isSwarm = typeLabel.includes('swarm');
                 const isBuilding = typeLabel === 'building';
-                const isSpell = typeLabel === 'spell';
-                return isSwarm || isBuilding || isSpell;
+                return isSwarm || isBuilding;
             }
 
             function createCardDOM(cardId, isSmall = false, inHand = false) {
@@ -7568,7 +7595,7 @@ if (chestCloseButton) {
                 const currentDeck = getDeckForMode();
                 const card = allCards[cardId];
                 if (gameMode === 'emojiDash' && isEmojiDashRestrictedCard(card)) {
-                    alert('Emoji Dash cannot use swarms, air swarms, spell cards, or buildings.');
+                    alert('Emoji Dash currently restricts swarm and building cards.');
                     return;
                 }
                 if (currentDeck.length < 8) {
@@ -13504,6 +13531,7 @@ class StoneGiant extends Unit {
                     for (let i = 0; i < 4; i++) { if(ai2Deck.length > 0) ai2Hand.push(ai2Deck.pop()); }
                     if(ai2Deck.length > 0) ai2NextCard = ai2Deck.pop();
                 }
+                configureAiEvolutionBudgets();
             }
 
             function playCard(cardId, handIndex, costOverride) {
@@ -13651,6 +13679,18 @@ class StoneGiant extends Unit {
                     defensive: true
                 },
                 {
+                    minArena: 7,
+                    predicate: unit => unit instanceof Giant || unit instanceof StoneGiant || unit instanceof DiddyGiant,
+                    cards: ['poison', 'chaosOrb', 'goblinHex'],
+                    defensive: true
+                },
+                {
+                    minArena: 9,
+                    predicate: unit => unit instanceof FireDragon || unit instanceof ZapDragon,
+                    cards: ['goblinHex', 'poison', 'chaosOrb', 'fireDragon'],
+                    defensive: true
+                },
+                {
                     predicate: isWinConditionUnit,
                     cards: ['zapSpirit', 'barbarians', 'goblins'],
                     defensive: true
@@ -13690,13 +13730,13 @@ class StoneGiant extends Unit {
                 return score;
             }
 
-            function selectCounterCard(units, towers) {
+            function selectCounterCard(units, towers, strategy) {
                 const sortedThreats = units
                     .map(u => ({ unit: u, score: evaluateUnitThreatScore(u, towers) }))
                     .filter(entry => entry.score > 0)
                     .sort((a, b) => b.score - a.score);
                 for (const threat of sortedThreats) {
-                    const counter = findCounterForUnit(threat.unit);
+                    const counter = findCounterForUnit(threat.unit, strategy);
                     if (counter) return counter;
                 }
                 return null;
@@ -13737,35 +13777,50 @@ class StoneGiant extends Unit {
                 { condition: summary => summary.hasWinCon, cards: ['barbarians', 'farmer', 'tinyBot', 'axeSwinger'], defensive: true },
                 { condition: summary => summary.hasSwarm, cards: ['poison', 'arrows', 'axeSwinger'], defensive: true },
                 { condition: summary => summary.hasFlameDragon, cards: ['zapDragon', 'archer', 'arrows', 'fireDragon'], defensive: true },
-                { condition: summary => summary.hasMelee, cards: ['barbarians', 'axeSwinger', 'zapWizard'], defensive: true }
+                { condition: summary => summary.hasMelee, cards: ['barbarians', 'axeSwinger', 'zapWizard'], defensive: true },
+                { condition: summary => summary.hasWinCon && summary.totalHealth > 1200, cards: ['poison', 'chaosOrb', 'goblinHex'], defensive: true, minArena: 8 }
             ];
 
-            function findFallbackCounter(summary) {
+            function findFallbackCounter(summary, strategy) {
                 for (const entry of aiFallbackThreatCounters) {
+                    if (entry.minArena && strategy && strategy.arenaNumber < entry.minArena) continue;
                     if (!entry.condition(summary)) continue;
                     const candidate = entry.cards.find(cardId => aiHand.includes(cardId) && aiElixir >= (allCards[cardId]?.cost || Infinity));
                     if (candidate) {
+                        if (strategy?.earlyArena && (allCards[candidate]?.cost || 0) > 5) continue;
                         return { card: candidate, isDefensive: entry.defensive };
                     }
                 }
                 return null;
             }
 
-            function findStrongestAffordableUnitCard() {
+            function findStrongestAffordableUnitCard(strategy) {
                 const candidates = aiHand
                     .filter(cardId => {
                         const card = allCards[cardId];
-                        return card && card.type !== 'Spell' && aiElixir >= card.cost;
+                        if (!card || card.type === 'Spell') return false;
+                        if (strategy?.earlyArena && card.cost > 5) return false;
+                        return aiElixir >= card.cost;
                     })
-                    .sort((a, b) => (allCards[b]?.cost || 0) - (allCards[a]?.cost || 0));
+                    .sort((a, b) => {
+                        const cardA = allCards[a];
+                        const cardB = allCards[b];
+                        if (strategy?.smartArena) {
+                            const arenaDiff = (cardB?.arena || 0) - (cardA?.arena || 0);
+                            if (arenaDiff !== 0) return arenaDiff;
+                        }
+                        return (cardB?.cost || 0) - (cardA?.cost || 0);
+                    });
                 return candidates.length > 0 ? candidates[0] : null;
             }
 
-            function findCounterForUnit(unit) {
+            function findCounterForUnit(unit, strategy) {
                 for (const entry of aiCounterConfig) {
+                    if (entry.minArena && strategy && strategy.arenaNumber < entry.minArena) continue;
                     if (!entry.predicate(unit)) continue;
                     for (const cardId of entry.cards) {
                         if (aiHand.includes(cardId) && aiElixir >= (allCards[cardId]?.cost || Infinity)) {
+                            if (strategy?.earlyArena && (allCards[cardId]?.cost || 0) > 5) continue;
                             return { card: cardId, isDefensive: entry.defensive !== undefined ? entry.defensive : true };
                         }
                     }
@@ -13775,6 +13830,8 @@ class StoneGiant extends Unit {
 
             function runAI() {
                 const playerUnits = gameObjects.filter(o => o.team === 'player' && o instanceof Unit);
+                const arenaProfile = getArenaStrategyProfile();
+                const urgentUnitThreshold = arenaProfile.earlyArena ? 4 : 3;
                 if (aiHand.length === 0) {
                     if (aiDeck.length === 0 && aiDiscardPile.length > 0) {
                         aiDeck = shuffleDeck(aiDiscardPile);
@@ -13784,8 +13841,8 @@ class StoneGiant extends Unit {
                         aiHand.push(aiDeck.pop());
                     }
                 }
-                if (playerUnits.length >= 3) {
-                    const urgentCard = findStrongestAffordableUnitCard();
+                if (playerUnits.length >= urgentUnitThreshold) {
+                    const urgentCard = findStrongestAffordableUnitCard(arenaProfile);
                     if (urgentCard) {
                         spawnAIUnit(urgentCard, currentAiStatLevel, true);
                         return;
@@ -13796,12 +13853,15 @@ class StoneGiant extends Unit {
                     }
                 }
                 const aiTowers = gameObjects.filter(obj => obj.team === 'ai' && obj instanceof Tower && obj.health > 0);
-                const towerThreats = playerUnits.filter(u => {
+                let towerThreats = playerUnits.filter(u => {
                     if (u.target && u.target instanceof Tower && u.target.team === 'ai') {
                         return true;
                     }
                     return aiTowers.some(t => getDistance(u, t) < 120);
                 });
+                if (arenaProfile.earlyArena && towerThreats.length > 0 && Math.random() < 0.35) {
+                    towerThreats = [];
+                }
                 const aiKingTower = aiTowers.find(t => t.isKing && t.health > 0);
                 const kingThreat = aiKingTower && playerUnits.some(u => {
                     if (!u || !u.health) return false;
@@ -13812,7 +13872,7 @@ class StoneGiant extends Unit {
                     towerThreats.push({ king: true });
                 }
                 if (playerUnits.length === 0 && aiTowers.length < 3) {
-                    const pushCard = findStrongestAffordableUnitCard();
+                    const pushCard = findStrongestAffordableUnitCard(arenaProfile);
                     if (pushCard) {
                         spawnAIUnit(pushCard, currentAiStatLevel, false);
                         return;
@@ -13833,16 +13893,27 @@ class StoneGiant extends Unit {
                     }
                 }
                 if (playerUnits.length > 0) {
-                    const counterPlay = selectCounterCard(playerUnits, aiTowers);
+                    let counterPlay = selectCounterCard(playerUnits, aiTowers, arenaProfile);
+                    if (counterPlay && arenaProfile.earlyArena && (allCards[counterPlay.card]?.cost || 0) > 5) {
+                        counterPlay = null;
+                    }
                     if (counterPlay) {
                         spawnAIUnit(counterPlay.card, currentAiStatLevel, counterPlay.isDefensive);
                         return;
                     }
                     const threatSummary = summarizePlayerThreats(playerUnits);
-                    const fallbackCounter = findFallbackCounter(threatSummary);
+                    const fallbackCounter = findFallbackCounter(threatSummary, arenaProfile);
                     if (fallbackCounter) {
                         spawnAIUnit(fallbackCounter.card, currentAiStatLevel, fallbackCounter.isDefensive);
                         return;
+                    }
+                    if (arenaProfile.preferSpells && playerUnits.length > 0) {
+                        const advancedSpellCandidates = ['chaosOrb', 'goblinHex', 'poison'];
+                        const spellToUse = advancedSpellCandidates.find(cardId => aiHand.includes(cardId) && aiElixir >= (allCards[cardId]?.cost || Infinity));
+                        if (spellToUse) {
+                            spawnAIUnit(spellToUse, currentAiStatLevel, true);
+                            return;
+                        }
                     }
                     let bestCardId = null;
                     // --- NEW AI LOGIC ---
@@ -13868,7 +13939,7 @@ class StoneGiant extends Unit {
                         bestCardId = 'goblins';
                     }
                     if (bestCardId) { spawnAIUnit(bestCardId, currentAiStatLevel, true); return; } // Use global
-                    const fallbackPush = findStrongestAffordableUnitCard();
+                    const fallbackPush = findStrongestAffordableUnitCard(arenaProfile);
                     if (fallbackPush) {
                         spawnAIUnit(fallbackPush, currentAiStatLevel, false);
                         return;
@@ -14181,7 +14252,7 @@ class StoneGiant extends Unit {
                 const card = allCards[cardId];
                 if (!card || card.cost > aiElixir) return;
 
-                let aiEvoSpawn = shouldSpawnAiEvolution(cardId, card, aiEvoCycleCounts, aiCanUseEvo);
+                let aiEvoSpawn = shouldSpawnAiEvolution(cardId, card, aiEvoCycleCounts, aiCanUseEvo, aiEvoBudget);
                 
                 // Get AI's level for this card (force 15 in 2v2 or Party 1v1)
                 const cardLevel = isMaxLevelMatch() ? 15 : level;
@@ -14478,7 +14549,7 @@ class StoneGiant extends Unit {
                                 if (newBuilding instanceof GameObject) gameObjects.push(newBuilding);
                             } else {
                                 // Determine if the AI should spawn an evolved unit for this card (ai2)
-                                const ai2EvoSpawn = shouldSpawnAiEvolution(bestCardId, card, ai2EvoCycleCounts, ai2CanUseEvo);
+                                const ai2EvoSpawn = shouldSpawnAiEvolution(bestCardId, card, ai2EvoCycleCounts, ai2CanUseEvo, ai2EvoBudget);
                                 if (ai2EvoSpawn) {
                                     try {
                                         window.pendingEvoSpawn = true;
@@ -15815,3 +15886,4 @@ class StoneGiant extends Unit {
 
 </body>
 </html>
+
