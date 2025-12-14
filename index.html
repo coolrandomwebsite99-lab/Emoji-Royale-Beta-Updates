@@ -454,6 +454,21 @@
                 radial-gradient(circle at 15% 80%, rgba(59, 130, 246, 0.2), transparent 55%),
                 linear-gradient(135deg, #0f172a 0%, #020617 60%, #0ea5e9 100%);
         }
+        canvas.arena-17 {
+            background-color: #c4b5fd;
+            background-image:
+                linear-gradient(rgba(99, 102, 241, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.2) 1px, transparent 1px),
+                radial-gradient(circle at 30% 20%, rgba(14, 165, 233, 0.15), transparent 40%),
+                radial-gradient(circle at 70% 60%, rgba(248, 250, 252, 0.25), transparent 45%);
+        }
+        canvas.arena-18 {
+            background-color: #0a0b1a;
+            background-image:
+                radial-gradient(circle at 25% 25%, rgba(78, 70, 229, 0.25), transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(191, 219, 254, 0.2), transparent 35%),
+                linear-gradient(135deg, #020617 0%, #0a0b1a 60%, #0b1330 100%);
+        }
 
         /*
          * Slight 3D effect for the battlefield. Tilting the canvas and adding a box shadow
@@ -1839,6 +1854,20 @@
                             <p class="text-yellow-300">3750+ Trophies 🏆</p>
                         </div>
                     </div>
+                    <div class="arena-card" style="--arena-card-gradient: linear-gradient(135deg, #a5b4fc, #6366f1);">
+                        <span class="arena-emoji">✨</span>
+                        <div>
+                            <h2 class="text-xl font-bold">Arena 17: Celestial Citadel</h2>
+                            <p class="text-yellow-300">4000+ Trophies 🏆</p>
+                        </div>
+                    </div>
+                    <div class="arena-card" style="--arena-card-gradient: linear-gradient(135deg, #4c1d95, #0a0b1a);">
+                        <span class="arena-emoji">🌌</span>
+                        <div>
+                            <h2 class="text-xl font-bold">Arena 18: Nebula Nexus</h2>
+                            <p class="text-yellow-300">4250+ Trophies 🏆</p>
+                        </div>
+                    </div>
                 </div>
             </div>
             <button id="arenaBackButton" class="arena-btn bg-gray-600 hover:bg-gray-700 mt-8 w-3/4">
@@ -1894,6 +1923,8 @@
             <button id="debugArena14" class="debug-btn bg-emerald-900 hover:bg-emerald-800">Jump to Arena 14 (3250 🏆)</button>
             <button id="debugArena15" class="debug-btn bg-slate-900 hover:bg-slate-800">Jump to Arena 15 (3500 🏆)</button>
             <button id="debugArena16" class="debug-btn bg-slate-900 hover:bg-slate-800">Jump to Arena 16 (3750 🏆)</button>
+            <button id="debugArena17" class="debug-btn bg-indigo-900 hover:bg-indigo-800">Jump to Arena 17 (4000 🏆)</button>
+            <button id="debugArena18" class="debug-btn bg-purple-900 hover:bg-purple-800">Jump to Arena 18 (4250 🏆)</button>
             <button id="debugUnlockAll" class="debug-btn bg-blue-600 hover:bg-blue-700">Unlock All Cards</button>
             <button id="debugUpgradeAll" class="debug-btn bg-purple-600 hover:bg-purple-700">Upgrade All Cards +1 Lvl</button>
             <button id="debugGetChest" class="debug-btn bg-yellow-600 hover:bg-yellow-700">Get a Free Chest 📦</button>
@@ -2125,9 +2156,9 @@
     <div id="updateLogOverlay">
         <!-- Animated header with battle scene and update icons -->
         <div class="flex justify-center items-center space-x-2 text-3xl mb-2">
-            <span class="animate-bounce">✨</span>
-            <span class="animate-ping">🪞</span>
-            <span class="animate-spin">🧬</span>
+            <span class="animate-bounce">🌠</span>
+            <span class="animate-ping">🌌</span>
+            <span class="animate-spin">🌟</span>
         </div>
         <h2 class="text-3xl font-bold mb-4">📰 Update Log</h2>
 <div id="updateLogContent" class="text-left text-sm max-h-96 overflow-y-auto w-full max-w-md px-4 space-y-3">
@@ -2650,7 +2681,7 @@ const firebaseConfig = {
          * Diddy's Prison is Arena 11 (2500 trophies), Mythic Arena is Arena 12 (2750 trophies),
          * and the new Aqua Arena unlocks at 3000 trophies.
          */
-        const arenaFloors = { 0: "Arena 1: Emoji Valley", 250: "Arena 2: Laughing Village", 500: "Arena 3: Lava Town", 750: "Arena 4: The Farm", 1000: "Arena 5: Skull Kingdom", 1250: "Arena 6: Warlock's Workshop", 1500: "Arena 7: Mages Graveyard", 1750: "Arena 8: Chaos Canyon", 2000: "Arena 9: Titan's Peak", 2250: "Arena 10: Chaos Realm", 2500: "Arena 11: Diddy's Prison", 2750: "Arena 12: Mythic Arena", 3000: "Arena 13: Aqua Arena", 3250: "Arena 14: Forsaken Lands", 3500: "Arena 15: Buried Kingdom", 3750: "Arena 16: Mirror Plateau" };
+        const arenaFloors = { 0: "Arena 1: Emoji Valley", 250: "Arena 2: Laughing Village", 500: "Arena 3: Lava Town", 750: "Arena 4: The Farm", 1000: "Arena 5: Skull Kingdom", 1250: "Arena 6: Warlock's Workshop", 1500: "Arena 7: Mages Graveyard", 1750: "Arena 8: Chaos Canyon", 2000: "Arena 9: Titan's Peak", 2250: "Arena 10: Chaos Realm", 2500: "Arena 11: Diddy's Prison", 2750: "Arena 12: Mythic Arena", 3000: "Arena 13: Aqua Arena", 3250: "Arena 14: Forsaken Lands", 3500: "Arena 15: Buried Kingdom", 3750: "Arena 16: Mirror Plateau", 4000: "Arena 17: Celestial Citadel", 4250: "Arena 18: Nebula Nexus" };
         const sortedArenaFloors = Object.keys(arenaFloors).map(Number).sort((a, b) => a - b);
         function getArenaNumberFromFloor(floor = 0) {
             for (let i = sortedArenaFloors.length - 1; i >= 0; i--) {
@@ -3378,6 +3409,8 @@ const firebaseConfig = {
             const debugArena14 = document.getElementById('debugArena14');
             const debugArena15 = document.getElementById('debugArena15');
             const debugArena16 = document.getElementById('debugArena16');
+            const debugArena17 = document.getElementById('debugArena17');
+            const debugArena18 = document.getElementById('debugArena18');
             const debugUnlockAll = document.getElementById('debugUnlockAll');
             const debugUpgradeAll = document.getElementById('debugUpgradeAll');
             const debugGetChest = document.getElementById('debugGetChest');
@@ -3563,6 +3596,12 @@ const firebaseConfig = {
 
             function displayUpdateLogContent() {
             const updates = [
+                    { date: '12/13/2025', title: 'Celestial Citadel & Nebula Nexus', items: [
+                        '✨ Arena 17: Celestial Citadel sparkles above the clouds with starlit floors and reflective glass panels.',
+                        '🛡️ Celestial Guardian (6 elixir) rushes the bridge, drawing fire and radiating boosts that steady nearby allies.',
+                        '🌌 Arena 18: Nebula Nexus warps space into a starfield with neon storms on each lane.',
+                        '🌠 Nebula Sentinel (5 elixir) fires slowing cosmic bolts that pierce air/ground troops before dissolving into stardust.'
+                    ]},
                     { date: '12/11/2025', title: 'Mirror Plateau Launch', items: [
                         '💎 Arena 16: Mirror Plateau opens with a crystal floor so the final arena finally has its own horizon.',
                         '🪄 Clone (Spell) duplicates every friendly troop inside the circle into 1 HP impostors with a distinctive aura so they are easy to spot and cannot be cloned again.',
@@ -4456,6 +4495,12 @@ const firebaseConfig = {
                 } else if (arenaDisplayName.includes("Mirror Plateau")) {
                     emoji = "🪞";
                     currentArenaTheme = 'arena-16';
+                } else if (arenaDisplayName.includes("Celestial Citadel")) {
+                    emoji = "🌟";
+                    currentArenaTheme = 'arena-17';
+                } else if (arenaDisplayName.includes("Nebula Nexus")) {
+                    emoji = "🌌";
+                    currentArenaTheme = 'arena-18';
                 } else if (arenaDisplayName.includes("Aqua Arena")) {
                     emoji = "🌊";
                     currentArenaTheme = 'arena-13';
@@ -5857,6 +5902,24 @@ if (chestCloseButton) {
                         showScreen('menu');
                     };
                 }
+                if (debugArena17) {
+                    debugArena17.onclick = null;
+                    debugArena17.onclick = () => {
+                        trophies = 4000;
+                        updateArena();
+                        saveUserData();
+                        showScreen('menu');
+                    };
+                }
+                if (debugArena18) {
+                    debugArena18.onclick = null;
+                    debugArena18.onclick = () => {
+                        trophies = 4250;
+                        updateArena();
+                        saveUserData();
+                        showScreen('menu');
+                    };
+                }
                 if (debugUnlockAll) {
                     debugUnlockAll.onclick = null;
                     debugUnlockAll.onclick = () => {
@@ -6803,7 +6866,17 @@ if (chestCloseButton) {
                 }
                 // Save the generated normal stats HTML so it can be restored when toggling evolution off
                 originalStatsHTML = cardInfoStats.innerHTML;
-                // Extra stats logic (Mage, StoneGiant) ...
+                // Extra stats logic (Nebula Sentinel, Mage, StoneGiant) ...
+                if (cardId === 'nebulaSentinel') {
+                    const shardStats = stats || (card.stats && card.stats[1]) || {};
+                    const shardDamage = shardStats.shardDamage || 0;
+                    const shardCount = card.shardCount || 7;
+                    const shardSpeed = card.shardSpeed || 5.5;
+                    cardInfoStats.innerHTML += `<div class='mt-2 font-bold text-yellow-300'>Nebula Shards</div>`;
+                    cardInfoStats.innerHTML += `<div>Shard Damage: <span>${shardDamage}</span></div>`;
+                    cardInfoStats.innerHTML += `<div>Shard Count: <span>${shardCount}</span></div>`;
+                    cardInfoStats.innerHTML += `<div>Shard Speed: <span>${shardSpeed}</span></div>`;
+                }
                 if (cardId === 'mage') {
                     const skelStats = allCards['skeletons'] && allCards['skeletons'].stats ? allCards['skeletons'].stats[1] : null;
                     if (skelStats) {
@@ -10580,6 +10653,28 @@ class ColdSpirit extends Unit {
             }
         }
 
+        class PlanarWisp extends Unit {
+            constructor(x, y, team, level = 1) {
+                const template = allCards['planarWisp'];
+                const s = template.stats[level];
+                super(x, y, s.radius || 10, team, s.health, s.speed, s.attackRange, s.damage, s.hitSpeed, '✨', true, true, level, template.aggroRange || 140);
+                this.sparkInterval = 40;
+                this.sparkTimer = this.sparkInterval;
+            }
+            update() {
+                super.update();
+                if (this.health <= 0) return;
+                this.sparkTimer -= deltaTime * 60;
+                if (this.sparkTimer <= 0) {
+                    this.sparkTimer += this.sparkInterval;
+                    const target = this.target && this.target.health > 0 ? this.target : null;
+                    const angle = target ? Math.atan2(target.y - this.y, target.x - this.x) : Math.random() * Math.PI * 2;
+                    const shardDamage = Math.max(1, Math.round(this.attackDamage * 0.35));
+                    gameObjects.push(new NebulaShard(this.x, this.y, angle, this.team, shardDamage, 3, 0.8));
+                }
+            }
+        }
+
         class WaveSpirit extends Unit {
             constructor(x, y, team, level = 1) {
                 const s = allCards['waveSpirit'].stats[level];
@@ -11718,8 +11813,8 @@ class StoneGiant extends Unit {
 }
 
             class Projectile extends GameObject {
-                constructor(x, y, target, team, damage, splashRadius = 0, sourceType = null) { 
-                    super(x, y, 4, team, 1); 
+                constructor(x, y, target, team, damage, splashRadius = 0, sourceType = null) {
+                    super(x, y, 4, team, 1);
                     this.target = target; 
                     this.damage = damage; 
                     this.speed = 5; 
@@ -11756,10 +11851,111 @@ class StoneGiant extends Unit {
                     this.y += Math.sin(angle) * this.speed * (deltaTime * 60);
                 }
                 draw() { 
-                    ctx.beginPath(); 
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); 
-                    ctx.fillStyle = this.team === 'player' ? '#a5f3fc' : '#fecaca'; 
-                    ctx.fill(); 
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = this.team === 'player' ? '#a5f3fc' : '#fecaca';
+                    ctx.fill();
+                }
+            }
+
+            class NebulaShard extends GameObject {
+                constructor(x, y, angle, team, damage, speed = 5, lifetime = 1.2, radius = 5) {
+                    super(x, y, radius, team, 1);
+                    this.vx = Math.cos(angle) * speed;
+                    this.vy = Math.sin(angle) * speed;
+                    this.damage = damage;
+                    this.lifeTimer = Math.max(0.1, lifetime) * 60;
+                    this.sourceType = 'nebulaShard';
+                }
+                update() {
+                    if (this.health <= 0) return;
+                    this.lifeTimer -= deltaTime * 60;
+                    if (this.lifeTimer <= 0) {
+                        this.health = 0;
+                        return;
+                    }
+                    this.x += this.vx * (deltaTime * 60);
+                    this.y += this.vy * (deltaTime * 60);
+                    for (const obj of gameObjects) {
+                        if (!obj || obj.team === this.team || obj.health <= 0) continue;
+                        if (!(obj instanceof Unit) && !(obj instanceof Tower) && !(obj instanceof Building)) continue;
+                        if (obj instanceof PhantomKnight && obj.isInvisible) continue;
+                        if (getDistance(this, obj) <= this.radius) {
+                            applyDamage(obj, this.damage, { sourceType: this.sourceType });
+                            this.health = 0;
+                            return;
+                        }
+                    }
+                }
+                draw() {
+                    ctx.save();
+                    ctx.fillStyle = 'rgba(132, 204, 255, 0.85)';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            class NebulaBolt extends GameObject {
+                constructor(x, y, target, team, damage, shardDamage, shardCount = 7, shardSpread = 1.2, shardSpeed = 5.5, shardLifetime = 1.0, shardRadius = 5) {
+                    super(x, y, 6, team, 1);
+                    this.target = target;
+                    this.damage = damage;
+                    this.speed = 6;
+                    this.shardDamage = shardDamage;
+                    this.spawnedShards = false;
+                    this.shardCount = shardCount;
+                    this.shardSpread = shardSpread;
+                    this.shardSpeed = shardSpeed;
+                    this.shardLifetime = shardLifetime;
+                    this.shardRadius = shardRadius;
+                    this.sourceType = 'nebulaBolt';
+                }
+                update() {
+                    if (!this.target || this.target.health <= 0) {
+                        this.health = 0;
+                        return;
+                    }
+                    if (this.target instanceof PhantomKnight && this.target.isInvisible) {
+                        this.health = 0;
+                        return;
+                    }
+                    const dist = getDistance(this, this.target);
+                    if (dist < this.speed) {
+                        applyDamage(this.target, this.damage, { sourceType: this.sourceType });
+                        this.spawnShards();
+                        this.health = 0;
+                        return;
+                    }
+                    const angle = Math.atan2(this.target.y - this.y, this.target.x - this.x);
+                    this.x += Math.cos(angle) * this.speed * (deltaTime * 60);
+                    this.y += Math.sin(angle) * this.speed * (deltaTime * 60);
+                }
+                spawnShards() {
+                    if (this.spawnedShards) return;
+                    this.spawnedShards = true;
+                    const targetX = this.target ? this.target.x : this.x;
+                    const targetY = this.target ? this.target.y : this.y;
+                    const direction = Math.atan2(targetY - this.y, targetX - this.x);
+                    const forwardOffset = 12;
+                    const spawnX = targetX + Math.cos(direction) * forwardOffset;
+                    const spawnY = targetY + Math.sin(direction) * forwardOffset;
+                    const arc = Math.max(0.2, this.shardSpread);
+                    const halfSpread = arc / 2;
+                    for (let i = 0; i < this.shardCount; i++) {
+                        const progress = this.shardCount === 1 ? 0.5 : i / (this.shardCount - 1);
+                        const angle = direction - halfSpread + progress * arc;
+                        gameObjects.push(new NebulaShard(spawnX, spawnY, angle, this.team, this.shardDamage, this.shardSpeed, this.shardLifetime, this.shardRadius));
+                    }
+                }
+                draw() {
+                    ctx.save();
+                    ctx.fillStyle = '#a855f7';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
                 }
             }
 
@@ -12371,6 +12567,59 @@ class StoneGiant extends Unit {
                 }
             }
 
+            class StarlightCascadeSpell extends GameObject {
+                constructor(x, y, team, damage, radius, pulses = 3, pulseDelay = 0.5) {
+                    super(x, y, radius, team, 1);
+                    this.damage = damage;
+                    this.maxRadius = radius || 120;
+                    this.pulses = Math.max(1, pulses);
+                    this.pulseDelay = Math.max(0.1, pulseDelay);
+                    this.pulseTimer = 0;
+                    this.pulseCount = 0;
+                    this.activeRadius = 0;
+                    this.fadeTimer = 0.4;
+                }
+                update() {
+                    this.pulseTimer -= deltaTime;
+                    if (this.pulseTimer <= 0 && this.pulseCount < this.pulses) {
+                        this.pulseTimer = this.pulseDelay;
+                        this.pulseCount++;
+                        this.activeRadius = (this.maxRadius / this.pulses) * this.pulseCount;
+                        this.applyPulse();
+                        if (this.pulseCount >= this.pulses) {
+                            this.fadeTimer = 0.4;
+                        }
+                    }
+                    if (this.pulseCount >= this.pulses) {
+                        this.fadeTimer -= deltaTime;
+                        if (this.fadeTimer <= 0) {
+                            this.health = 0;
+                        }
+                    }
+                }
+                applyPulse() {
+                    for (const obj of gameObjects) {
+                        if (!obj || obj.team === this.team || obj.health <= 0) continue;
+                        if (!(obj instanceof Unit) && !(obj instanceof Tower) && !(obj instanceof Building)) continue;
+                        if (obj instanceof PhantomKnight && obj.isInvisible) continue;
+                        if (getDistance(this, obj) <= this.activeRadius) {
+                            applyDamage(obj, this.damage, { sourceType: 'starlightCascade' });
+                        }
+                    }
+                }
+                draw() {
+                    if (this.pulseCount <= 0) return;
+                    ctx.save();
+                    const fade = Math.max(0, (this.pulses - this.pulseCount) / this.pulses);
+                    ctx.strokeStyle = `rgba(192, 132, 252, ${0.35 + 0.25 * fade})`;
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.activeRadius, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+
             class TornadoSpell extends GameObject {
                 constructor(x, y, team, radius, duration, pullStrength, damagePerSecond, emoji = '🌪️') {
                     super(x, y, radius, team, 1);
@@ -12731,6 +12980,15 @@ class StoneGiant extends Unit {
                                 stats: { 1: {} } },
                     'goblinHex': { name: 'Goblin Hex', cost: 5, emoji: '🧿', type: 'Spell', radius: 90, placementRadius: 90, arena: 16, targets: 'Air & Ground',
                                 stats: { 1: { duration: 6, damagePerSecond: 35 } } },
+                    'celestialGuardian': { name: 'Celestial Guardian', cost: 6, emoji: '🛡️', type: 'Tank', unitClass: CelestialGuardian, placementRadius: 16, isFlying: false, arena: 17, targets: 'Ground', aggroRange: 140,
+                                stats: { 1: { health: 1700, damage: 110, hitSpeed: 1.6, speed: 0.55, attackRange: 35 } } },
+                    'planarWisp': { name: 'Planar Wisp', cost: 3, emoji: '✨', type: 'Spirit', unitClass: PlanarWisp, placementRadius: 10, isFlying: true, arena: 17, targets: 'Air & Ground', aggroRange: 140,
+                                stats: { 1: { health: 420, damage: 95, hitSpeed: 1.2, speed: 1.4, attackRange: 90, radius: 10 } } },
+                    'nebulaSentinel': { name: 'Nebula Sentinel', cost: 5, emoji: '🌌', type: 'Ranged', unitClass: NebulaSentinel, placementRadius: 12, isFlying: false, arena: 18, targets: 'Air & Ground', aggroRange: 150,
+                                stats: { 1: { health: 850, damage: 95, hitSpeed: 1.2, speed: 0.95, attackRange: 110, shardDamage: 40 } },
+                                shardCount: 7, shardSpread: 1.2, shardSpeed: 5.5, shardLifetime: 1.2, shardRadius: 5 },
+                    'starlightCascade': { name: 'Starlight Cascade', cost: 6, emoji: '🌠', type: 'Spell', radius: 120, placementRadius: 120, arena: 18, targets: 'Air & Ground',
+                                stats: { 1: { damage: 200, pulses: 3, pulseDelay: 0.5, radius: 120 } } },
 
                     'tower': { name: 'Tower Upgrade', emoji: '👑' }
                 };
@@ -12749,6 +13007,7 @@ class StoneGiant extends Unit {
                             if (newStats.damage) newStats.damage = Math.round(newStats.damage * 1.1);
                             if (newStats.chargeDamage) newStats.chargeDamage = Math.round(newStats.chargeDamage * 1.1);
                             if (newStats.damagePerSecond) newStats.damagePerSecond = Math.round(newStats.damagePerSecond * 1.1); // For Poison
+                            if (newStats.shardDamage) newStats.shardDamage = Math.round(newStats.shardDamage * 1.1);
                             // Handle sub-unit stats
                             if (newStats.spear_health) newStats.spear_health = Math.round(newStats.spear_health * 1.1);
                             if (newStats.spear_damage) newStats.spear_damage = Math.round(newStats.spear_damage * 1.1);
@@ -13291,6 +13550,12 @@ class StoneGiant extends Unit {
                     ctx.fillStyle = '#6d28d9'; // Forsaken purple glow
                 } else if (currentArenaTheme === 'arena-15') {
                     ctx.fillStyle = '#111827'; // Buried kingdom stone
+                } else if (currentArenaTheme === 'arena-16') {
+                    ctx.fillStyle = '#0f172a'; // Mirror Plateau river
+                } else if (currentArenaTheme === 'arena-17') {
+                    ctx.fillStyle = '#a5b4fc'; // Celestial glow
+                } else if (currentArenaTheme === 'arena-18') {
+                    ctx.fillStyle = '#0a0b1a'; // Nebula night
                 } else if (currentArenaTheme === 'arena-12') {
                     ctx.fillStyle = '#0b1220'; // Mythic river
                 } else {
@@ -13489,8 +13754,8 @@ class StoneGiant extends Unit {
                 
                 // AI
                 const aiArenaLevel = getAILevel(); // This reflects the current arena level (1-12)
-                const floorArenaNumber = Math.max(1, Math.min(13, getArenaNumberFromFloor(currentArenaFloor)));
-                aiDeckArena = floorArenaNumber || Math.max(1, Math.min(13, aiArenaLevel));
+                const floorArenaNumber = Math.max(1, Math.min(18, getArenaNumberFromFloor(currentArenaFloor)));
+                aiDeckArena = floorArenaNumber || Math.max(1, Math.min(18, aiArenaLevel));
                 aiCanUseEvo = aiDeckArena >= 11;
                 ai2CanUseEvo = aiCanUseEvo;
                 
@@ -14110,45 +14375,45 @@ class StoneGiant extends Unit {
         }
     }
 
-    class Barricade extends Unit {
-        constructor(x, y, team, level = 1) {
-            super(x, y, 14, team, 1, 0, 0, 0, 1, '🪨', false, false, level, allCards['barricade'].aggroRange || 100);
-            this.lifetime = 30 * 60;
-            this.maxLifetime = this.lifetime;
-            this.isBarricade = true;
-            this.isTargetable = false;
-            this.blockSpacing = this.radius * 0.85;
-        }
-        update() {
-            if (this.health <= 0) return;
-            this.lifetime -= deltaTime * 60;
-            if (this.lifetime <= 0) {
-                this.health = 0;
-            }
-        }
-        draw() {
-            ctx.save();
-            const alpha = Math.max(0, this.lifetime / this.maxLifetime);
-            ctx.globalAlpha = alpha * 0.95;
-            const rockRadius = this.radius * 0.65;
-            const spacing = this.blockSpacing;
-            const baseX = this.x - spacing;
-            for (let i = 0; i < 3; i++) {
-                const rockX = baseX + i * spacing;
-                ctx.fillStyle = '#78716c';
-                ctx.beginPath();
+            class Barricade extends Unit {
+                constructor(x, y, team, level = 1) {
+                    super(x, y, 14, team, 1, 0, 0, 0, 1, '🪨', false, false, level, allCards['barricade'].aggroRange || 100);
+                    this.lifetime = 30 * 60;
+                    this.maxLifetime = this.lifetime;
+                    this.isBarricade = true;
+                    this.isTargetable = false;
+                    this.blockSpacing = this.radius * 0.85;
+                }
+                update() {
+                    if (this.health <= 0) return;
+                    this.lifetime -= deltaTime * 60;
+                    if (this.lifetime <= 0) {
+                        this.health = 0;
+                    }
+                }
+                draw() {
+                    ctx.save();
+                    const alpha = Math.max(0, this.lifetime / this.maxLifetime);
+                    ctx.globalAlpha = alpha * 0.95;
+                    const rockRadius = this.radius * 0.65;
+                    const spacing = this.blockSpacing;
+                    const baseX = this.x - spacing;
+                    for (let i = 0; i < 3; i++) {
+                        const rockX = baseX + i * spacing;
+                        ctx.fillStyle = '#78716c';
+                        ctx.beginPath();
                 ctx.arc(rockX, this.y, rockRadius, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.strokeStyle = '#a8bcd3';
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
                 ctx.fillStyle = '#f1f5f9';
-                ctx.beginPath();
-                ctx.arc(rockX - rockRadius * 0.3, this.y - rockRadius * 0.3, rockRadius * 0.25, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            ctx.globalAlpha = 1;
-            const timerWidth = rockRadius * 3 + spacing * 0.8;
+                        ctx.beginPath();
+                        ctx.arc(rockX - rockRadius * 0.3, this.y - rockRadius * 0.3, rockRadius * 0.25, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.globalAlpha = 1;
+                    const timerWidth = rockRadius * 3 + spacing * 0.8;
             const timerHeight = 6;
             const timerX = this.x - timerWidth / 2;
             const timerY = this.y - this.radius - 16;
@@ -14226,6 +14491,13 @@ class StoneGiant extends Unit {
             }
             return true;
         }
+        if (cardId === 'starlightCascade') {
+            const pulses = Math.max(1, stats.pulses || 3);
+            const pulseDelay = stats.pulseDelay || 0.5;
+            const effectRadius = stats.radius || card.radius || 120;
+            gameObjects.push(new StarlightCascadeSpell(x, y, team, stats.damage || 0, effectRadius, pulses, pulseDelay));
+            return true;
+        }
         const damage = stats.damage || stats.damagePerSecond || 0;
         gameObjects.push(new Spell(x, y, team, damage, card.radius, card.emoji, isEvo));
         return true;
@@ -14277,6 +14549,9 @@ class StoneGiant extends Unit {
                     } else if (cardId === 'chaosOrb') { // NEW
                         target = gameObjects.find(o => o.team === 'player' && (o instanceof Unit || o instanceof Building) && o.health > 0);
                         if (!target) target = gameObjects.find(o => o.team === 'player' && o instanceof Tower && o.health > 0);
+                    } else if (cardId === 'starlightCascade') {
+                        target = gameObjects.find(o => o.team === 'player' && o instanceof Tower && o.health > 0);
+                        if (!target) target = gameObjects.find(o => o.team === 'player' && o instanceof Unit && o.health > 0);
                     }
                     if (target) {
                         if (cardId === 'poison') { // NEW
@@ -14291,6 +14566,12 @@ class StoneGiant extends Unit {
                         } else if (cardId === 'chaosOrb') { // NEW
                             const damage = card.stats[cardLevel].damage;
                             gameObjects.push(new ChaosOrbEffect(target.x, target.y, 'ai', card.radius, damage));
+                        } else if (cardId === 'starlightCascade') {
+                            const s = card.stats[cardLevel];
+                            const pulses = Math.max(1, s.pulses || 3);
+                            const pulseDelay = s.pulseDelay || 0.5;
+                            const effectRadius = s.radius || card.radius || 120;
+                            gameObjects.push(new StarlightCascadeSpell(target.x, target.y, 'ai', s.damage || 0, effectRadius, pulses, pulseDelay));
                         } else {
                             const damage = card.stats[cardLevel].damage;
                             gameObjects.push(new Spell(target.x, target.y, 'ai', damage, card.radius, card.emoji, aiEvoSpawn));
@@ -14382,6 +14663,41 @@ class StoneGiant extends Unit {
                         } catch(err) {}
                     }
                     aiPlayCard(cardId);
+                }
+            }
+            class CelestialGuardian extends Unit {
+                constructor(x, y, team, level = 1) {
+                    const template = allCards['celestialGuardian'];
+                    const stats = template.stats[level];
+                    const emoji = template.emoji || '🛡️';
+                    super(x, y, 16, team, stats.health, stats.speed, stats.attackRange, stats.damage, stats.hitSpeed, emoji, false, false, level, template.aggroRange || 140);
+                }
+            }
+            class NebulaSentinel extends Unit {
+                constructor(x, y, team, level = 1) {
+                    const template = allCards['nebulaSentinel'];
+                    const stats = template.stats[level];
+                    const emoji = template.emoji || '🌌';
+                    super(x, y, 12, team, stats.health, stats.speed, stats.attackRange, stats.damage, stats.hitSpeed, emoji, false, true, level, template.aggroRange || 150);
+                }
+                attack() {
+                    if (!this.target || this.cooldownTimer > 0) return;
+                    if (this.target instanceof PhantomKnight && this.target.isInvisible) return;
+                    const damage = this.attackDamage;
+                    const template = allCards['nebulaSentinel'];
+                    const cardStats = template.stats[this.level] || template.stats[1];
+                    const shardDamage = cardStats.shardDamage || Math.max(1, Math.round(damage * 0.35));
+                    if (this.target instanceof Knight && this.target.isEvolved && this.target.shieldTimer > 0) {
+                        applyDamage(this, damage);
+                    } else {
+                        const shardCount = template.shardCount || 7;
+                        const shardSpread = template.shardSpread || 1.2;
+                        const shardSpeed = template.shardSpeed || 5.5;
+                        const shardLifetime = template.shardLifetime || 1.2;
+                        const shardRadius = template.shardRadius || 5;
+                        gameObjects.push(new NebulaBolt(this.x, this.y, this.target, this.team, damage, shardDamage, shardCount, shardSpread, shardSpeed, shardLifetime, shardRadius));
+                    }
+                    this.cooldownTimer = this.attackCooldown;
                 }
             }
 
