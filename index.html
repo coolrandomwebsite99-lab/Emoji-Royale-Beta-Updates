@@ -15680,6 +15680,7 @@ class StoneGiant extends Unit {
             initCardSystem();
 
             // --- BUG FIX: Start demo mode *after* classes and cards are defined ---
+            const FORCE_HIDE_SITE_MOVE_NOTICE = true;
             initializeSiteMoveOverlay();
             if (isDemoMode) {
                 initGame();
@@ -16113,7 +16114,6 @@ class StoneGiant extends Unit {
             }
             // Initialize star boxes UI when the game loads
             if (typeof updateStarBoxesUI === 'function') updateStarBoxesUI();
-            const FORCE_HIDE_SITE_MOVE_NOTICE = true;
 
             function initializeSiteMoveOverlay() {
                 const siteMoveOverlay = document.getElementById('siteMoveOverlay');
