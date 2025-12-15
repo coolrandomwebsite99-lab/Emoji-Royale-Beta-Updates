@@ -1,7 +1,6 @@
 
 <html lang="en">
 <head>
-    <meta name="monetag" content="a519a3074d09a76b81a4756749774879">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emoji Royale</title>
@@ -602,6 +601,79 @@
             color: #d0d3ff;
             font-size: 0.95rem;
             text-align: right;
+        }
+        #siteMoveOverlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(59, 130, 246, 0.85));
+            z-index: 160;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+        }
+        #siteMoveOverlay .site-move-panel {
+            width: min(420px, 100%);
+            background: rgba(15, 23, 42, 0.95);
+            border-radius: 24px;
+            padding: 2rem 2.5rem;
+            border: 1px solid rgba(59, 130, 246, 0.65);
+            box-shadow: 0 25px 50px rgba(2, 6, 23, 0.6);
+            text-align: center;
+            color: #fefefe;
+        }
+        #siteMoveOverlay .site-move-panel h2 {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            letter-spacing: 1px;
+        }
+        #siteMoveOverlay .site-move-panel p {
+            font-size: 1rem;
+            line-height: 1.4;
+            color: #f0f4ff;
+            margin: 0;
+        }
+        #siteMoveOverlay .site-move-buttons {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        #siteMoveOverlay .site-move-buttons button,
+        #siteMoveOverlay .site-move-buttons a {
+            flex: 1;
+            min-width: 140px;
+            padding: 0.9rem 1.2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid transparent;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+        }
+        #siteMoveOverlay .site-move-buttons button.primary,
+        #siteMoveOverlay .site-move-buttons a.primary {
+            background: linear-gradient(145deg, #22d3ee, #6366f1);
+            border-color: rgba(34, 211, 238, 0.8);
+            color: #fefefe;
+            box-shadow: 0 10px 25px rgba(34, 211, 238, 0.35);
+        }
+        #siteMoveOverlay .site-move-buttons button.secondary {
+            background: rgba(255, 255, 255, 0.85);
+            color: #0f172a;
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.4);
+        }
+        #siteMoveOverlay .site-move-buttons button:hover,
+        #siteMoveOverlay .site-move-buttons a:hover {
+            transform: translateY(-2px) scale(1.01);
         }
         #announcementOkBtn {
             background: linear-gradient(180deg, #3b62f6, #1421b8);
@@ -2196,6 +2268,16 @@
             <button id="voteContinueButton" class="modal-btn mt-4">Continue</button>
         </div>
     </div>
+    <div id="siteMoveOverlay" role="dialog" aria-label="Site migration notice">
+        <div class="site-move-panel">
+            <h2>Site is moving soon</h2>
+            <p>This site is being moved to a new domain for expanded features. You may still play on this domain but it will become inactive soon. Don't worry, all data is stored on save keys and won't be wiped on the new domain.</p>
+            <div class="site-move-buttons">
+                <button id="siteMoveStayButton" class="secondary" type="button">Stay on this domain</button>
+                <a id="siteMoveNewDomainButton" class="primary" href="https://emoji-royale.netlify.app/" target="_blank" rel="noopener noreferrer">Move to new domain</a>
+            </div>
+        </div>
+    </div>
     <!-- Persistent Bottom Nav -->
     <div id="bottomNav" class="bg-gray-800 w-full max-w-[400px] rounded-t-lg shadow-inner p-1 btn-shine">
         <div class="relative w-full h-full">
@@ -3039,7 +3121,8 @@ const firebaseConfig = {
             const isLocalFile = window.location.protocol === 'file:';
             const allowedHosts = [
                 'coolrandomwebsite99-lab.github.io',
-                'scf.usercontent.goog'
+                'scf.usercontent.goog',
+                'emoji-royale.netlify.app'
             ];
             const currentHost = window.location.hostname;
             const isLocalhost = currentHost === "localhost" || currentHost === "";
@@ -16029,6 +16112,24 @@ class StoneGiant extends Unit {
             }
             // Initialize star boxes UI when the game loads
             if (typeof updateStarBoxesUI === 'function') updateStarBoxesUI();
+            const siteMoveOverlay = document.getElementById('siteMoveOverlay');
+            const siteMoveStayButton = document.getElementById('siteMoveStayButton');
+            const siteMoveNewDomainButton = document.getElementById('siteMoveNewDomainButton');
+            const newDomainHosts = ['emoji-royale.netlify.app'];
+            if (siteMoveOverlay) {
+                const isNewDomain = newDomainHosts.some(host => currentHost === host || currentHost.endsWith(`.${host}`));
+                siteMoveOverlay.style.display = isNewDomain ? 'none' : 'flex';
+            }
+            if (siteMoveStayButton && siteMoveOverlay) {
+                siteMoveStayButton.onclick = () => {
+                    siteMoveOverlay.style.display = 'none';
+                };
+            }
+            if (siteMoveNewDomainButton && siteMoveOverlay) {
+                siteMoveNewDomainButton.addEventListener('click', () => {
+                    siteMoveOverlay.style.display = 'none';
+                });
+            }
         } // Close window.onload function
     </script>
 
