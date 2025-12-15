@@ -16113,6 +16113,8 @@ class StoneGiant extends Unit {
             }
             // Initialize star boxes UI when the game loads
             if (typeof updateStarBoxesUI === 'function') updateStarBoxesUI();
+            const FORCE_HIDE_SITE_MOVE_NOTICE = true;
+
             function initializeSiteMoveOverlay() {
                 const siteMoveOverlay = document.getElementById('siteMoveOverlay');
                 if (!siteMoveOverlay) return;
@@ -16121,7 +16123,11 @@ class StoneGiant extends Unit {
                 const newDomainHosts = ['emoji-royale.netlify.app'];
                 const normalizedHost = (currentHost || '').toLowerCase();
                 const isNewDomain = newDomainHosts.some(host => normalizedHost === host || normalizedHost.endsWith(`.${host}`));
-                siteMoveOverlay.style.display = isNewDomain ? 'none' : 'flex';
+                if (FORCE_HIDE_SITE_MOVE_NOTICE) {
+                    siteMoveOverlay.style.display = 'none';
+                } else {
+                    siteMoveOverlay.style.display = isNewDomain ? 'none' : 'flex';
+                }
                 if (siteMoveStayButton) {
                     siteMoveStayButton.onclick = () => {
                         siteMoveOverlay.style.display = 'none';
