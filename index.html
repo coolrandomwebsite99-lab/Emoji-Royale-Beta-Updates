@@ -15680,6 +15680,7 @@ class StoneGiant extends Unit {
             initCardSystem();
 
             // --- BUG FIX: Start demo mode *after* classes and cards are defined ---
+            initializeSiteMoveOverlay();
             if (isDemoMode) {
                 initGame();
                 lastTime = performance.now(); // ADDED: Need this for gameLoop
@@ -16112,23 +16113,25 @@ class StoneGiant extends Unit {
             }
             // Initialize star boxes UI when the game loads
             if (typeof updateStarBoxesUI === 'function') updateStarBoxesUI();
-            const siteMoveOverlay = document.getElementById('siteMoveOverlay');
-            const siteMoveStayButton = document.getElementById('siteMoveStayButton');
-            const siteMoveNewDomainButton = document.getElementById('siteMoveNewDomainButton');
-            const newDomainHosts = ['emoji-royale.netlify.app'];
-            if (siteMoveOverlay) {
-                const isNewDomain = newDomainHosts.some(host => currentHost === host || currentHost.endsWith(`.${host}`));
+            function initializeSiteMoveOverlay() {
+                const siteMoveOverlay = document.getElementById('siteMoveOverlay');
+                if (!siteMoveOverlay) return;
+                const siteMoveStayButton = document.getElementById('siteMoveStayButton');
+                const siteMoveNewDomainButton = document.getElementById('siteMoveNewDomainButton');
+                const newDomainHosts = ['emoji-royale.netlify.app'];
+                const normalizedHost = (currentHost || '').toLowerCase();
+                const isNewDomain = newDomainHosts.some(host => normalizedHost === host || normalizedHost.endsWith(`.${host}`));
                 siteMoveOverlay.style.display = isNewDomain ? 'none' : 'flex';
-            }
-            if (siteMoveStayButton && siteMoveOverlay) {
-                siteMoveStayButton.onclick = () => {
-                    siteMoveOverlay.style.display = 'none';
-                };
-            }
-            if (siteMoveNewDomainButton && siteMoveOverlay) {
-                siteMoveNewDomainButton.addEventListener('click', () => {
-                    siteMoveOverlay.style.display = 'none';
-                });
+                if (siteMoveStayButton) {
+                    siteMoveStayButton.onclick = () => {
+                        siteMoveOverlay.style.display = 'none';
+                    };
+                }
+                if (siteMoveNewDomainButton) {
+                    siteMoveNewDomainButton.addEventListener('click', () => {
+                        siteMoveOverlay.style.display = 'none';
+                    });
+                }
             }
         } // Close window.onload function
     </script>
